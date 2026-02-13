@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZUZANKA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Bodoni+Moda:opsz,wght@6..96,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:   #F9F9F7;
+      --ink:  #0C0C0B;
+      --mist: #C4C3BC;
+    }
+
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Cormorant Garamond', serif;
+      cursor: none;
+    }
+
+    /* ── cursor ── */
+    #cur {
+      position: fixed;
+      width: 7px; height: 7px;
+      background: var(--ink);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .15s ease, opacity .2s ease;
+    }
+    #cur.over { transform: translate(-50%,-50%) scale(3.5); opacity: .45; }
+
+    /* ── stage ── */
+    .stage {
+      width: 100vw; height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ── ambient container: floats above sign ── */
+    #ambient {
+      position: absolute;
+      /* dynamically positioned via JS to sit above sign */
+      width: 100%;
+      height: 140px;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ambient mark base */
+    .amb { position: absolute; opacity: 0; }
+
+    .amb-line  { height: 1px; background: var(--ink); transform-origin: left center; }
+    .amb-ring  { border: 1px solid var(--ink); border-radius: 50%; }
+    .amb-dot   { background: var(--ink); border-radius: 50%; }
+    .amb-glyph {
+      font-family: 'Bodoni Moda', serif;
+      font-weight: 300;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    @keyframes riseOut {
+      0%   { opacity: 0;   transform: translateY(0)     scale(.85); }
+      18%  { opacity: .65; }
+      85%  { opacity: .5;  }
+      100% { opacity: 0;   transform: translateY(-52px) scale(1); }
+    }
+    @keyframes driftLine {
+      0%   { opacity: 0;   transform: scaleX(.2); }
+      20%  { opacity: .7;  }
+      100% { opacity: 0;   transform: scaleX(1) translateX(-24px); }
+    }
+    @keyframes expandRing {
+      0%   { opacity: 0;   transform: scale(.25); }
+      25%  { opacity: .55; }
+      100% { opacity: 0;   transform: scale(1.5); }
+    }
+    @keyframes glyphBlink {
+      0%   { opacity: 0;   }
+      25%  { opacity: .5;  }
+      70%  { opacity: .38; }
+      100% { opacity: 0;   }
+    }
+
+    /* ── ZUZANKA sign ── */
+    .sign {
+      font-family: 'Bodoni Moda', serif;
+      font-weight: 300;
+      font-size: clamp(64px, 12vw, 176px);
+      letter-spacing: .18em;
+      color: var(--ink);
+      user-select: none;
+      cursor: none;
+      position: relative;
+      line-height: 1;
+    }
+    .sign::after {
+      content: '';
+      position: absolute;
+      bottom: -5px; left: 0; right: 0;
+      height: 1px;
+      background: var(--ink);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .65s cubic-bezier(.77,0,.175,1);
+    }
+    .sign:hover::after { transform: scaleX(1); }
+
+    /* ── instruction ── */
+    .instr {
+      margin-top: 22px;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 13px;
+      letter-spacing: .14em;
+      color: var(--mist);
+      transition: opacity .4s ease;
+    }
+    .instr.gone { opacity: 0; pointer-events: none; }
+
+    /* ── trivia panel ── */
+    .trivia-wrap {
+      position: fixed; inset: 0;
+      display: flex; align-items: flex-end;
+      pointer-events: none;
+    }
+    .trivia-box {
+      width: 100%;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 0 clamp(28px,5vw,72px);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .75s cubic-bezier(.77,0,.175,1),
+                  padding-top .5s ease,
+                  padding-bottom .5s ease;
+      pointer-events: none;
+    }
+    .trivia-box.open {
+      max-height: 260px;
+      padding-top: 38px;
+      padding-bottom: 38px;
+      pointer-events: all;
+    }
+    .trivia-inner {
+      display: flex; align-items: flex-start; gap: 32px;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity .45s ease .3s, transform .45s ease .3s;
+    }
+    .trivia-box.open .trivia-inner { opacity: 1; transform: translateY(0); }
+
+    .trivia-label {
+      font-weight: 300; font-size: 9px;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: var(--mist); white-space: nowrap;
+      padding-top: 5px; flex-shrink: 0;
+    }
+    .trivia-text {
+      font-weight: 300;
+      font-size: clamp(16px, 1.9vw, 24px);
+      line-height: 1.55;
+      color: var(--bg);
+      flex: 1;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(6px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .trivia-text.pop { animation: fadeUp .4s ease forwards; }
+
+    .trivia-dismiss {
+      font-weight: 300; font-size: 9px;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: var(--mist); cursor: none;
+      flex-shrink: 0; padding-top: 5px;
+      transition: color .2s;
+    }
+    .trivia-dismiss:hover { color: var(--bg); }
+  </style>
+</head>
+<body>
+
+<div id="cur"></div>
+
+<div class="stage" id="stage">
+  <div id="ambient"></div>
+  <div class="sign" id="sign">ZUZANKA</div>
+  <div class="instr" id="instr">press to discover</div>
+</div>
+
+<div class="trivia-wrap">
+  <div class="trivia-box" id="tbox">
+    <div class="trivia-inner">
+      <span class="trivia-label">Lithuania</span>
+      <span class="trivia-text" id="ttext"></span>
+      <span class="trivia-dismiss" id="tdismiss">close ×</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── cursor ── */
+const cur = document.getElementById('cur');
+document.addEventListener('mousemove', e => {
+  cur.style.left = e.clientX + 'px';
+  cur.style.top  = e.clientY + 'px';
+});
+['sign','tdismiss'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('mouseenter', () => cur.classList.add('over'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('over'));
+});
+
+/* ── position ambient above sign ── */
+const ambEl  = document.getElementById('ambient');
+const signEl = document.getElementById('sign');
+function positionAmbient() {
+  const r  = signEl.getBoundingClientRect();
+  const sh = ambEl.offsetHeight; // 140px from CSS
+  ambEl.style.top  = (r.top - sh - 8) + 'px';
+  ambEl.style.left = r.left + 'px';
+  ambEl.style.width = r.width + 'px';
+}
+window.addEventListener('resize', positionAmbient);
+// Wait for font to load
+document.fonts.ready.then(positionAmbient);
+positionAmbient();
+
+/* ── ambient spawner ── */
+const glyphs = ['—', '·', '×', '◦', '–', '∙', '∘', '·'];
+
+function rand(a,b){ return a + Math.random()*(b-a); }
+function ri(a,b)  { return Math.floor(rand(a,b+1)); }
+
+function spawnMark() {
+  positionAmbient(); // keep synced
+  const W   = signEl.offsetWidth;
+  const kind = ri(0,3);
+  let el, anim, dur;
+
+  const x = rand(0, W);
+  const y = rand(12, 110);
+
+  if (kind === 0) {
+    // horizontal line
+    el = document.createElement('div');
+    el.className = 'amb amb-line';
+    const w = rand(18, 85);
+    el.style.cssText = `left:${x}px;top:${y}px;width:${w}px;`;
+    dur  = rand(1800, 3000);
+    anim = `driftLine ${dur}ms cubic-bezier(.4,0,.6,1) forwards`;
+
+  } else if (kind === 1) {
+    // ring
+    el = document.createElement('div');
+    el.className = 'amb amb-ring';
+    const r = rand(5, 17);
+    el.style.cssText = `left:${x-r}px;top:${y-r}px;width:${r*2}px;height:${r*2}px;`;
+    dur  = rand(2000, 3400);
+    anim = `expandRing ${dur}ms ease-out forwards`;
+
+  } else if (kind === 2) {
+    // dot
+    el = document.createElement('div');
+    el.className = 'amb amb-dot';
+    el.style.cssText = `left:${x}px;top:${y}px;width:3px;height:3px;`;
+    dur  = rand(1600, 2800);
+    anim = `riseOut ${dur}ms ease-out forwards`;
+
+  } else {
+    // typographic glyph
+    el = document.createElement('div');
+    el.className = 'amb amb-glyph';
+    el.textContent = glyphs[ri(0, glyphs.length-1)];
+    const sz = rand(10, 20);
+    el.style.cssText = `left:${x}px;top:${y}px;font-size:${sz}px;`;
+    dur  = rand(2000, 3600);
+    anim = `glyphBlink ${dur}ms ease-in-out forwards`;
+  }
+
+  el.style.animation = anim;
+  ambEl.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+}
+
+function scheduleNext() {
+  setTimeout(() => { spawnMark(); scheduleNext(); }, rand(700, 2800));
+}
+// Staggered warm-up
+setTimeout(() => spawnMark(), 500);
+setTimeout(() => spawnMark(), 1200);
+setTimeout(() => spawnMark(), 1900);
+scheduleNext();
+
+/* ── trivia ── */
+const trivia = [
+  "Lithuania is the last country in Europe to have officially adopted Christianity, accepting it only in 1387 — over a thousand years after most of the continent.",
+  "The Hill of Crosses near Šiauliai holds over 100,000 crosses. Soviet bulldozers flattened it three times, yet locals rebuilt it each time overnight.",
+  "Lithuania was the first Soviet republic to declare independence, doing so on March 11, 1990 — over a year before the USSR officially dissolved.",
+  "At its medieval peak, the Grand Duchy of Lithuania was the largest state in Europe, stretching from the Baltic Sea nearly to the Black Sea.",
+  "Lithuania is home to the geographic centre of Europe — a point near Purnuškės village, confirmed by the French National Geographic Institute in 1989.",
+  "The Lithuanian language is considered the most archaic living Indo-European language, preserving features from Proto-Indo-European that other languages lost millennia ago.",
+  "Basketball is practically a religion in Lithuania. The national team won bronze at three consecutive Olympics: 1992, 1996, and 2000.",
+  "Vilnius's Old Town is one of the largest surviving medieval old towns in Northern Europe and has been a UNESCO World Heritage Site since 1994.",
+  "The amber found on Lithuania's Baltic coast is so abundant that the country is sometimes called the 'Amber Coast' — up to 90% of the world's known amber deposits lie in this region.",
+  "Lithuania had one of the highest basketball player-to-population ratios in the world during the 1990s, producing NBA stars like Arvydas Sabonis and Šarūnas Marčiulionis.",
+  "The city of Kaunas served as the temporary capital of Lithuania for nearly 20 years (1920–1939), after Vilnius was seized by Poland.",
+  "Lithuania's national dish, Cepelinai — potato dumplings shaped like zeppelins — are so large that finishing two in one sitting is considered a real accomplishment.",
+  "Vilnius once declared the 'Republic of Užupis' — a bohemian neighbourhood that proclaimed independence on April Fool's Day 1997, complete with its own constitution and an army of twelve.",
+  "The Curonian Spit, a narrow sand-dune peninsula shared between Lithuania and Russia, is a UNESCO World Heritage Site with dunes reaching 70 metres high.",
+  "The Lithuanian flag's yellow-green-red colours symbolise golden grain fields, the forests, and the blood of those who fought for the nation's freedom.",
+  "Vilnius boasts more baroque architecture per square kilometre than almost any other city in Europe, earning it the nickname 'the Baroque pearl of the north'.",
+  "In 1989, approximately two million people joined hands to form a human chain spanning 675 kilometres across Estonia, Latvia, and Lithuania — a protest known as the Baltic Way.",
+  "Lithuania has one of the fastest average internet connection speeds in the world, consistently ranking in the global top ten for broadband.",
+  "The Trakai Island Castle sits entirely on an island in Lake Galvė and is one of the most photographed structures in the Baltic states.",
+  "Lithuania is the only country whose national anthem is a poem — 'Tautiška giesmė' — and its lyrics speak only of hope, never of war or enemies.",
+  "The first book printed in Lithuanian, the 'Catechism' by Martynas Mažvydas, was published in 1547, making it one of the earliest vernacular texts in Eastern Europe.",
+  "Vilnius University, founded in 1579, is one of the oldest universities in Northern Europe and still operates on its original baroque campus.",
+  "Lithuania's stork population is among the highest in Europe relative to land area — storks nest on rooftops and poles and are beloved national symbols.",
+  "Samogitia, a highland region of Lithuania, maintained its own dialect and fierce independence, resisting incorporation into the Grand Duchy until the 15th century.",
+  "The Puntukas boulder in Anykščiai weighs 265 tonnes and has the faces of two pioneering Lithuanian-American aviators carved into its side.",
+  "Lithuania declared independence twice — once in 1918 and again in 1990 — making it one of the few nations to have restored statehood after full Soviet annexation.",
+  "Vilnius is home to one of the last great Litvak Jewish cemeteries; the city was once called 'the Jerusalem of Lithuania' for its extraordinary cultural and scholarly life.",
+  "The Nemunas river, Lithuania's longest at 937 km, has shaped the country's history as a natural border and vital trade artery since the earliest settlements.",
+  "Lithuania produces more than 80% of the world's laser components used in scientific research — a quietly extraordinary fact for a nation of under 3 million people.",
+  "The Lithuanian language has two grammatical genders and retains seven noun cases, rivalling ancient Latin in its structural complexity.",
+];
+
+let lastIdx = -1, isOpen = false;
+const tbox    = document.getElementById('tbox');
+const ttext   = document.getElementById('ttext');
+const instr   = document.getElementById('instr');
+
+function openTrivia() {
+  let idx;
+  do { idx = Math.floor(Math.random() * trivia.length); }
+  while (idx === lastIdx && trivia.length > 1);
+  lastIdx = idx;
+
+  ttext.classList.remove('pop');
+  ttext.textContent = trivia[idx];
+  void ttext.offsetWidth;
+  ttext.classList.add('pop');
+
+  if (!isOpen) {
+    tbox.classList.add('open');
+    instr.classList.add('gone');
+    isOpen = true;
+  }
+}
+
+function closeTrivia() {
+  tbox.classList.remove('open');
+  isOpen = false;
+  setTimeout(() => instr.classList.remove('gone'), 500);
+}
+
+signEl.addEventListener('click', openTrivia);
+document.getElementById('tdismiss').addEventListener('click', closeTrivia);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeTrivia();
+  if ((e.key === ' ' || e.key === 'Enter') && !isOpen) openTrivia();
+});
+</script>
+</body>
+</html>
