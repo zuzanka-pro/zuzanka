@@ -839,7 +839,161 @@
     color: var(--warm-gray);
   }
 
-  /* ─────────────────────────────────────── RESPONSIVE ─── */
+  /* ─────────────────────────────────────── GAME OVER OVERLAY ─── */
+  .gameover-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .gameover-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.018) 2px,
+      rgba(255,255,255,0.018) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .gameover-overlay::after {
+    content: '';
+    position: absolute;
+    inset: -100%;
+    background: linear-gradient(
+      transparent 0%,
+      rgba(200, 16, 46, 0.04) 50%,
+      transparent 100%
+    );
+    animation: scanline 3s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  @keyframes scanline {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+  }
+
+  .gameover-overlay.visible {
+    pointer-events: all;
+    animation: goFlash 2.6s ease forwards;
+  }
+
+  @keyframes goFlash {
+    0%   { opacity: 0; background: #000; }
+    4%   { opacity: 1; background: var(--accent); }
+    7%   { opacity: 1; background: #000; }
+    10%  { opacity: 0; background: #000; }
+    13%  { opacity: 1; background: var(--accent); }
+    16%  { opacity: 1; background: #000; }
+    19%  { opacity: 0; }
+    22%  { opacity: 1; }
+    24%  { opacity: 0; }
+    27%  { opacity: 1; background: #000; }
+    100% { opacity: 1; background: #000; }
+  }
+
+  .gameover-inner {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 3rem;
+    max-width: 620px;
+    animation: goContent 2.6s ease forwards;
+  }
+
+  @keyframes goContent {
+    0%, 55% { opacity: 0; transform: translateY(12px) skewX(-1deg); }
+    60%     { opacity: 1; transform: translateY(0) skewX(0); }
+    100%    { opacity: 1; transform: translateY(0) skewX(0); }
+  }
+
+  .gameover-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 9vw, 6rem);
+    font-weight: 700;
+    font-style: italic;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 0.6rem;
+    animation: goTitle 3.5s ease infinite;
+  }
+
+  @keyframes goTitle {
+    0%, 88%, 100% { text-shadow: none; color: #fff; }
+    90%  { text-shadow: 3px 0 0 var(--accent), -3px 0 0 #00ffff; color: #fff; }
+    92%  { text-shadow: none; color: var(--accent); }
+    94%  { text-shadow: -2px 0 0 #00ffff, 2px 0 0 var(--accent); color: #fff; }
+  }
+
+  .gameover-sub {
+    font-family: 'EB Garamond', serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3.5rem;
+    animation: goSubPulse 1.8s ease infinite;
+  }
+
+  @keyframes goSubPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.45; }
+  }
+
+  .gameover-divider {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+    margin: 0 auto 3.5rem;
+    animation: goDivider 2s ease infinite alternate;
+  }
+
+  @keyframes goDivider {
+    from { height: 60px; opacity: 0.6; }
+    to   { height: 90px; opacity: 1; }
+  }
+
+  .gameover-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 1rem 2.8rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    transition: all 0.35s ease;
+  }
+
+  .gameover-btn:hover {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+    letter-spacing: 0.28em;
+    box-shadow: 0 0 30px rgba(200,16,46,0.5);
+  }
+
+
   @media (max-width: 768px) {
     .rooms-grid { grid-template-columns: repeat(2, 1fr); }
     .coats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1137,7 +1291,7 @@
 <div id="page-trivia" class="page">
   <header>
     <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
-    <span class="room-page-number">Super Trivia</span>
+    <span class="room-page-number">Super Trivia — Estonia · Łotwa · Czechy · Język litewski</span>
   </header>
 
   <div class="trivia-hero">
@@ -1158,17 +1312,27 @@
       <div class="trivia-code-label">Kod odblokowania Pokoju 5</div>
       <div class="trivia-code">aknazuz ałainapsw</div>
       <p style="font-size:0.7rem; color:var(--warm-gray); margin-top:1rem">Skopiuj ten kod i wpisz go w Pokoju 5.</p>
+      <button onclick="restartTrivia()" style="margin-top:2rem; display:inline-flex; align-items:center; gap:1rem; border:1px solid rgba(255,255,255,0.25); padding:0.8rem 2rem; font-family:'EB Garamond',serif; font-size:0.78rem; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; background:transparent; color:var(--white); transition:all 0.3s ease" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">Zagraj ponownie →</button>
     </div>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════ SUCCESS OVERLAY -->
-<div class="success-overlay" id="success-overlay">
-  <div style="text-align:center; padding:2rem">
+<div class="success-overlay" id="success-overlay">  <div style="text-align:center; padding:2rem">
     <p>Pokój ukończony</p>
     <h2 id="success-title">Brawo!</h2>
     <p id="success-sub" style="margin-bottom:2.5rem"></p>
     <button class="btn" style="margin:0 auto" onclick="closeSuccess()">Powrót do galerii →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ GAME OVER OVERLAY -->
+<div class="gameover-overlay" id="trivia-gameover">
+  <div class="gameover-inner">
+    <h2 class="gameover-title">Źle, źle, źle.</h2>
+    <div class="gameover-divider"></div>
+    <p class="gameover-sub">Skup się.</p>
+    <button class="gameover-btn" onclick="triviaGameOverReturn()">Powrót →</button>
   </div>
 </div>
 
@@ -1481,64 +1645,119 @@ function markCompleteAdmin(n) {
 
 // ═══════════════════════════════════════ SUPER TRIVIA
 const triviaQuestions = [
-  // Estonia
-  { country: 'Estonia', q: 'Jakie jest oficjalne miasto stołeczne Estonii?', opts: ['Tallin','Ryga','Wilno','Helsinki'], ans: 0 },
-  { country: 'Estonia', q: 'Ile mieszkańców liczy Estonia?', opts: ['ok. 1,3 mln','ok. 3 mln','ok. 5 mln','ok. 800 tys.'], ans: 0 },
-  { country: 'Estonia', q: 'W którym roku Estonia odzyskała niepodległość od ZSRR?', opts: ['1991','1989','1993','1985'], ans: 0 },
-  { country: 'Estonia', q: 'Jakie morze oblewa Estonię od zachodu?', opts: ['Bałtyckie','Północne','Norweskie','Czarne'], ans: 0 },
-  { country: 'Estonia', q: 'Walutą Estonii jest:', opts: ['Euro','Korona estońska','Litas','Rubel'], ans: 0 },
-  { country: 'Estonia', q: 'Estonia jest znana z zaawansowanego systemu:', opts: ['e-administracji','rolnictwa ekologicznego','przemysłu stalowego','górnictwa węgla'], ans: 0 },
-  { country: 'Estonia', q: 'Które miasto jest drugim co do wielkości miastem Estonii?', opts: ['Tartu','Narwa','Pärnu','Viljandi'], ans: 0 },
-  { country: 'Estonia', q: 'Skąd pochodzi Skype – znana aplikacja do komunikacji?', opts: ['Estonii','Szwecji','Finlandii','Łotwy'], ans: 0 },
-  { country: 'Estonia', q: 'Estonia granicząca z Łotwą od południa i z Rosją od:', opts: ['Wschodu','Zachodu','Północy','Południa'], ans: 0 },
-  // Latvia
-  { country: 'Łotwa', q: 'Jak nazywa się stolica Łotwy?', opts: ['Ryga','Tallin','Wilno','Kowno'], ans: 0 },
-  { country: 'Łotwa', q: 'Ryga jest największym miastem w krajach:', opts: ['Bałtyckich','Skandynawskich','Beneluksu','Bałkańskich'], ans: 0 },
-  { country: 'Łotwa', q: 'W którym roku Łotwa przystąpiła do Unii Europejskiej?', opts: ['2004','1999','2007','2011'], ans: 0 },
-  { country: 'Łotwa', q: 'Jaką walutą posługuje się dziś Łotwa?', opts: ['Euro','Lats','Rubel','Korona'], ans: 0 },
-  { country: 'Łotwa', q: 'Łotwa graniczy z Estonią, Litwą, Rosją i:', opts: ['Białorusią','Polską','Finlandią','Szwecją'], ans: 0 },
-  { country: 'Łotwa', q: 'Które z poniższych to drugie co do wielkości miasto Łotwy?', opts: ['Daugavpils','Jelgava','Jurmała','Ventspils'], ans: 0 },
-  { country: 'Łotwa', q: 'Jak nazywa się tradycyjny łotewski festiwal pieśni i tańca?', opts: ['Dziesmu svētki','Midsommar','Jaanipäev','Jānis'], ans: 0 },
-  { country: 'Łotwa', q: 'Rzeka przepływająca przez Rygę nosi nazwę:', opts: ['Dźwina','Niemen','Wisła','Nemunas'], ans: 0 },
-  { country: 'Łotwa', q: 'Która z poniższych postaci jest łotewskim sportowcem NBA?', opts: ['Kristaps Porziņģis','Arvydas Sabonis','Domantas Sabonis','Pau Gasol'], ans: 0 },
-  // Czechia
-  { country: 'Czechy', q: 'Jak brzmi oficjalna krótka nazwa Czech?', opts: ['Czechia','Bohemia','Moravia','Czecho-Słowacja'], ans: 0 },
-  { country: 'Czechy', q: 'Jakie jest miasto stołeczne Czech?', opts: ['Praga','Brno','Ostrawa','Pilzno'], ans: 0 },
-  { country: 'Czechy', q: 'Czechy graniczyły z Niemcami, Austrią, Słowacją i:', opts: ['Polską','Węgrami','Słowenią','Chorwacją'], ans: 0 },
-  { country: 'Czechy', q: 'Walutą Czech jest:', opts: ['Korona czeska','Euro','Forint','Frank'], ans: 0 },
-  { country: 'Czechy', q: 'Który browar pochodzi z czeskiego Pilzna?', opts: ['Pilsner Urquell','Budweiser','Heineken','Stella Artois'], ans: 0 },
-  { country: 'Czechy', q: 'W którym roku Czechosłowacja pokojowo podzieliła się na Czechy i Słowację?', opts: ['1993','1991','1989','1995'], ans: 0 },
-  { country: 'Czechy', q: 'Jak nazywa się historyczny region Czech znany z dużego wydobycia węgla?', opts: ['Ostrawia','Bohemia','Morawy','Sudety'], ans: 0 },
-  { country: 'Czechy', q: 'Który czeski kompozytor napisał cykl "Moja ojczyzna"?', opts: ['Bedřich Smetana','Antonín Dvořák','Leoš Janáček','Pavel Haas'], ans: 0 },
-  { country: 'Czechy', q: 'Praga leży nad rzeką:', opts: ['Wełtawa','Łaba','Morawy','Odra'], ans: 0 },
-  { country: 'Czechy', q: 'Czechy przystąpiły do Unii Europejskiej w roku:', opts: ['2004','1999','2007','2011'], ans: 0 },
-  { country: 'Czechy', q: 'Jak nazywa się gotycki most w Pradze łączący Stare Miasto z zamkiem?', opts: ['Most Karola','Most Praski','Most Wełtawy','Most Złoty'], ans: 0 },
+  // ── ESTONIA ──────────────────────────────────────────────
+  { country: 'Estonia', q: 'Jakie miasto jest stolicą Estonii?', opts: ['Tallin', 'Tartu', 'Ryga', 'Helsinki'], ans: 0 },
+  { country: 'Estonia', q: 'W którym roku Estonia odzyskała niepodległość od Związku Radzieckiego?', opts: ['1991', '1989', '1993', '1988'], ans: 0 },
+  { country: 'Estonia', q: 'Jaki akwen leży bezpośrednio na północ od Estonii?', opts: ['Zatoka Fińska', 'Morze Bałtyckie', 'Zatoka Ryska', 'Morze Barentsa'], ans: 0 },
+  { country: 'Estonia', q: 'Która popularna aplikacja do wideorozmów powstała w Estonii?', opts: ['Skype', 'Zoom', 'WhatsApp', 'Viber'], ans: 0 },
+  { country: 'Estonia', q: 'Jaką walutą posługuje się Estonia od 2011 roku?', opts: ['Euro', 'Korona estońska', 'Łat łotewski', 'Rubel'], ans: 0 },
+  { country: 'Estonia', q: 'Która estońska wyspa jest największa?', opts: ['Sarema (Saaremaa)', 'Hiuma (Hiiumaa)', 'Muhu', 'Vormsi'], ans: 0 },
+  { country: 'Estonia', q: 'Jak nazywa się ogólnoestońskie święto pieśni i tańca, odbywające się co pięć lat?', opts: ['Laulupidu', 'Midsommar', 'Jaanipäev', 'Užgavėnės'], ans: 0 },
+  { country: 'Estonia', q: 'Do jakiej rodziny językowej należy język estoński?', opts: ['Ugrofińskiej', 'Bałtyckiej', 'Słowiańskiej', 'Germańskiej'], ans: 0 },
+  { country: 'Estonia', q: 'Z którym krajem Estonia graniczy od wschodu?', opts: ['Rosją', 'Finlandią', 'Białorusią', 'Litwą'], ans: 0 },
+  { country: 'Estonia', q: 'Ile Estonia ma oficjalnie zarejestrowanych wysp?', opts: ['Ponad 2200', 'Około 200', 'Mniej niż 50', 'Około 900'], ans: 0 },
+  { country: 'Estonia', q: 'Które miasto jest drugie pod względem liczby ludności w Estonii?', opts: ['Tartu', 'Narwa', 'Pärnu', 'Viljandi'], ans: 0 },
+  { country: 'Estonia', q: 'Do której organizacji militarnej Estonia przystąpiła w 2004 roku?', opts: ['NATO', 'Organizacji Układu o Bezpieczeństwie Zbiorowym', 'Partnerstwa dla Pokoju', 'Nordyckiej Unii Obronnej'], ans: 0 },
+  { country: 'Estonia', q: 'Jak własną nazwę swojego kraju zapisują Estończycy?', opts: ['Eesti', 'Estland', 'Estija', 'Eestimaa'], ans: 0 },
+  { country: 'Estonia', q: 'Estoński kompozytor Arvo Pärt jest twórcą własnej techniki kompozytorskiej. Jak ona się nazywa?', opts: ['Tintinnabuli', 'Minimalizm spektralny', 'Serializm', 'Mikrotonalność'], ans: 0 },
+  { country: 'Estonia', q: 'Jak nazywa się estoński program cyfrowego rezydenta, umożliwiający cudzoziemcom prowadzenie firmy online?', opts: ['e-Residency', 'DigiCitizen', 'Baltic ID', 'CivicNet'], ans: 0 },
+  { country: 'Estonia', q: 'Ile mieszkańców liczy Estonia?', opts: ['Około 1,4 miliona', 'Około 3 miliony', 'Około 600 tysięcy', 'Około 5 milionów'], ans: 0 },
+
+  // ── ŁOTWA ────────────────────────────────────────────────
+  { country: 'Łotwa', q: 'Jakie miasto jest stolicą Łotwy?', opts: ['Ryga', 'Tallin', 'Wilno', 'Kowno'], ans: 0 },
+  { country: 'Łotwa', q: 'Ryga jest największym miastem spośród stolic krajów bałtyckich. Ile liczy mieszkańców?', opts: ['Około 600 tysięcy', 'Około 1,5 miliona', 'Około 300 tysięcy', 'Około 900 tysięcy'], ans: 0 },
+  { country: 'Łotwa', q: 'W którym roku Łotwa przystąpiła do Unii Europejskiej?', opts: ['2004', '1999', '2007', '2011'], ans: 0 },
+  { country: 'Łotwa', q: 'Jaką walutą posługuje się Łotwa od 2014 roku?', opts: ['Euro', 'Łat łotewski', 'Rubel', 'Korona'], ans: 0 },
+  { country: 'Łotwa', q: 'Z którym krajem Łotwa nie graniczy?', opts: ['Polską', 'Estonią', 'Litwą', 'Białorusią'], ans: 0 },
+  { country: 'Łotwa', q: 'Które miasto jest drugie pod względem liczby ludności na Łotwie?', opts: ['Dyneburg (Daugavpils)', 'Jelgawa', 'Jurmała', 'Windawa (Ventspils)'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak nazywa się łotewski ogólnokrajowy festiwal pieśni i tańca?', opts: ['Dziesmu un deju svētki', 'Midsommar', 'Jaanipäev', 'Užgavėnės'], ans: 0 },
+  { country: 'Łotwa', q: 'Która rzeka przepływa przez centrum Rygi i wpada do Zatoki Ryskiej?', opts: ['Dźwina (Daugava)', 'Gauja', 'Lielupe', 'Wenta'], ans: 0 },
+  { country: 'Łotwa', q: 'W Lipawej (Liepāja) na Łotwie urodził się znany koszykarz NBA. Kto to?', opts: ['Kristaps Porziņģis', 'Āris Briedis', 'Dāvis Bertāns', 'Jānis Timma'], ans: 0 },
+  { country: 'Łotwa', q: 'W którym roku Łotwa ogłosiła niepodległość od Związku Radzieckiego?', opts: ['1991', '1989', '1993', '1990'], ans: 0 },
+  { country: 'Łotwa', q: 'Jakie barwy ma flaga Łotwy?', opts: ['Karminowa (ciemnoczerwona) i biała', 'Czerwona, biała i niebieska', 'Zielona i czerwona', 'Czerwona i czarna'], ans: 0 },
+  { country: 'Łotwa', q: 'Do jakiej grupy językowej należy język łotewski?', opts: ['Języków bałtyckich', 'Języków słowiańskich', 'Języków ugrofińskich', 'Języków germańskich'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak nazywa się łotewski tradycyjny instrument strunowy, zbliżony do cytry?', opts: ['Kokle', 'Kannel', 'Kantele', 'Gusli'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak znaczna część zabudowy centrum Rygi pochodzi ze stylu secesyjnego (Jugendstil)?', opts: ['Około jednej trzeciej', 'Niemal cała', 'Niewielka mniejszość', 'Dokładnie połowa'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak nazywa się najdłuższa rzeka przepływająca wyłącznie przez terytorium Łotwy?', opts: ['Gauja', 'Dźwina', 'Lielupe', 'Wenta'], ans: 0 },
+  { country: 'Łotwa', q: 'Ile mieszkańców liczy Łotwa?', opts: ['Około 1,8 miliona', 'Około 3 miliony', 'Około 800 tysięcy', 'Około 4 miliony'], ans: 0 },
+
+  // ── CZECHY ───────────────────────────────────────────────
+  { country: 'Czechy', q: 'Jakie miasto jest stolicą Czech?', opts: ['Praga', 'Brno', 'Ostrawa', 'Pilzno'], ans: 0 },
+  { country: 'Czechy', q: 'Z którym krajem Czechy nie graniczą?', opts: ['Węgrami', 'Niemcami', 'Austrią', 'Słowacją'], ans: 0 },
+  { country: 'Czechy', q: 'Jaką walutą posługują się Czechy?', opts: ['Koroną czeską', 'Euro', 'Forintem', 'Złotym'], ans: 0 },
+  { country: 'Czechy', q: 'Który browar z Pilzna, założony w 1842 roku, jest ojczyzną stylu pilzner?', opts: ['Pilsner Urquell', 'Budvar', 'Heineken', 'Stella Artois'], ans: 0 },
+  { country: 'Czechy', q: 'W którym roku Czechosłowacja pokojowo podzieliła się na Czechy i Słowację?', opts: ['1993', '1991', '1989', '1995'], ans: 0 },
+  { country: 'Czechy', q: 'Który czeski kompozytor napisał cykl symfoniczny „Má vlast" (Moja ojczyzna)?', opts: ['Bedřich Smetana', 'Antonín Dvořák', 'Leoš Janáček', 'Bohuslav Martinů'], ans: 0 },
+  { country: 'Czechy', q: 'Która rzeka przepływa przez centrum Pragi?', opts: ['Wełtawa (Vltava)', 'Łaba', 'Morawa', 'Odra'], ans: 0 },
+  { country: 'Czechy', q: 'W którym roku Czechy przystąpiły do Unii Europejskiej?', opts: ['2004', '1999', '2007', '2011'], ans: 0 },
+  { country: 'Czechy', q: 'Za panowania którego władcy zbudowano Most Karola w Pradze (budowa od 1357 roku)?', opts: ['Karola IV', 'Karola I', 'Wacława IV', 'Rudolfa II'], ans: 0 },
+  { country: 'Czechy', q: 'Który praski pisarz jest autorem powieści „Proces" i „Zamek"?', opts: ['Franz Kafka', 'Milan Kundera', 'Karel Čapek', 'Jaroslav Hašek'], ans: 0 },
+  { country: 'Czechy', q: 'Który czeski dramaturg wprowadził słowo „robot" w sztuce R.U.R. z 1920 roku?', opts: ['Karel Čapek', 'Franz Kafka', 'Milan Kundera', 'Václav Havel'], ans: 0 },
+  { country: 'Czechy', q: 'Jak nazywa się kompleks zamkowy górujący nad Pragą — jeden z największych na świecie?', opts: ['Hradczany (Pražský hrad)', 'Wyszehrad', 'Karlštejn', 'Křivoklát'], ans: 0 },
+  { country: 'Czechy', q: 'Które miasto jest drugie pod względem liczby ludności w Czechach?', opts: ['Brno', 'Ostrawa', 'Pilzno', 'Ołomuniec'], ans: 0 },
+  { country: 'Czechy', q: 'Jak nazywa się pokojowe obalenie komunizmu w Czechosłowacji w listopadzie 1989 roku?', opts: ['Aksamitna rewolucja', 'Praska wiosna', 'Solidarność', 'Jesień Ludów'], ans: 0 },
+  { country: 'Czechy', q: 'Ile mieszkańców liczy Czechy?', opts: ['Około 10,9 miliona', 'Około 5 milionów', 'Około 15 milionów', 'Około 8 milionów'], ans: 0 },
+  { country: 'Czechy', q: 'Który czeski prezydent był wcześniej dramaturgiem i dysydentem — symbolem przemian 1989 roku?', opts: ['Václav Havel', 'Václav Klaus', 'Miloš Zeman', 'Edvard Beneš'], ans: 0 },
+
+  // ── JĘZYK LITEWSKI ───────────────────────────────────────
+  { country: 'Język litewski', q: 'Do jakiej rodziny językowej należy język litewski?', opts: ['Języków bałtyckich', 'Języków słowiańskich', 'Języków ugrofińskich', 'Języków germańskich'], ans: 0 },
+  { country: 'Język litewski', q: 'Język litewski jest uważany za jeden z najbardziej archaicznych języków indoeuropejskich. Dlaczego jest to niezwykłe?', opts: ['Zachował wiele cech prasłowiańszczyzny niemożliwych do znalezienia gdzie indziej', 'Zachował cechy praindoeuropejskie utracone przez większość innych języków', 'Nie zmienił się od czasów starożytnych Greków', 'Posiada największą liczbę przypadków spośród języków europejskich'], ans: 1 },
+  { country: 'Język litewski', q: 'Ile przypadków gramatycznych posiada współczesny język litewski?', opts: ['7', '4', '6', '9'], ans: 0 },
+  { country: 'Język litewski', q: 'Który słynny językoznawca opisał litewski jako „najważniejszy ze wszystkich żyjących języków indoeuropejskich dla historyka i językoznawcy"?', opts: ['Antoine Meillet', 'Ferdinand de Saussure', 'Noam Chomsky', 'Wilhelm von Humboldt'], ans: 0 },
+  { country: 'Język litewski', q: 'Jak nazywa się alfabet używany w języku litewskim?', opts: ['Alfabet łaciński z diakrytykami', 'Cyrylica', 'Alfabet głagolicki', 'Runy bałtyckie'], ans: 0 },
+  { country: 'Język litewski', q: 'Ile liter liczy współczesny alfabet litewski?', opts: ['32', '26', '28', '35'], ans: 0 },
+  { country: 'Język litewski', q: 'Które z poniższych słów litewskich jest spokrewnione z łacińskim „pater" i oznacza „ojciec"?', opts: ['Tėvas', 'Dievas', 'Brolis', 'Sūnus'], ans: 0 },
+  { country: 'Język litewski', q: 'Litewski wyróżnia się zachowaniem prasłowiańskiego akcentu muzycznego. Ile tonów prozodycznych posiada?', opts: ['Dwa: opadający i rosnący', 'Jeden ton neutralny', 'Trzy: wysoki, środkowy i niski', 'Cztery, jak w chińskim'], ans: 0 },
+  { country: 'Język litewski', q: 'Jak mówi się „dziękuję" po litewsku?', opts: ['Ačiū', 'Labas', 'Prašom', 'Atsiprašau'], ans: 0 },
+  { country: 'Język litewski', q: 'Litewskie słowo „ugnis" (ogień) jest bliskie łacińskiemu „ignis". Które z poniższych języków posiada bezpośrednio pokrewne słowo?', opts: ['Sanskryt: agni', 'Rosyjski: огонь', 'Grecki: πῦρ', 'Angielski: fire'], ans: 0 },
+  { country: 'Język litewski', q: 'Kiedy litewski po raz pierwszy pojawił się w formie pisanej?', opts: ['W XVI wieku — Katechizm Martynasa Mažvydasa z 1547 roku', 'W X wieku na runicznych tablicach', 'W XIII wieku w kronikach krzyżackich', 'W XVIII wieku dzięki oświeceniu'], ans: 0 },
+  { country: 'Język litewski', q: 'Litewski i który jeszcze język tworzą razem żywą gałąź języków bałtyckich?', opts: ['Łotewski', 'Estoński', 'Pruski', 'Jaćwiński'], ans: 0 },
+  { country: 'Język litewski', q: 'Jak brzmi litewskie powitanie „dzień dobry" (dosłownie: „dobry dzień")?', opts: ['Laba diena', 'Labas rytas', 'Labas vakaras', 'Labas'], ans: 0 },
+  { country: 'Język litewski', q: 'Pruski — język bałtycki bliski litewskiemu — wygasł około 1700 roku. Który naród go używał?', opts: ['Bałtyjscy Prusowie (nie Niemcy)', 'Niemieccy Krzyżacy', 'Polscy Mazurzy', 'Szwedzcy osadnicy nad Bałtykiem'], ans: 0 },
+  { country: 'Język litewski', q: 'Litewskie słowo „duktė" (córka) jest spokrewnione z greckim „thygater" i angielskim „daughter". Z czego to wynika?', opts: ['Wszystkie wywodzą się z wspólnego języka praindoeuropejskiego', 'Litwin zapożyczył to słowo z greki', 'To przypadkowe podobieństwo fonetyczne', 'Język litewski jest bezpośrednią kontynuacją greki'], ans: 0 },
+  { country: 'Język litewski', q: 'Które z poniższych określeń najtrafniej opisuje status litewskiego wśród językoznawców?', opts: ['„Żywe muzeum języka praindoeuropejskiego"', '„Najstarszy żyjący język świata"', '„Język izolowany bez pokrewnych"', '„Dialekt białoruskiego"'], ans: 0 },
 ];
 
 let currentTriviaQ = null;
 let triviaLocked = false;
+let triviaSessionMistakes = 0;
 
 function initTrivia() {
   triviaCorrect = parseInt(sessionStorage.getItem('trivia-correct') || '0');
   triviaUsedQuestions = new Set(JSON.parse(sessionStorage.getItem('trivia-used') || '[]'));
+  triviaSessionMistakes = parseInt(sessionStorage.getItem('trivia-mistakes') || '0');
+  // Reset unlock panel visibility when re-entering page
+  document.getElementById('trivia-unlock').classList.remove('visible');
   updateTriviaScore();
   if (triviaCorrect >= 10) { showTriviaUnlock(); return; }
+  nextTriviaQuestion();
+}
+
+function restartTrivia() {
+  triviaCorrect = 0;
+  triviaSessionMistakes = 0;
+  triviaUsedQuestions.clear();
+  sessionStorage.setItem('trivia-correct', 0);
+  sessionStorage.setItem('trivia-mistakes', 0);
+  sessionStorage.setItem('trivia-used', '[]');
+  document.getElementById('trivia-unlock').classList.remove('visible');
+  updateTriviaScore();
   nextTriviaQuestion();
 }
 
 function updateTriviaScore() {
   const pct = (triviaCorrect / 10) * 100;
   document.getElementById('trivia-score-fill').style.width = pct + '%';
-  document.getElementById('trivia-score-text').textContent = `${triviaCorrect} / 10 poprawnych`;
+  const mistakeLabel = triviaSessionMistakes === 1 ? ' · ostatni błąd!' : '';
+  document.getElementById('trivia-score-text').textContent = `${triviaCorrect} / 10 poprawnych${mistakeLabel}`;
 }
 
 function nextTriviaQuestion() {
-  const available = triviaQuestions.filter((_, i) => !triviaUsedQuestions.has(i));
+  let available = triviaQuestions.filter((_, i) => !triviaUsedQuestions.has(i));
   if (available.length === 0) {
     triviaUsedQuestions.clear();
     sessionStorage.setItem('trivia-used', '[]');
-    nextTriviaQuestion();
-    return;
+    available = [...triviaQuestions];
   }
   const idx = Math.floor(Math.random() * available.length);
   const originalIdx = triviaQuestions.indexOf(available[idx]);
@@ -1549,7 +1768,7 @@ function nextTriviaQuestion() {
 
 function renderTriviaQ(q) {
   const shuffled = q.opts.map((o, i) => ({ text: o, correct: i === q.ans })).sort(() => Math.random() - 0.5);
-  const letters = ['A','B','C','D'];
+  const letters = ['A', 'B', 'C', 'D'];
   const area = document.getElementById('trivia-question-area');
   area.innerHTML = `
     <div class="trivia-flag">— ${q.country} —</div>
@@ -1570,38 +1789,60 @@ function answerTrivia(el) {
   triviaLocked = true;
   const correct = el.dataset.correct === 'true';
   const result = document.getElementById('trivia-result');
-  triviaUsedQuestions.add(currentTriviaQ.originalIdx);
-  sessionStorage.setItem('trivia-used', JSON.stringify([...triviaUsedQuestions]));
 
   if (correct) {
     el.classList.add('correct');
     result.className = 'trivia-result good';
     result.textContent = '✓ Poprawnie!';
+    triviaUsedQuestions.add(currentTriviaQ.originalIdx);
+    sessionStorage.setItem('trivia-used', JSON.stringify([...triviaUsedQuestions]));
     triviaCorrect++;
     sessionStorage.setItem('trivia-correct', triviaCorrect);
     updateTriviaScore();
-    if (triviaCorrect >= 10) {
-      setTimeout(showTriviaUnlock, 1000);
-      return;
-    }
+    if (triviaCorrect >= 10) { setTimeout(showTriviaUnlock, 1000); return; }
+    setTimeout(nextTriviaQuestion, 1400);
   } else {
     el.classList.add('incorrect');
     document.querySelectorAll('.trivia-opt').forEach(o => {
       if (o.dataset.correct === 'true') o.classList.add('selected-correct');
     });
-    result.className = 'trivia-result bad';
-    result.textContent = '✗ Błędnie. Spróbuj z następnym pytaniem.';
-  }
+    triviaSessionMistakes++;
+    sessionStorage.setItem('trivia-mistakes', triviaSessionMistakes);
 
-  setTimeout(() => {
-    if (triviaCorrect < 10) nextTriviaQuestion();
-  }, 1800);
+    if (triviaSessionMistakes === 1) {
+      result.className = 'trivia-result bad';
+      result.textContent = '✗ Błąd — masz jeszcze jedną szansę w tej sesji.';
+      updateTriviaScore();
+      setTimeout(nextTriviaQuestion, 2400);
+    } else {
+      result.className = 'trivia-result bad';
+      result.textContent = '✗ Drugi błąd. Koniec sesji.';
+      triviaCorrect = 0;
+      triviaSessionMistakes = 0;
+      triviaUsedQuestions.clear();
+      sessionStorage.setItem('trivia-correct', 0);
+      sessionStorage.setItem('trivia-mistakes', 0);
+      sessionStorage.setItem('trivia-used', '[]');
+      updateTriviaScore();
+      setTimeout(showTriviaGameOver, 1200);
+    }
+  }
+}
+
+function showTriviaGameOver() {
+  document.getElementById('trivia-gameover').classList.add('visible');
+}
+
+function triviaGameOverReturn() {
+  document.getElementById('trivia-gameover').classList.remove('visible');
+  showPage('page-home');
 }
 
 function showTriviaUnlock() {
   document.getElementById('trivia-question-area').innerHTML = '<div style="font-size:0.75rem;color:var(--mid-gray);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem">Cel osiągnięty — 10 poprawnych odpowiedzi</div>';
   document.getElementById('trivia-unlock').classList.add('visible');
 }
+
 
 // ═══════════════════════════════════════ INIT
 renderGrid();
