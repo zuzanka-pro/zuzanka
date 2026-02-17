@@ -1,377 +1,1610 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZUZANKA</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Bodoni+Moda:opsz,wght@6..96,300&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZUZANKA NON-ESCAPE ROOM</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  /* ─────────────────────────────────────── RESET & BASE ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:   #F9F9F7;
-      --ink:  #0C0C0B;
-      --mist: #C4C3BC;
-    }
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f4f0;
+    --warm-gray: #c8c4bc;
+    --mid-gray: #8a8680;
+    --light-gray: #e8e5df;
+    --accent: #c8102e;
+    --prussian: #003153;
+    --prussian-hover: #004070;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'EB Garamond', Georgia, serif;
+    --font-ui: 'EB Garamond', serif;
+    --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
 
-    html, body { width: 100%; height: 100%; overflow: hidden; }
+  html { font-size: 16px; scroll-behavior: smooth; }
 
-    body {
-      background: var(--bg);
-      font-family: 'Cormorant Garamond', serif;
-      cursor: none;
-    }
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    /* ── cursor ── */
-    #cur {
-      position: fixed;
-      width: 7px; height: 7px;
-      background: var(--ink);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-50%,-50%);
-      transition: transform .15s ease, opacity .2s ease;
-    }
-    #cur.over { transform: translate(-50%,-50%) scale(3.5); opacity: .45; }
+  /* ─────────────────────────────────────── PAGES ─── */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: block; animation: fadeIn 0.6s ease; }
 
-    /* ── stage ── */
-    .stage {
-      width: 100vw; height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    /* ── ambient container: floats above sign ── */
-    #ambient {
-      position: absolute;
-      /* dynamically positioned via JS to sit above sign */
-      width: 100%;
-      height: 140px;
-      pointer-events: none;
-      overflow: visible;
-    }
+  /* ─────────────────────────────────────── HEADER ─── */
+  header {
+    border-bottom: 1px solid var(--black);
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    position: sticky;
+    top: 0;
+    background: var(--white);
+    z-index: 100;
+  }
 
-    /* ambient mark base */
-    .amb { position: absolute; opacity: 0; }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-style: italic;
+    cursor: pointer;
+  }
 
-    .amb-line  { height: 1px; background: var(--ink); transform-origin: left center; }
-    .amb-ring  { border: 1px solid var(--ink); border-radius: 50%; }
-    .amb-dot   { background: var(--ink); border-radius: 50%; }
-    .amb-glyph {
-      font-family: 'Bodoni Moda', serif;
-      font-weight: 300;
-      color: var(--ink);
-      line-height: 1;
-    }
+  .logo span {
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-family: 'EB Garamond', serif;
+  }
 
-    @keyframes riseOut {
-      0%   { opacity: 0;   transform: translateY(0)     scale(.85); }
-      18%  { opacity: .65; }
-      85%  { opacity: .5;  }
-      100% { opacity: 0;   transform: translateY(-52px) scale(1); }
-    }
-    @keyframes driftLine {
-      0%   { opacity: 0;   transform: scaleX(.2); }
-      20%  { opacity: .7;  }
-      100% { opacity: 0;   transform: scaleX(1) translateX(-24px); }
-    }
-    @keyframes expandRing {
-      0%   { opacity: 0;   transform: scale(.25); }
-      25%  { opacity: .55; }
-      100% { opacity: 0;   transform: scale(1.5); }
-    }
-    @keyframes glyphBlink {
-      0%   { opacity: 0;   }
-      25%  { opacity: .5;  }
-      70%  { opacity: .38; }
-      100% { opacity: 0;   }
-    }
+  .header-nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
 
-    /* ── ZUZANKA sign ── */
-    .sign {
-      font-family: 'Bodoni Moda', serif;
-      font-weight: 300;
-      font-size: clamp(64px, 12vw, 176px);
-      letter-spacing: .18em;
-      color: var(--ink);
-      user-select: none;
-      cursor: none;
-      position: relative;
-      line-height: 1;
-    }
-    .sign::after {
-      content: '';
-      position: absolute;
-      bottom: -5px; left: 0; right: 0;
-      height: 1px;
-      background: var(--ink);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform .65s cubic-bezier(.77,0,.175,1);
-    }
-    .sign:hover::after { transform: scaleX(1); }
+  .header-nav a, .header-nav button {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--black);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color var(--transition);
+    padding: 0;
+  }
 
-    /* ── instruction ── */
-    .instr {
-      margin-top: 22px;
-      font-style: italic;
-      font-weight: 300;
-      font-size: 13px;
-      letter-spacing: .14em;
-      color: var(--mist);
-      transition: opacity .4s ease;
-    }
-    .instr.gone { opacity: 0; pointer-events: none; }
+  .header-nav a:hover, .header-nav button:hover { color: var(--accent); }
 
-    /* ── trivia panel ── */
-    .trivia-wrap {
-      position: fixed; inset: 0;
-      display: flex; align-items: flex-end;
-      pointer-events: none;
-    }
-    .trivia-box {
-      width: 100%;
-      background: var(--ink);
-      color: var(--bg);
-      padding: 0 clamp(28px,5vw,72px);
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height .75s cubic-bezier(.77,0,.175,1),
-                  padding-top .5s ease,
-                  padding-bottom .5s ease;
-      pointer-events: none;
-    }
-    .trivia-box.open {
-      max-height: 260px;
-      padding-top: 38px;
-      padding-bottom: 38px;
-      pointer-events: all;
-    }
-    .trivia-inner {
-      display: flex; align-items: flex-start; gap: 32px;
-      opacity: 0; transform: translateY(10px);
-      transition: opacity .45s ease .3s, transform .45s ease .3s;
-    }
-    .trivia-box.open .trivia-inner { opacity: 1; transform: translateY(0); }
+  .progress-indicator {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--mid-gray);
+    font-family: 'EB Garamond', serif;
+  }
 
-    .trivia-label {
-      font-weight: 300; font-size: 9px;
-      letter-spacing: .3em; text-transform: uppercase;
-      color: var(--mist); white-space: nowrap;
-      padding-top: 5px; flex-shrink: 0;
-    }
-    .trivia-text {
-      font-weight: 300;
-      font-size: clamp(16px, 1.9vw, 24px);
-      line-height: 1.55;
-      color: var(--bg);
-      flex: 1;
-    }
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(6px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-    .trivia-text.pop { animation: fadeUp .4s ease forwards; }
+  /* ─────────────────────────────────────── HOME PAGE ─── */
+  .home-hero {
+    padding: 5rem 2.5rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
 
-    .trivia-dismiss {
-      font-weight: 300; font-size: 9px;
-      letter-spacing: .3em; text-transform: uppercase;
-      color: var(--mist); cursor: none;
-      flex-shrink: 0; padding-top: 5px;
-      transition: color .2s;
-    }
-    .trivia-dismiss:hover { color: var(--bg); }
-  </style>
+  .home-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  .home-hero h1 em {
+    font-style: italic;
+    color: var(--mid-gray);
+  }
+
+  .home-hero .subtitle {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 3rem;
+    max-width: 500px;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--black);
+    margin: 2rem 0;
+  }
+
+  .divider-thin {
+    width: 100%;
+    height: 1px;
+    background: var(--light-gray);
+    margin: 1.5rem 0;
+  }
+
+  /* ─────────────────────────────────────── ROOMS GRID ─── */
+  .rooms-section {
+    padding: 0 2.5rem 5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--light-gray);
+  }
+
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--black);
+    border: 1px solid var(--black);
+    margin-bottom: 4rem;
+  }
+
+  .room-card {
+    background: var(--white);
+    padding: 1.8rem 1.5rem;
+    cursor: pointer;
+    transition: background var(--transition);
+    position: relative;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .room-card:hover { background: var(--black); color: var(--white); }
+
+  .room-card.locked {
+    cursor: not-allowed;
+    background: var(--light-gray);
+  }
+
+  .room-card.locked:hover { background: var(--light-gray); color: var(--black); }
+
+  .room-card.completed { background: var(--prussian); color: var(--white); }
+  .room-card.completed:hover { background: var(--prussian-hover); }
+
+  .room-card.unavailable {
+    background: var(--light-gray);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .room-number {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.15;
+  }
+
+  .room-card.completed .room-number,
+  .room-card:hover .room-number { opacity: 0.3; }
+
+  .room-info .room-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .room-status {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    font-family: 'EB Garamond', serif;
+  }
+
+  .room-card.completed .room-status { color: var(--warm-gray); }
+  .room-card:hover .room-status { color: var(--warm-gray); }
+
+  .room-card.unavailable .room-status { color: var(--mid-gray); }
+
+  /* ─────────────────────────────────────── SUPER TRIVIA BTN ─── */
+  .trivia-section {
+    padding: 0 2.5rem 5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .btn-trivia {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    border: 1px solid var(--black);
+    padding: 1.5rem 2.5rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: none;
+    color: var(--black);
+    transition: all var(--transition);
+  }
+
+  .btn-trivia:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .btn-trivia .arrow {
+    font-size: 1.2rem;
+    transition: transform var(--transition);
+  }
+
+  .btn-trivia:hover .arrow { transform: translateX(6px); }
+
+  /* ─────────────────────────────────────── FILASEK ADMIN ─── */
+  .admin-toggle {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'EB Garamond', serif;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: color var(--transition);
+  }
+
+  .admin-toggle:hover { color: var(--black); }
+
+  .admin-panel {
+    display: none;
+    margin-top: 1.5rem;
+    border: 1px solid var(--light-gray);
+    padding: 2rem;
+    background: var(--white);
+  }
+
+  .admin-panel.visible { display: block; animation: fadeIn 0.4s ease; }
+
+  .admin-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    color: var(--mid-gray);
+  }
+
+  .admin-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .admin-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+  }
+
+  /* ─────────────────────────────────────── ROOM PAGE ─── */
+  .room-page-header {
+    border-bottom: 1px solid var(--light-gray);
+    padding: 1.2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .back-btn {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'EB Garamond', serif;
+    color: var(--mid-gray);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color var(--transition);
+  }
+
+  .back-btn:hover { color: var(--black); }
+
+  .room-page-number {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--mid-gray);
+  }
+
+  .room-content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem;
+  }
+
+  .room-headline {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .room-desc {
+    font-size: 0.8rem;
+    color: var(--mid-gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+    font-family: 'EB Garamond', serif;
+  }
+
+  /* ─────────────────────────────────────── INPUTS ─── */
+  .field-group { margin-bottom: 1.5rem; }
+
+  .field-label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 0.6rem;
+  }
+
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--black);
+    padding: 0.7rem 0;
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    background: transparent;
+    outline: none;
+    color: var(--black);
+    transition: border-color var(--transition);
+    letter-spacing: 0.01em;
+  }
+
+  input[type="text"]:focus, input[type="password"]:focus {
+    border-color: var(--accent);
+  }
+
+  input[type="text"]::placeholder { color: var(--warm-gray); }
+
+  /* ─────────────────────────────────────── BUTTONS ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 2rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: 1px solid var(--black);
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--black);
+  }
+
+  .btn-outline:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  /* ─────────────────────────────────────── MESSAGES ─── */
+  .msg {
+    padding: 1rem 1.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    margin-top: 1.5rem;
+    border-left: 2px solid transparent;
+    display: none;
+  }
+
+  .msg.visible { display: block; animation: fadeIn 0.4s ease; }
+  .msg.error { border-color: var(--accent); background: rgba(200,16,46,0.05); color: var(--accent); }
+  .msg.success { border-color: var(--black); background: var(--light-gray); }
+
+  /* ─────────────────────────────────────── SUCCESS OVERLAY ─── */
+  .success-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+
+  .success-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .success-overlay h2 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .success-overlay p {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+    margin-bottom: 2.5rem;
+  }
+
+  /* ─────────────────────────────────────── ROOM 2 — SORTING ─── */
+  .sort-list {
+    list-style: none;
+    margin: 2rem 0;
+    border-top: 1px solid var(--light-gray);
+  }
+
+  .sort-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--light-gray);
+    cursor: grab;
+    user-select: none;
+    transition: background var(--transition);
+    background: var(--white);
+    position: relative;
+  }
+
+  .sort-item:active { cursor: grabbing; }
+  .sort-item.dragging { opacity: 0.4; }
+  .sort-item.drag-over { border-top: 2px solid var(--accent); }
+
+  .sort-handle {
+    color: var(--warm-gray);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    width: 20px;
+    text-align: center;
+  }
+
+  .sort-rank {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--light-gray);
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .sort-city {
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─────────────────────────────────────── ROOM 3 — COAT OF ARMS ─── */
+  .coats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .coat-card {
+    border: 1px solid var(--light-gray);
+    padding: 1.2rem 0.8rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--white);
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .coat-card:hover { border-color: var(--black); background: var(--light-gray); }
+  .coat-card.selected { border-color: var(--prussian); background: rgba(0,49,83,0.06); box-shadow: inset 0 0 0 2px var(--prussian); }
+  .coat-card.correct { border-color: #2a7a2a; background: rgba(42,122,42,0.06); }
+  .coat-card.incorrect { border-color: var(--accent); background: rgba(200,16,46,0.05); }
+
+  .cities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .city-chip {
+    display: inline-block;
+    border: 1px solid var(--light-gray);
+    padding: 0.4rem 1rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--white);
+  }
+
+  .city-chip:hover { border-color: var(--black); }
+  .city-chip.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+  .city-chip.matched { background: var(--light-gray); color: var(--mid-gray); cursor: default; pointer-events: none; }
+
+  .matching-instructions {
+    font-size: 0.7rem;
+    color: var(--mid-gray);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .match-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  /* ─────────────────────────────────────── ROOM 6 QUIZ ─── */
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .quiz-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    border: 1px solid var(--light-gray);
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--white);
+  }
+
+  .quiz-option:hover { border-color: var(--black); }
+  .quiz-option.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+
+  .quiz-letter {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 24px;
+  }
+
+  .quiz-text { font-size: 0.82rem; line-height: 1.5; padding-top: 0.1rem; }
+
+  /* ─────────────────────────────────────── ROOM 7 CIPHER ─── */
+  .cipher-display {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    line-height: 2.2;
+    color: var(--mid-gray);
+    border: 1px solid var(--light-gray);
+    padding: 2rem;
+    margin: 2rem 0;
+    background: var(--light-gray);
+    letter-spacing: 0.05em;
+    word-break: break-all;
+    word-spacing: 0.5em;
+  }
+
+  /* ─────────────────────────────────────── ROOM 8 DATE ─── */
+  .date-display {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    color: var(--light-gray);
+    line-height: 1;
+    margin: 2rem 0;
+    letter-spacing: -0.02em;
+  }
+
+  /* ─────────────────────────────────────── ROOMS 9 & 10 ─── */
+  .unavailable-msg {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--warm-gray);
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  /* ─────────────────────────────────────── SUPER TRIVIA PAGE ─── */
+  .trivia-hero {
+    padding: 4rem 2.5rem 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .trivia-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .trivia-hero h1 em { font-style: italic; color: var(--mid-gray); }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .score-track {
+    flex: 1;
+    height: 2px;
+    background: var(--light-gray);
+    position: relative;
+  }
+
+  .score-fill {
+    height: 100%;
+    background: var(--black);
+    transition: width 0.5s ease;
+  }
+
+  .score-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    white-space: nowrap;
+  }
+
+  .trivia-card {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2.5rem 5rem;
+  }
+
+  .trivia-question {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    line-height: 1.3;
+    margin-bottom: 2rem;
+  }
+
+  .trivia-flag {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .trivia-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .trivia-opt {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    border: 1px solid var(--light-gray);
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-size: 0.82rem;
+  }
+
+  .trivia-opt:hover { border-color: var(--black); }
+  .trivia-opt.correct { border-color: #2a7a2a; background: rgba(42,122,42,0.06); }
+  .trivia-opt.incorrect { border-color: var(--accent); background: rgba(200,16,46,0.05); }
+  .trivia-opt.selected-correct { border-color: #2a7a2a; background: rgba(42,122,42,0.1); }
+
+  .opt-letter {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    width: 24px;
+    flex-shrink: 0;
+  }
+
+  .trivia-result {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    margin-top: 0.5rem;
+    min-height: 1.5rem;
+  }
+
+  .trivia-result.good { color: #2a7a2a; }
+  .trivia-result.bad { color: var(--accent); }
+
+  .trivia-unlock {
+    border: 1px solid var(--black);
+    padding: 2.5rem;
+    text-align: center;
+    background: var(--black);
+    color: var(--white);
+    display: none;
+  }
+
+  .trivia-unlock.visible { display: block; animation: fadeIn 0.6s ease; }
+
+  .trivia-code {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    margin: 1rem 0;
+  }
+
+  .trivia-code-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+  }
+
+  /* ─────────────────────────────────────── NOTICE BOX ─── */
+  .notice {
+    border: 1px solid var(--light-gray);
+    padding: 2rem;
+    margin: 2rem 0;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    background: var(--light-gray);
+  }
+
+  .notice p + p { margin-top: 1rem; }
+
+  /* ─────────────────────────────────────── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--light-gray);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+  }
+
+  /* ─────────────────────────────────────── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .rooms-grid { grid-template-columns: repeat(2, 1fr); }
+    .coats-grid { grid-template-columns: repeat(2, 1fr); }
+    .match-layout { grid-template-columns: 1fr; }
+    header { padding: 1rem 1.5rem; }
+    .home-hero, .rooms-section, .trivia-section, .admin-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+</style>
 </head>
 <body>
 
-<div id="cur"></div>
+<!-- ═══════════════════════════════════════════════════════ HOME PAGE -->
+<div id="page-home" class="page active">
+  <header>
+    <div class="logo"><span>ZNNER</span> — Zuzanka Non-Escape Room</div>
+    <nav class="header-nav">
+      <span class="progress-indicator" id="progress-text">0 / 10 ukończono</span>
+    </nav>
+  </header>
 
-<div class="stage" id="stage">
-  <div id="ambient"></div>
-  <div class="sign" id="sign">ZUZANKA</div>
-  <div class="instr" id="instr">press to discover</div>
+  <section class="home-hero">
+    <h1>Zuzanka<br><em>Non‑Escape</em><br>Room</h1>
+    <div class="divider"></div>
+    <p style="font-size:0.82rem; max-width:520px; color:var(--mid-gray); line-height:1.9">
+      Dziesięć pokoi. Dokąd tu uciec?<br>
+      Wykonaj każde zadanie, aby przejść do kolejnego poziomu.
+    </p>
+  </section>
+
+  <section class="rooms-section">
+    <div class="rooms-grid" id="rooms-grid">
+      <!-- Generated by JS -->
+    </div>
+  </section>
+
+  <section class="trivia-section">
+    <button class="btn-trivia" onclick="showPage('page-trivia')">
+      Super Trivia
+      <span class="arrow">→</span>
+    </button>
+  </section>
+
+  <div style="text-align:center; padding:1.5rem 2.5rem 0.5rem">
+    <a href="https://youtu.be/nFwep7nNLdQ?si=hjSlEs-Z5eRuwHdL" target="_blank" rel="noopener" style="font-family:'EB Garamond',serif; font-size:0.65rem; letter-spacing:0.1em; color:var(--warm-gray); text-decoration:none; border-bottom:1px solid transparent; transition:all 0.3s ease; opacity:0.4" onmouseover="this.style.opacity='1';this.style.borderBottomColor='var(--warm-gray)'" onmouseout="this.style.opacity='0.4';this.style.borderBottomColor='transparent'">nie chcesz tego klikać</a>
+  </div>
+  <footer>
+    <span>© 2026 Zuzanka Non-Escape Room</span>
+    <span style="position:relative">
+      <button class="admin-toggle" onclick="toggleAdmin()" style="color:var(--warm-gray)">⬡ Filasek Admin</button>
+      <div class="admin-panel" id="admin-panel" style="position:absolute; bottom:2.2rem; right:0; min-width:340px; z-index:200">
+        <div class="admin-title">Panel administracyjny</div>
+        <div class="admin-row">
+          <label class="admin-label" for="admin-pass">Hasło:</label>
+          <input type="password" id="admin-pass" placeholder="••••••" style="width:160px">
+          <button class="btn btn-outline" onclick="adminLogin()" style="padding:0.4rem 0.9rem; font-size:0.65rem">Zaloguj</button>
+          <span id="admin-msg" style="font-size:0.65rem; color:var(--accent); display:none"></span>
+        </div>
+        <div id="admin-controls" style="display:none; margin-top:1.5rem">
+          <div style="font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:1rem">Pomiń pokój:</div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap" id="admin-btns"></div>
+        </div>
+      </div>
+    </span>
+  </footer>
 </div>
 
-<div class="trivia-wrap">
-  <div class="trivia-box" id="tbox">
-    <div class="trivia-inner">
-      <span class="trivia-label">Lithuania</span>
-      <span class="trivia-text" id="ttext"></span>
-      <span class="trivia-dismiss" id="tdismiss">close ×</span>
+<!-- ═══════════════════════════════════════════════════════ ROOM PAGES -->
+
+<!-- Room 1 -->
+<div id="page-room-1" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój I — Pytanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 001 / Pytanie otwarte</p>
+    <h2 class="room-headline">Gdzie poczęty został osobnik znany jako Filasek?</h2>
+    <div class="divider-thin"></div>
+    <div class="field-group" style="margin-top:2rem">
+      <label class="field-label" for="r1-answer">Twoja odpowiedź</label>
+      <input type="text" id="r1-answer" placeholder="Wpisz odpowiedź…" onkeydown="if(event.key==='Enter')checkRoom1()">
+    </div>
+    <button class="btn" onclick="checkRoom1()">Zatwierdź →</button>
+    <div class="msg" id="r1-msg"></div>
+  </div>
+</div>
+
+<!-- Room 2 -->
+<div id="page-room-2" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój II — Sortowanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 002 / Ułóż w kolejności</p>
+    <h2 class="room-headline">Uszereguj miasta litewskie od największego do najmniejszego.</h2>
+    <div class="divider-thin"></div>
+    <p style="font-size:0.75rem; color:var(--mid-gray); margin:1.5rem 0">Przeciągnij i upuść, aby posortować.</p>
+    <ul class="sort-list" id="sort-list-r2">
+      <!-- filled by JS -->
+    </ul>
+    <button class="btn" onclick="checkRoom2()">Zatwierdź kolejność →</button>
+    <div class="msg" id="r2-msg"></div>
+  </div>
+</div>
+
+<!-- Room 3 -->
+<div id="page-room-3" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój III — Wdzięczność</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 003 / Pokój wdzięczności</p>
+    <h2 class="room-headline">Wymień trzy rzeczy, za które jesteś dzisiaj wdzięczna.</h2>
+    <div class="divider-thin"></div>
+
+    <div id="r3-form" style="margin-top:2rem">
+      <div class="field-group">
+        <label class="field-label">I.</label>
+        <input type="text" id="r3-a1" placeholder="Pierwsza rzecz…">
+      </div>
+      <div class="field-group">
+        <label class="field-label">II.</label>
+        <input type="text" id="r3-a2" placeholder="Druga rzecz…">
+      </div>
+      <div class="field-group">
+        <label class="field-label">III.</label>
+        <input type="text" id="r3-a3" placeholder="Trzecia rzecz…" onkeydown="if(event.key==='Enter')submitRoom3()">
+      </div>
+      <div style="margin-top:2rem">
+        <button class="btn" onclick="submitRoom3()">Zatwierdź →</button>
+      </div>
+      <div class="msg" id="r3-msg"></div>
+    </div>
+
+    <!-- Confirmation panel, hidden until answers submitted -->
+    <div id="r3-confirm" style="display:none; margin-top:2rem; animation: fadeIn 0.5s ease">
+      <div style="border:1px solid var(--light-gray); padding:2rem; background:var(--light-gray); margin-bottom:2rem">
+        <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.3rem; line-height:1.8; margin-bottom:1.2rem">
+          Hmm, czy jesteś pewna, tej?
+        </p>
+        <div id="r3-summary" style="font-size:0.9rem; line-height:2; color:var(--mid-gray)"></div>
+      </div>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap">
+        <button class="btn" onclick="confirmRoom3()">Tak, jestem pewna →</button>
+        <button class="btn btn-outline" onclick="editRoom3()">Zmień odpowiedzi</button>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Room 4 -->
+<div id="page-room-4" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój IV — Pytanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 004 / Wiedza filmowa</p>
+    <h2 class="room-headline">Jak ma imię postać grana przez Jacka Braciaka w serialu <em>Glina</em>?</h2>
+    <div class="divider-thin"></div>
+    <div class="field-group" style="margin-top:2rem">
+      <label class="field-label">Imię postaci</label>
+      <input type="text" id="r4-answer" placeholder="Wpisz imię…" onkeydown="if(event.key==='Enter')checkRoom4()">
+    </div>
+    <button class="btn" onclick="checkRoom4()">Zatwierdź →</button>
+    <div class="msg" id="r4-msg"></div>
+  </div>
+</div>
+
+<!-- Room 5 -->
+<div id="page-room-5" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój V — Wyzwanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 005 / Misja zewnętrzna</p>
+    <h2 class="room-headline">Zdobądź dziesięć punktów w Super Trivii.</h2>
+    <div class="divider-thin"></div>
+    <div class="notice">
+      <p>Zdobądź dziesięć punktów w <strong>SUPER TRIVII</strong>, żeby przejść dalej, malina.</p>
+      <p style="font-size:0.72rem; color:var(--mid-gray)">Przycisk Super Trivia znajduje się na stronie głównej ↓</p>
+    </div>
+    <div class="field-group" style="margin-top:2rem">
+      <label class="field-label">Kod odblokowania</label>
+      <input type="text" id="r5-answer" placeholder="Wpisz kod…" onkeydown="if(event.key==='Enter')checkRoom5()">
+    </div>
+    <button class="btn" onclick="checkRoom5()">Zatwierdź →</button>
+    <div class="msg" id="r5-msg"></div>
+  </div>
+</div>
+
+<!-- Room 6 -->
+<div id="page-room-6" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój VI — Quiz ACT</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 006 / Psychologia poznawcza</p>
+    <h2 class="room-headline">Które stwierdzenie <em>najlepiej</em> opisuje fuzję poznawczą w terapii ACT?</h2>
+    <div class="divider-thin"></div>
+    <div class="quiz-options">
+      <div class="quiz-option" id="r6-A" onclick="selectR6('A')">
+        <span class="quiz-letter">A</span>
+        <span class="quiz-text">Trwałe uszkodzenie funkcji poznawczych w mózgu</span>
+      </div>
+      <div class="quiz-option" id="r6-B" onclick="selectR6('B')">
+        <span class="quiz-letter">B</span>
+        <span class="quiz-text">Celowe, rozważne analizowanie własnych przekonań</span>
+      </div>
+      <div class="quiz-option" id="r6-C" onclick="selectR6('C')">
+        <span class="quiz-letter">C</span>
+        <span class="quiz-text">Stopienie się z myślami tak, że są traktowane jak dosłowna prawda i polecenia do działania</span>
+      </div>
+      <div class="quiz-option" id="r6-D" onclick="selectR6('D')">
+        <span class="quiz-letter">D</span>
+        <span class="quiz-text">Zdolność do szybkiego uczenia się nowych informacji</span>
+      </div>
+    </div>
+    <button class="btn" onclick="checkRoom6()">Zatwierdź odpowiedź →</button>
+    <div class="msg" id="r6-msg"></div>
+  </div>
+</div>
+
+<!-- Room 7 -->
+<div id="page-room-7" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój VII — Szyfr</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 007 / Kryptografia</p>
+    <h2 class="room-headline">Odkoduj wiadomość.</h2>
+    <div class="divider-thin"></div>
+    <p style="font-size:0.75rem; color:var(--mid-gray); margin:1rem 0">Podpowiedź: <strong>BEKON</strong></p>
+    <div class="cipher-display">
+      babbb baabb babbb aaaaa abbaa abaab aaaaa abaaa aabaa baaab baaba abbaa aaaaa abaaa abbba abaaa abaab abbaa abaaa aabaa abaaa baaab babbb aaaaa
+    </div>
+    <div class="field-group">
+      <label class="field-label">Odkodowana wiadomość</label>
+      <input type="text" id="r7-answer" placeholder="Wpisz odkodowany tekst…" onkeydown="if(event.key==='Enter')checkRoom7()">
+    </div>
+    <button class="btn" onclick="checkRoom7()">Zatwierdź →</button>
+    <div class="msg" id="r7-msg"></div>
+  </div>
+</div>
+
+<!-- Room 8 -->
+<div id="page-room-8" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój VIII — Oczekiwanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 008 / Informacja</p>
+    <h2 class="room-headline">Pokój zostanie otwarty.</h2>
+    <div class="divider-thin"></div>
+    <div class="date-display">24.02.2026</div>
+    <p style="font-size:0.82rem; color:var(--mid-gray); margin-top:1rem">Prosimy o cierpliwość. Powróć w wyznaczonym terminie.</p>
+  </div>
+</div>
+
+<!-- Room 9 -->
+<div id="page-room-9" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój IX</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 009 / Niedostępny</p>
+    <h2 class="room-headline">Wkrótce.</h2>
+    <div class="divider-thin"></div>
+    <p class="unavailable-msg">Ten pokój nie jest jeszcze dostępny.<br>Zostanie otwarty później.</p>
+  </div>
+</div>
+
+<!-- Room 10 -->
+<div id="page-room-10" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój X</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 010 / Niedostępny</p>
+    <h2 class="room-headline">Wkrótce.</h2>
+    <div class="divider-thin"></div>
+    <p class="unavailable-msg">Ten pokój nie jest jeszcze dostępny.<br>Zostanie otwarty później.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ SUPER TRIVIA PAGE -->
+<div id="page-trivia" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Super Trivia</span>
+  </header>
+
+  <div class="trivia-hero">
+    <h1>Super<br><em>Trivia</em></h1>
+    <div class="score-bar">
+      <div class="score-track">
+        <div class="score-fill" id="trivia-score-fill" style="width:0%"></div>
+      </div>
+      <span class="score-text" id="trivia-score-text">0 / 10 poprawnych</span>
+    </div>
+  </div>
+
+  <div class="trivia-card">
+    <div id="trivia-question-area">
+      <!-- filled by JS -->
+    </div>
+    <div class="trivia-unlock" id="trivia-unlock">
+      <div class="trivia-code-label">Kod odblokowania Pokoju 5</div>
+      <div class="trivia-code">aknazuz ałainapsw</div>
+      <p style="font-size:0.7rem; color:var(--warm-gray); margin-top:1rem">Skopiuj ten kod i wpisz go w Pokoju 5.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <div style="text-align:center; padding:2rem">
+    <p>Pokój ukończony</p>
+    <h2 id="success-title">Brawo!</h2>
+    <p id="success-sub" style="margin-bottom:2.5rem"></p>
+    <button class="btn" style="margin:0 auto" onclick="closeSuccess()">Powrót do galerii →</button>
+  </div>
+</div>
+
 <script>
-/* ── cursor ── */
-const cur = document.getElementById('cur');
-document.addEventListener('mousemove', e => {
-  cur.style.left = e.clientX + 'px';
-  cur.style.top  = e.clientY + 'px';
-});
-['sign','tdismiss'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('mouseenter', () => cur.classList.add('over'));
-  el.addEventListener('mouseleave', () => cur.classList.remove('over'));
-});
+// ═══════════════════════════════════════ STATE
+let completed = JSON.parse(localStorage.getItem('znner-completed') || '[]');
+let r6Selected = null;
+let triviaCorrect = 0;
+let triviaUsedQuestions = new Set();
+let triviaAnswered = false;
 
-/* ── position ambient above sign ── */
-const ambEl  = document.getElementById('ambient');
-const signEl = document.getElementById('sign');
-function positionAmbient() {
-  const r  = signEl.getBoundingClientRect();
-  const sh = ambEl.offsetHeight; // 140px from CSS
-  ambEl.style.top  = (r.top - sh - 8) + 'px';
-  ambEl.style.left = r.left + 'px';
-  ambEl.style.width = r.width + 'px';
-}
-window.addEventListener('resize', positionAmbient);
-// Wait for font to load
-document.fonts.ready.then(positionAmbient);
-positionAmbient();
-
-/* ── ambient spawner ── */
-const glyphs = ['—', '·', '×', '◦', '–', '∙', '∘', '·'];
-
-function rand(a,b){ return a + Math.random()*(b-a); }
-function ri(a,b)  { return Math.floor(rand(a,b+1)); }
-
-function spawnMark() {
-  positionAmbient(); // keep synced
-  const W   = signEl.offsetWidth;
-  const kind = ri(0,3);
-  let el, anim, dur;
-
-  const x = rand(0, W);
-  const y = rand(12, 110);
-
-  if (kind === 0) {
-    // horizontal line
-    el = document.createElement('div');
-    el.className = 'amb amb-line';
-    const w = rand(18, 85);
-    el.style.cssText = `left:${x}px;top:${y}px;width:${w}px;`;
-    dur  = rand(1800, 3000);
-    anim = `driftLine ${dur}ms cubic-bezier(.4,0,.6,1) forwards`;
-
-  } else if (kind === 1) {
-    // ring
-    el = document.createElement('div');
-    el.className = 'amb amb-ring';
-    const r = rand(5, 17);
-    el.style.cssText = `left:${x-r}px;top:${y-r}px;width:${r*2}px;height:${r*2}px;`;
-    dur  = rand(2000, 3400);
-    anim = `expandRing ${dur}ms ease-out forwards`;
-
-  } else if (kind === 2) {
-    // dot
-    el = document.createElement('div');
-    el.className = 'amb amb-dot';
-    el.style.cssText = `left:${x}px;top:${y}px;width:3px;height:3px;`;
-    dur  = rand(1600, 2800);
-    anim = `riseOut ${dur}ms ease-out forwards`;
-
-  } else {
-    // typographic glyph
-    el = document.createElement('div');
-    el.className = 'amb amb-glyph';
-    el.textContent = glyphs[ri(0, glyphs.length-1)];
-    const sz = rand(10, 20);
-    el.style.cssText = `left:${x}px;top:${y}px;font-size:${sz}px;`;
-    dur  = rand(2000, 3600);
-    anim = `glyphBlink ${dur}ms ease-in-out forwards`;
-  }
-
-  el.style.animation = anim;
-  ambEl.appendChild(el);
-  el.addEventListener('animationend', () => el.remove());
-}
-
-function scheduleNext() {
-  setTimeout(() => { spawnMark(); scheduleNext(); }, rand(700, 2800));
-}
-// Staggered warm-up
-setTimeout(() => spawnMark(), 500);
-setTimeout(() => spawnMark(), 1200);
-setTimeout(() => spawnMark(), 1900);
-scheduleNext();
-
-/* ── trivia ── */
-const trivia = [
-  "Lithuania is the last country in Europe to have officially adopted Christianity, accepting it only in 1387 — over a thousand years after most of the continent.",
-  "The Hill of Crosses near Šiauliai holds over 100,000 crosses. Soviet bulldozers flattened it three times, yet locals rebuilt it each time overnight.",
-  "Lithuania was the first Soviet republic to declare independence, doing so on March 11, 1990 — over a year before the USSR officially dissolved.",
-  "At its medieval peak, the Grand Duchy of Lithuania was the largest state in Europe, stretching from the Baltic Sea nearly to the Black Sea.",
-  "Lithuania is home to the geographic centre of Europe — a point near Purnuškės village, confirmed by the French National Geographic Institute in 1989.",
-  "The Lithuanian language is considered the most archaic living Indo-European language, preserving features from Proto-Indo-European that other languages lost millennia ago.",
-  "Basketball is practically a religion in Lithuania. The national team won bronze at three consecutive Olympics: 1992, 1996, and 2000.",
-  "Vilnius's Old Town is one of the largest surviving medieval old towns in Northern Europe and has been a UNESCO World Heritage Site since 1994.",
-  "The amber found on Lithuania's Baltic coast is so abundant that the country is sometimes called the 'Amber Coast' — up to 90% of the world's known amber deposits lie in this region.",
-  "Lithuania had one of the highest basketball player-to-population ratios in the world during the 1990s, producing NBA stars like Arvydas Sabonis and Šarūnas Marčiulionis.",
-  "The city of Kaunas served as the temporary capital of Lithuania for nearly 20 years (1920–1939), after Vilnius was seized by Poland.",
-  "Lithuania's national dish, Cepelinai — potato dumplings shaped like zeppelins — are so large that finishing two in one sitting is considered a real accomplishment.",
-  "Vilnius once declared the 'Republic of Užupis' — a bohemian neighbourhood that proclaimed independence on April Fool's Day 1997, complete with its own constitution and an army of twelve.",
-  "The Curonian Spit, a narrow sand-dune peninsula shared between Lithuania and Russia, is a UNESCO World Heritage Site with dunes reaching 70 metres high.",
-  "The Lithuanian flag's yellow-green-red colours symbolise golden grain fields, the forests, and the blood of those who fought for the nation's freedom.",
-  "Vilnius boasts more baroque architecture per square kilometre than almost any other city in Europe, earning it the nickname 'the Baroque pearl of the north'.",
-  "In 1989, approximately two million people joined hands to form a human chain spanning 675 kilometres across Estonia, Latvia, and Lithuania — a protest known as the Baltic Way.",
-  "Lithuania has one of the fastest average internet connection speeds in the world, consistently ranking in the global top ten for broadband.",
-  "The Trakai Island Castle sits entirely on an island in Lake Galvė and is one of the most photographed structures in the Baltic states.",
-  "Lithuania is the only country whose national anthem is a poem — 'Tautiška giesmė' — and its lyrics speak only of hope, never of war or enemies.",
-  "The first book printed in Lithuanian, the 'Catechism' by Martynas Mažvydas, was published in 1547, making it one of the earliest vernacular texts in Eastern Europe.",
-  "Vilnius University, founded in 1579, is one of the oldest universities in Northern Europe and still operates on its original baroque campus.",
-  "Lithuania's stork population is among the highest in Europe relative to land area — storks nest on rooftops and poles and are beloved national symbols.",
-  "Samogitia, a highland region of Lithuania, maintained its own dialect and fierce independence, resisting incorporation into the Grand Duchy until the 15th century.",
-  "The Puntukas boulder in Anykščiai weighs 265 tonnes and has the faces of two pioneering Lithuanian-American aviators carved into its side.",
-  "Lithuania declared independence twice — once in 1918 and again in 1990 — making it one of the few nations to have restored statehood after full Soviet annexation.",
-  "Vilnius is home to one of the last great Litvak Jewish cemeteries; the city was once called 'the Jerusalem of Lithuania' for its extraordinary cultural and scholarly life.",
-  "The Nemunas river, Lithuania's longest at 937 km, has shaped the country's history as a natural border and vital trade artery since the earliest settlements.",
-  "Lithuania produces more than 80% of the world's laser components used in scientific research — a quietly extraordinary fact for a nation of under 3 million people.",
-  "The Lithuanian language has two grammatical genders and retains seven noun cases, rivalling ancient Latin in its structural complexity.",
+const roomData = [
+  { id: 1, title: 'Pytanie o Filaska', type: 'question' },
+  { id: 2, title: 'Miasta Litwy', type: 'sort' },
+  { id: 3, title: 'Herby litewskie', type: 'match' },
+  { id: 4, title: 'Pytanie o serial', type: 'question' },
+  { id: 5, title: 'Misja Super Trivia', type: 'trivia' },
+  { id: 6, title: 'Quiz ACT', type: 'quiz' },
+  { id: 7, title: 'Szyfr Bacona', type: 'cipher' },
+  { id: 8, title: 'Oczekiwanie', type: 'info' },
+  { id: 9, title: 'Niedostępny', type: 'unavailable' },
+  { id: 10, title: 'Niedostępny', type: 'unavailable' },
 ];
 
-let lastIdx = -1, isOpen = false;
-const tbox    = document.getElementById('tbox');
-const ttext   = document.getElementById('ttext');
-const instr   = document.getElementById('instr');
+// ═══════════════════════════════════════ NAVIGATION
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'page-home') renderGrid();
+  if (id === 'page-trivia') initTrivia();
+}
 
-function openTrivia() {
-  let idx;
-  do { idx = Math.floor(Math.random() * trivia.length); }
-  while (idx === lastIdx && trivia.length > 1);
-  lastIdx = idx;
+function showRoom(n) {
+  if (n === 9 || n === 10) { showPage('page-room-' + n); return; }
+  if (n === 8) { showPage('page-room-8'); return; }
+  // check if locked
+  const minUnlocked = n === 1 ? true : completed.includes(n - 1);
+  if (!minUnlocked) return;
+  if (n === 2) initRoom2();
+  if (n === 3) resetRoom3();
+  showPage('page-room-' + n);
+}
 
-  ttext.classList.remove('pop');
-  ttext.textContent = trivia[idx];
-  void ttext.offsetWidth;
-  ttext.classList.add('pop');
+// ═══════════════════════════════════════ GRID RENDER
+function renderGrid() {
+  const grid = document.getElementById('rooms-grid');
+  grid.innerHTML = '';
+  roomData.forEach(r => {
+    const isCompleted = completed.includes(r.id);
+    const isUnlocked = r.id === 1 || completed.includes(r.id - 1);
+    const isUnavailable = r.id === 9 || r.id === 10;
+    const div = document.createElement('div');
+    div.className = 'room-card' + (isCompleted ? ' completed' : '') + (!isUnlocked && !isUnavailable ? ' locked' : '') + (isUnavailable ? ' unavailable' : '');
+    div.innerHTML = `
+      <div class="room-number">${String(r.id).padStart(2, '0')}</div>
+      <div class="room-info">
+        <div class="room-status">${isCompleted ? '✓' : isUnavailable ? '—' : isUnlocked ? '→' : '—'}</div>
+      </div>`;
+    if (isUnlocked || isUnavailable) div.onclick = () => showRoom(r.id);
+    grid.appendChild(div);
+  });
+  document.getElementById('progress-text').textContent = `${completed.length} / 10 ukończono`;
+}
 
-  if (!isOpen) {
-    tbox.classList.add('open');
-    instr.classList.add('gone');
-    isOpen = true;
+function markComplete(n) {
+  if (!completed.includes(n)) {
+    completed.push(n);
+    localStorage.setItem('znner-completed', JSON.stringify(completed));
+  }
+  showSuccess(n);
+}
+
+function showSuccess(n) {
+  const titles = ['Odpowiedź przyjęta.', 'Kolejność potwierdzona.', 'Wdzięczność wyrażona.', 'Imię rozpoznane.', 'Kod zaakceptowany.', 'Odpowiedź poprawna.', 'Szyfr złamany.', '', '', ''];
+  document.getElementById('success-title').textContent = titles[n - 1] || 'Doskonale.';
+  document.getElementById('success-sub').textContent = n < 8 ? `Pokój ${n + 1} został odblokowany.` : '';
+  document.getElementById('success-overlay').classList.add('visible');
+}
+
+function closeSuccess() {
+  document.getElementById('success-overlay').classList.remove('visible');
+  showPage('page-home');
+}
+
+// ═══════════════════════════════════════ ROOM 1
+function checkRoom1() {
+  const val = document.getElementById('r1-answer').value.trim().toLowerCase();
+  const ans = ['w szczawnicy', 'szczawnica'];
+  const msg = document.getElementById('r1-msg');
+  if (ans.includes(val)) {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Poprawnie! Wczytywanie następnego pokoju…';
+    setTimeout(() => markComplete(1), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawna odpowiedź. Spróbuj ponownie.';
   }
 }
 
-function closeTrivia() {
-  tbox.classList.remove('open');
-  isOpen = false;
-  setTimeout(() => instr.classList.remove('gone'), 500);
+// ═══════════════════════════════════════ ROOM 2
+const citiesOrder = ['Wilno', 'Kowno', 'Kłajpeda', 'Szawle', 'Poniewież'];
+let room2Items = [...citiesOrder].sort(() => Math.random() - 0.5);
+let dragSrc = null;
+
+function initRoom2() {
+  const list = document.getElementById('sort-list-r2');
+  list.innerHTML = '';
+  room2Items.forEach((city, i) => {
+    const li = document.createElement('li');
+    li.className = 'sort-item';
+    li.draggable = true;
+    li.dataset.city = city;
+    li.innerHTML = `<span class="sort-handle">⠿</span><span class="sort-rank">${i + 1}</span><span class="sort-city">${city}</span>`;
+    li.addEventListener('dragstart', e => { dragSrc = li; li.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    li.addEventListener('dragend', () => { li.classList.remove('dragging'); updateRanks(); });
+    li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drag-over'); });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      if (dragSrc !== li) {
+        const allItems = [...list.querySelectorAll('.sort-item')];
+        const from = allItems.indexOf(dragSrc);
+        const to = allItems.indexOf(li);
+        if (from < to) list.insertBefore(dragSrc, li.nextSibling);
+        else list.insertBefore(dragSrc, li);
+        updateRanks();
+      }
+    });
+    list.appendChild(li);
+  });
 }
 
-signEl.addEventListener('click', openTrivia);
-document.getElementById('tdismiss').addEventListener('click', closeTrivia);
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeTrivia();
-  if ((e.key === ' ' || e.key === 'Enter') && !isOpen) openTrivia();
-});
+function updateRanks() {
+  document.querySelectorAll('#sort-list-r2 .sort-rank').forEach((el, i) => el.textContent = i + 1);
+}
+
+function checkRoom2() {
+  const items = [...document.querySelectorAll('#sort-list-r2 .sort-item')];
+  const current = items.map(i => i.dataset.city);
+  const msg = document.getElementById('r2-msg');
+  if (JSON.stringify(current) === JSON.stringify(citiesOrder)) {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Kolejność bezbłędna! Przechodzisz dalej…';
+    setTimeout(() => markComplete(2), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawna kolejność. Spróbuj ponownie.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 3
+function resetRoom3() {
+  document.getElementById('r3-a1').value = '';
+  document.getElementById('r3-a2').value = '';
+  document.getElementById('r3-a3').value = '';
+  document.getElementById('r3-form').style.display = 'block';
+  document.getElementById('r3-confirm').style.display = 'none';
+  const msg = document.getElementById('r3-msg');
+  msg.className = 'msg';
+}
+
+function submitRoom3() {
+  const a1 = document.getElementById('r3-a1').value.trim();
+  const a2 = document.getElementById('r3-a2').value.trim();
+  const a3 = document.getElementById('r3-a3').value.trim();
+  const msg = document.getElementById('r3-msg');
+
+  if (!a1 || !a2 || !a3) {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Wypełnij wszystkie trzy pola.';
+    return;
+  }
+  msg.className = 'msg';
+
+  // Show confirmation panel
+  document.getElementById('r3-form').style.display = 'none';
+  const summary = document.getElementById('r3-summary');
+  summary.innerHTML = `
+    <span style="display:block">I.&nbsp;&nbsp;&nbsp;${a1}</span>
+    <span style="display:block">II.&nbsp;&nbsp;${a2}</span>
+    <span style="display:block">III.&nbsp;${a3}</span>
+  `;
+  document.getElementById('r3-confirm').style.display = 'block';
+}
+
+function confirmRoom3() {
+  markComplete(3);
+}
+
+function editRoom3() {
+  document.getElementById('r3-confirm').style.display = 'none';
+  document.getElementById('r3-form').style.display = 'block';
+}
+
+
+// ═══════════════════════════════════════ ROOM 4
+function checkRoom4() {
+  const val = document.getElementById('r4-answer').value.trim().toLowerCase();
+  const msg = document.getElementById('r4-msg');
+  if (val === 'bonifacy') {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Imię poprawne!';
+    setTimeout(() => markComplete(4), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawna odpowiedź.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 5
+function checkRoom5() {
+  const val = document.getElementById('r5-answer').value.trim();
+  const msg = document.getElementById('r5-msg');
+  if (val === 'aknazuz ałainapsw') {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Kod zaakceptowany!';
+    setTimeout(() => markComplete(5), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawny kod. Wróć do Super Trivii.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 6
+function selectR6(letter) {
+  ['A','B','C','D'].forEach(l => document.getElementById('r6-' + l).classList.remove('selected'));
+  document.getElementById('r6-' + letter).classList.add('selected');
+  r6Selected = letter;
+}
+
+function checkRoom6() {
+  const msg = document.getElementById('r6-msg');
+  if (!r6Selected) { msg.className = 'msg error visible'; msg.textContent = 'Wybierz odpowiedź.'; return; }
+  if (r6Selected === 'C') {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Odpowiedź C — poprawna!';
+    setTimeout(() => markComplete(6), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawna odpowiedź. Spróbuj ponownie.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 7
+function checkRoom7() {
+  const val = document.getElementById('r7-answer').value.trim().toLowerCase().replace(/\s/g,'');
+  const msg = document.getElementById('r7-msg');
+  // Accept the exact answer from the spec plus common variants
+  const accepted = [
+    'zuzankaiestnaipiknieisza',
+    'zuzankajestnaipikniejsza',
+    'zuzankajestnaipiknieisza',
+    'zuzankaiestnaipikniejsza',
+    'zuzankaiestnaipiekniejsza',
+    'zuzankajestnaipiekniejsza',
+  ];
+  if (accepted.includes(val)) {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Szyfr złamany!';
+    setTimeout(() => markComplete(7), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawny tekst. Sprawdź szyfr Bacona.';
+  }
+}
+
+// ═══════════════════════════════════════ ADMIN
+function toggleAdmin() {
+  const panel = document.getElementById('admin-panel');
+  panel.classList.toggle('visible');
+}
+
+function adminLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  const msg = document.getElementById('admin-msg');
+  const controls = document.getElementById('admin-controls');
+  if (pass === 'anicca') {
+    msg.style.display = 'none';
+    controls.style.display = 'block';
+    renderAdminBtns();
+  } else {
+    msg.style.display = 'inline';
+    msg.textContent = 'Błędne hasło.';
+    controls.style.display = 'none';
+  }
+}
+
+function renderAdminBtns() {
+  const c = document.getElementById('admin-btns');
+  c.innerHTML = '';
+  for (let i = 1; i <= 8; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-outline';
+    btn.style.cssText = 'padding:0.4rem 0.8rem;font-size:0.6rem;letter-spacing:0.1em';
+    btn.textContent = `Pokój ${i}`;
+    btn.onclick = () => { markCompleteAdmin(i); renderAdminBtns(); };
+    c.appendChild(btn);
+  }
+}
+
+function markCompleteAdmin(n) {
+  if (!completed.includes(n)) {
+    completed.push(n);
+    localStorage.setItem('znner-completed', JSON.stringify(completed));
+  }
+  renderGrid();
+}
+
+// ═══════════════════════════════════════ SUPER TRIVIA
+const triviaQuestions = [
+  // Estonia
+  { country: 'Estonia', q: 'Jakie jest oficjalne miasto stołeczne Estonii?', opts: ['Tallin','Ryga','Wilno','Helsinki'], ans: 0 },
+  { country: 'Estonia', q: 'Ile mieszkańców liczy Estonia?', opts: ['ok. 1,3 mln','ok. 3 mln','ok. 5 mln','ok. 800 tys.'], ans: 0 },
+  { country: 'Estonia', q: 'W którym roku Estonia odzyskała niepodległość od ZSRR?', opts: ['1991','1989','1993','1985'], ans: 0 },
+  { country: 'Estonia', q: 'Jakie morze oblewa Estonię od zachodu?', opts: ['Bałtyckie','Północne','Norweskie','Czarne'], ans: 0 },
+  { country: 'Estonia', q: 'Walutą Estonii jest:', opts: ['Euro','Korona estońska','Litas','Rubel'], ans: 0 },
+  { country: 'Estonia', q: 'Estonia jest znana z zaawansowanego systemu:', opts: ['e-administracji','rolnictwa ekologicznego','przemysłu stalowego','górnictwa węgla'], ans: 0 },
+  { country: 'Estonia', q: 'Które miasto jest drugim co do wielkości miastem Estonii?', opts: ['Tartu','Narwa','Pärnu','Viljandi'], ans: 0 },
+  { country: 'Estonia', q: 'Skąd pochodzi Skype – znana aplikacja do komunikacji?', opts: ['Estonii','Szwecji','Finlandii','Łotwy'], ans: 0 },
+  { country: 'Estonia', q: 'Estonia granicząca z Łotwą od południa i z Rosją od:', opts: ['Wschodu','Zachodu','Północy','Południa'], ans: 0 },
+  // Latvia
+  { country: 'Łotwa', q: 'Jak nazywa się stolica Łotwy?', opts: ['Ryga','Tallin','Wilno','Kowno'], ans: 0 },
+  { country: 'Łotwa', q: 'Ryga jest największym miastem w krajach:', opts: ['Bałtyckich','Skandynawskich','Beneluksu','Bałkańskich'], ans: 0 },
+  { country: 'Łotwa', q: 'W którym roku Łotwa przystąpiła do Unii Europejskiej?', opts: ['2004','1999','2007','2011'], ans: 0 },
+  { country: 'Łotwa', q: 'Jaką walutą posługuje się dziś Łotwa?', opts: ['Euro','Lats','Rubel','Korona'], ans: 0 },
+  { country: 'Łotwa', q: 'Łotwa graniczy z Estonią, Litwą, Rosją i:', opts: ['Białorusią','Polską','Finlandią','Szwecją'], ans: 0 },
+  { country: 'Łotwa', q: 'Które z poniższych to drugie co do wielkości miasto Łotwy?', opts: ['Daugavpils','Jelgava','Jurmała','Ventspils'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak nazywa się tradycyjny łotewski festiwal pieśni i tańca?', opts: ['Dziesmu svētki','Midsommar','Jaanipäev','Jānis'], ans: 0 },
+  { country: 'Łotwa', q: 'Rzeka przepływająca przez Rygę nosi nazwę:', opts: ['Dźwina','Niemen','Wisła','Nemunas'], ans: 0 },
+  { country: 'Łotwa', q: 'Która z poniższych postaci jest łotewskim sportowcem NBA?', opts: ['Kristaps Porziņģis','Arvydas Sabonis','Domantas Sabonis','Pau Gasol'], ans: 0 },
+  // Czechia
+  { country: 'Czechy', q: 'Jak brzmi oficjalna krótka nazwa Czech?', opts: ['Czechia','Bohemia','Moravia','Czecho-Słowacja'], ans: 0 },
+  { country: 'Czechy', q: 'Jakie jest miasto stołeczne Czech?', opts: ['Praga','Brno','Ostrawa','Pilzno'], ans: 0 },
+  { country: 'Czechy', q: 'Czechy graniczyły z Niemcami, Austrią, Słowacją i:', opts: ['Polską','Węgrami','Słowenią','Chorwacją'], ans: 0 },
+  { country: 'Czechy', q: 'Walutą Czech jest:', opts: ['Korona czeska','Euro','Forint','Frank'], ans: 0 },
+  { country: 'Czechy', q: 'Który browar pochodzi z czeskiego Pilzna?', opts: ['Pilsner Urquell','Budweiser','Heineken','Stella Artois'], ans: 0 },
+  { country: 'Czechy', q: 'W którym roku Czechosłowacja pokojowo podzieliła się na Czechy i Słowację?', opts: ['1993','1991','1989','1995'], ans: 0 },
+  { country: 'Czechy', q: 'Jak nazywa się historyczny region Czech znany z dużego wydobycia węgla?', opts: ['Ostrawia','Bohemia','Morawy','Sudety'], ans: 0 },
+  { country: 'Czechy', q: 'Który czeski kompozytor napisał cykl "Moja ojczyzna"?', opts: ['Bedřich Smetana','Antonín Dvořák','Leoš Janáček','Pavel Haas'], ans: 0 },
+  { country: 'Czechy', q: 'Praga leży nad rzeką:', opts: ['Wełtawa','Łaba','Morawy','Odra'], ans: 0 },
+  { country: 'Czechy', q: 'Czechy przystąpiły do Unii Europejskiej w roku:', opts: ['2004','1999','2007','2011'], ans: 0 },
+  { country: 'Czechy', q: 'Jak nazywa się gotycki most w Pradze łączący Stare Miasto z zamkiem?', opts: ['Most Karola','Most Praski','Most Wełtawy','Most Złoty'], ans: 0 },
+];
+
+let currentTriviaQ = null;
+let triviaLocked = false;
+
+function initTrivia() {
+  triviaCorrect = parseInt(sessionStorage.getItem('trivia-correct') || '0');
+  triviaUsedQuestions = new Set(JSON.parse(sessionStorage.getItem('trivia-used') || '[]'));
+  updateTriviaScore();
+  if (triviaCorrect >= 10) { showTriviaUnlock(); return; }
+  nextTriviaQuestion();
+}
+
+function updateTriviaScore() {
+  const pct = (triviaCorrect / 10) * 100;
+  document.getElementById('trivia-score-fill').style.width = pct + '%';
+  document.getElementById('trivia-score-text').textContent = `${triviaCorrect} / 10 poprawnych`;
+}
+
+function nextTriviaQuestion() {
+  const available = triviaQuestions.filter((_, i) => !triviaUsedQuestions.has(i));
+  if (available.length === 0) {
+    triviaUsedQuestions.clear();
+    sessionStorage.setItem('trivia-used', '[]');
+    nextTriviaQuestion();
+    return;
+  }
+  const idx = Math.floor(Math.random() * available.length);
+  const originalIdx = triviaQuestions.indexOf(available[idx]);
+  currentTriviaQ = { ...available[idx], originalIdx };
+  triviaLocked = false;
+  renderTriviaQ(available[idx]);
+}
+
+function renderTriviaQ(q) {
+  const shuffled = q.opts.map((o, i) => ({ text: o, correct: i === q.ans })).sort(() => Math.random() - 0.5);
+  const letters = ['A','B','C','D'];
+  const area = document.getElementById('trivia-question-area');
+  area.innerHTML = `
+    <div class="trivia-flag">— ${q.country} —</div>
+    <div class="trivia-question">${q.q}</div>
+    <div class="trivia-options" id="trivia-opts">
+      ${shuffled.map((o, i) => `
+        <div class="trivia-opt" data-correct="${o.correct}" onclick="answerTrivia(this)">
+          <span class="opt-letter">${letters[i]}</span>
+          <span>${o.text}</span>
+        </div>`).join('')}
+    </div>
+    <div class="trivia-result" id="trivia-result"></div>
+  `;
+}
+
+function answerTrivia(el) {
+  if (triviaLocked) return;
+  triviaLocked = true;
+  const correct = el.dataset.correct === 'true';
+  const result = document.getElementById('trivia-result');
+  triviaUsedQuestions.add(currentTriviaQ.originalIdx);
+  sessionStorage.setItem('trivia-used', JSON.stringify([...triviaUsedQuestions]));
+
+  if (correct) {
+    el.classList.add('correct');
+    result.className = 'trivia-result good';
+    result.textContent = '✓ Poprawnie!';
+    triviaCorrect++;
+    sessionStorage.setItem('trivia-correct', triviaCorrect);
+    updateTriviaScore();
+    if (triviaCorrect >= 10) {
+      setTimeout(showTriviaUnlock, 1000);
+      return;
+    }
+  } else {
+    el.classList.add('incorrect');
+    document.querySelectorAll('.trivia-opt').forEach(o => {
+      if (o.dataset.correct === 'true') o.classList.add('selected-correct');
+    });
+    result.className = 'trivia-result bad';
+    result.textContent = '✗ Błędnie. Spróbuj z następnym pytaniem.';
+  }
+
+  setTimeout(() => {
+    if (triviaCorrect < 10) nextTriviaQuestion();
+  }, 1800);
+}
+
+function showTriviaUnlock() {
+  document.getElementById('trivia-question-area').innerHTML = '<div style="font-size:0.75rem;color:var(--mid-gray);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem">Cel osiągnięty — 10 poprawnych odpowiedzi</div>';
+  document.getElementById('trivia-unlock').classList.add('visible');
+}
+
+// ═══════════════════════════════════════ INIT
+renderGrid();
 </script>
 </body>
 </html>
