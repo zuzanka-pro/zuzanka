@@ -2559,131 +2559,258 @@ renderGrid();
 
 
 
+
+
 <!-- ═══════════════════════════════════════════════════════ TECHNO ZUZANKA PAGE -->
 <div id="page-techno" class="page">
 <style>
-  #page-techno { background:#0d0d0d; min-height:100vh; position:relative; overflow-x:hidden; }
-  .tz-bg-layer { position:fixed; inset:0; pointer-events:none; }
-  .tz-bg-layer.grad   { z-index:0; background:#0d0d0d; }
-  .tz-bg-layer.scanlines { z-index:1; background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(255,255,255,0.022) 3px,rgba(255,255,255,0.022) 4px); }
-  .tz-bg-layer.vignette  { z-index:2; background:radial-gradient(ellipse 90% 90% at 50% 50%,transparent 35%,rgba(0,0,0,0.72) 100%); }
-
-  #tz-flash { position:fixed; inset:0; pointer-events:none; z-index:60; background:rgba(255,255,255,0); }
-  #tz-flash.tz-pop { animation:tzFlashAnim 0.12s ease-out forwards; }
-  @keyframes tzFlashAnim { 0%{background:rgba(255,255,255,0.16)} 100%{background:rgba(255,255,255,0)} }
-
-  .tz-ripple { position:fixed; border-radius:50%; border:1px solid rgba(255,255,255,0.4); pointer-events:none; z-index:50; transform:translate(-50%,-50%); animation:tzRippleAnim 0.75s cubic-bezier(0.15,0.5,0.5,1) forwards; }
-  .tz-ripple.red { border-color:rgba(200,20,20,0.55); }
-  @keyframes tzRippleAnim { from{width:8px;height:8px;opacity:0.8} to{width:200px;height:200px;opacity:0} }
-
-  /* ── HEADER ── */
-  .tz-header { position:relative; z-index:20; display:flex; justify-content:space-between; align-items:center; padding:1.1rem 2.5rem; border-bottom:1px solid rgba(255,255,255,0.1); }
-  .tz-back { font-family:'EB Garamond',serif; font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.28); transition:color 0.3s; padding:0; }
-  .tz-back:hover { color:rgba(255,255,255,0.85); }
-  .tz-header-title { font-family:'EB Garamond',serif; font-size:0.7rem; letter-spacing:0.28em; text-transform:uppercase; color:rgba(255,255,255,0.16); font-style:italic; }
-  .tz-header-right { width:80px; }
-
-  /* ── TEMPO ── */
-  .tz-tempo-bar { position:relative; z-index:20; display:flex; align-items:center; justify-content:center; gap:1rem; padding:0.7rem 2.5rem; border-bottom:1px solid rgba(255,255,255,0.07); flex-wrap:wrap; }
-  .tz-bpm-btn { font-family:'EB Garamond',serif; font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; background:none; border:1px solid rgba(255,255,255,0.18); color:rgba(255,255,255,0.4); cursor:pointer; padding:0.28rem 0.8rem; transition:all 0.2s ease; line-height:1; }
-  .tz-bpm-btn:hover { border-color:rgba(255,255,255,0.55); color:rgba(255,255,255,0.85); }
-  .tz-bpm-btn.active { border-color:#cc1111; color:#cc1111; background:rgba(180,0,0,0.06); }
-  .tz-bpm-display { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700; color:rgba(255,255,255,0.55); min-width:60px; text-align:center; transition:color 0.15s; }
-  .tz-bpm-display.beat { color:#cc1111; }
-  .tz-bpm-label { font-family:'EB Garamond',serif; font-size:0.52rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.2); }
-  .tz-tempo-slider { -webkit-appearance:none; appearance:none; width:110px; height:1px; background:rgba(255,255,255,0.18); outline:none; cursor:pointer; }
-  .tz-tempo-slider::-webkit-slider-thumb { -webkit-appearance:none; width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.55); cursor:pointer; }
-  .tz-tempo-slider:hover::-webkit-slider-thumb { background:#cc1111; }
-
-  /* ── STAGE ── */
-  .tz-stage { position:relative; z-index:10; display:flex; flex-direction:column; align-items:center; padding:2rem 1rem 8rem; gap:0; }
-
-  /* ── ROWS ── */
-  .tz-row { display:flex; gap:clamp(0.5rem,2vw,1.4rem); align-items:center; justify-content:center; flex-wrap:nowrap; margin-bottom:0.5rem; }
-  .tz-rows-sep { width:90%; max-width:700px; height:1px; background:rgba(255,255,255,0.07); margin:1.4rem 0; }
-
-  /* ── BASE LETTER ── */
-  .tz-letter { color:rgba(255,255,255,0.13); cursor:pointer; position:relative; user-select:none; line-height:1; padding:0.04em 0.12em; transition:color 0.2s ease,transform 0.15s ease; }
-  .tz-letter-name { display:block; position:absolute; bottom:-1.7em; left:50%; transform:translateX(-50%); font-family:'EB Garamond',serif; font-size:0.42rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.15); white-space:nowrap; pointer-events:none; transition:color 0.3s; }
-
-  /* ── FONT SIZES — bigger & clearer ── */
-  /* Row A — Cormorant bold, very large */
-  .tz-row-a .tz-letter { font-family:'Cormorant Garamond',serif; font-size:clamp(4.5rem,11vw,8.5rem); font-weight:700; -webkit-text-stroke:0.5px rgba(255,255,255,0.2); }
-  /* Row B — EB Garamond italic, clearly visible */
-  .tz-row-b .tz-letter { font-family:'EB Garamond',serif; font-size:clamp(3rem,7.5vw,6rem); font-weight:500; font-style:italic; -webkit-text-stroke:0.4px rgba(255,255,255,0.17); letter-spacing:0.05em; }
-  /* Row C — Cormorant light italic */
-  .tz-row-c .tz-letter { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,5.5vw,4.5rem); font-weight:300; font-style:italic; letter-spacing:0.1em; -webkit-text-stroke:0.5px rgba(255,255,255,0.2); color:rgba(255,255,255,0.1); }
-  /* Row D — EB Garamond bold upright */
-  .tz-row-d .tz-letter { font-family:'EB Garamond',serif; font-size:clamp(1.8rem,4.5vw,3.6rem); font-weight:700; letter-spacing:0.07em; -webkit-text-stroke:0.4px rgba(255,255,255,0.16); color:rgba(255,255,255,0.1); }
-  /* Row E — Cormorant semibold italic, still readable */
-  .tz-row-e .tz-letter { font-family:'Cormorant Garamond',serif; font-size:clamp(1.4rem,3.5vw,2.8rem); font-weight:600; font-style:italic; letter-spacing:0.15em; -webkit-text-stroke:0.4px rgba(255,255,255,0.18); color:rgba(255,255,255,0.09); }
-
-  .tz-letter:hover { color:rgba(255,255,255,0.52); transform:scale(1.06) translateY(-3px); -webkit-text-stroke:0px; }
-  .tz-letter:hover .tz-letter-name { color:rgba(255,255,255,0.4); }
-
-  .tz-letter.tz-on { color:#cc1111 !important; -webkit-text-stroke:0px !important; animation:tzLetterPulse 0.4s ease-in-out infinite alternate; }
-  .tz-letter.tz-on .tz-letter-name { color:rgba(200,30,30,0.7) !important; }
-  @keyframes tzLetterPulse {
-    from { text-shadow:0 0 8px #cc1111,0 0 22px rgba(180,0,0,0.65),0 0 44px rgba(160,0,0,0.35); transform:scale(1.02) translateY(-1px); }
-    to   { text-shadow:0 0 14px #ee2222,0 0 44px rgba(200,0,0,0.8),0 0 85px rgba(160,0,0,0.45),0 0 130px rgba(120,0,0,0.2); transform:scale(1.09) translateY(-5px); }
+  /* Make techno page truly fullscreen — fixed, covers everything */
+  #page-techno {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: unset !important;
+    background: #0d0d0d;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    z-index: 500;
   }
-  .tz-letter.tz-burst { animation:tzLetterBurst 0.52s cubic-bezier(0.22,0.9,0.36,1) forwards !important; }
+  #page-techno.active {
+    display: flex !important;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .tz-bg-layer { position: absolute; inset: 0; pointer-events: none; }
+  .tz-bg-layer.grad   { z-index: 0; background: #0d0d0d; }
+  .tz-bg-layer.scanlines {
+    z-index: 1;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px,
+      rgba(255,255,255,0.018) 3px, rgba(255,255,255,0.018) 4px);
+  }
+  .tz-bg-layer.vignette {
+    z-index: 2;
+    background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 30%, rgba(0,0,0,0.65) 100%);
+  }
+
+  #tz-flash { position: absolute; inset: 0; pointer-events: none; z-index: 60; background: rgba(255,255,255,0); }
+  #tz-flash.tz-pop { animation: tzFlashAnim 0.12s ease-out forwards; }
+  @keyframes tzFlashAnim { 0% { background: rgba(255,255,255,0.14); } 100% { background: rgba(255,255,255,0); } }
+
+  .tz-ripple {
+    position: fixed; border-radius: 50%; border: 1px solid rgba(255,255,255,0.32);
+    pointer-events: none; z-index: 50; transform: translate(-50%,-50%);
+    animation: tzRippleAnim 0.8s cubic-bezier(0.15,0.5,0.5,1) forwards;
+  }
+  @keyframes tzRippleAnim { from{width:8px;height:8px;opacity:0.7} to{width:220px;height:220px;opacity:0} }
+
+  /* BACK ARROW — small, floating top-left */
+  .tz-back-arrow {
+    position: absolute; top: 1.4rem; left: 1.6rem; z-index: 100;
+    background: none; border: none; cursor: pointer; padding: 0.3rem;
+    color: rgba(255,255,255,0.2);
+    font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
+    line-height: 1; letter-spacing: 0;
+    transition: color 0.3s ease, transform 0.25s ease;
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .tz-back-arrow:hover { color: rgba(255,255,255,0.7); transform: translateX(-3px); }
+  .tz-back-arrow-label {
+    font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
+    font-weight: 300; opacity: 0; transition: opacity 0.25s;
+    white-space: nowrap;
+  }
+  .tz-back-arrow:hover .tz-back-arrow-label { opacity: 1; }
+
+  /* TEMPO BAR */
+  .tz-tempo-bar {
+    position: relative; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.9rem; padding: 0.75rem 4rem 0.65rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-wrap: wrap; flex-shrink: 0;
+  }
+  .tz-bpm-btn {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.85rem; font-weight: 400;
+    letter-spacing: 0.1em; background: none;
+    border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.35);
+    cursor: pointer; padding: 0.22rem 0.8rem; transition: all 0.2s ease; line-height: 1;
+  }
+  .tz-bpm-btn:hover { border-color: rgba(255,255,255,0.48); color: rgba(255,255,255,0.82); }
+  .tz-bpm-btn.active { border-color: #cc1111; color: #cc1111; background: rgba(180,0,0,0.05); }
+  .tz-bpm-display {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 600;
+    color: rgba(255,255,255,0.45); min-width: 58px; text-align: center; transition: color 0.15s;
+  }
+  .tz-bpm-display.beat { color: #cc1111; }
+  .tz-bpm-label {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.5rem; font-weight: 300;
+    letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.18);
+  }
+  .tz-tempo-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100px; height: 1px; background: rgba(255,255,255,0.14); outline: none; cursor: pointer;
+  }
+  .tz-tempo-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 8px; height: 8px;
+    border-radius: 50%; background: rgba(255,255,255,0.45); cursor: pointer;
+  }
+  .tz-tempo-slider:hover::-webkit-slider-thumb { background: #cc1111; }
+
+  /* MAIN SCROLLABLE AREA */
+  .tz-stage {
+    position: relative; z-index: 10;
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 1.8rem 1.5rem 1.5rem;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+  .tz-stage::-webkit-scrollbar { width: 3px; }
+  .tz-stage::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  /* LETTER ROWS */
+  .tz-row {
+    display: flex; gap: clamp(0.4rem,2vw,1.3rem);
+    align-items: baseline; justify-content: center;
+    flex-wrap: nowrap; margin-bottom: 0.35rem; flex-shrink: 0;
+  }
+  .tz-rows-sep {
+    width: 85%; max-width: 680px;
+    height: 1px; background: rgba(255,255,255,0.06);
+    margin: 1rem 0; flex-shrink: 0;
+  }
+
+  /* BASE LETTER — all Cormorant Garamond */
+  .tz-letter {
+    font-family: 'Cormorant Garamond', serif;
+    color: rgba(255,255,255,0.12);
+    cursor: pointer; position: relative;
+    user-select: none; line-height: 1;
+    padding: 0.04em 0.1em;
+    transition: color 0.2s ease, transform 0.15s ease;
+  }
+  .tz-letter-name {
+    display: block; position: absolute;
+    bottom: -1.65em; left: 50%; transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif; font-size: 0.4rem; font-weight: 300;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.13); white-space: nowrap;
+    pointer-events: none; transition: color 0.3s;
+  }
+
+  /* Row variants — same font, weight/style/size differ */
+  .tz-row-a .tz-letter { font-size: clamp(4rem,10.5vw,8rem); font-weight: 700; }
+  .tz-row-b .tz-letter { font-size: clamp(2.8rem,7vw,5.5rem); font-weight: 400; font-style: italic; }
+  .tz-row-c .tz-letter { font-size: clamp(2rem,5vw,4rem); font-weight: 300; color: rgba(255,255,255,0.1); }
+  .tz-row-d .tz-letter { font-size: clamp(1.5rem,3.8vw,3rem); font-weight: 600; font-style: italic; color: rgba(255,255,255,0.1); }
+  .tz-row-e .tz-letter { font-size: clamp(1.1rem,2.7vw,2.2rem); font-weight: 300; font-style: italic; color: rgba(255,255,255,0.09); letter-spacing: 0.12em; }
+
+  .tz-letter:hover { color: rgba(255,255,255,0.52); transform: scale(1.05) translateY(-3px); }
+  .tz-letter:hover .tz-letter-name { color: rgba(255,255,255,0.38); }
+
+  .tz-letter.tz-on { color: #cc1111 !important; animation: tzLetterPulse 0.42s ease-in-out infinite alternate; }
+  .tz-letter.tz-on .tz-letter-name { color: rgba(200,30,30,0.7) !important; }
+  @keyframes tzLetterPulse {
+    from { text-shadow: 0 0 8px #cc1111, 0 0 22px rgba(180,0,0,0.6), 0 0 44px rgba(160,0,0,0.3); transform: scale(1.02) translateY(-1px); }
+    to   { text-shadow: 0 0 14px #ee2222, 0 0 44px rgba(200,0,0,0.78), 0 0 85px rgba(160,0,0,0.42); transform: scale(1.09) translateY(-5px); }
+  }
+  .tz-letter.tz-burst { animation: tzLetterBurst 0.52s cubic-bezier(0.22,0.9,0.36,1) forwards !important; }
   @keyframes tzLetterBurst {
-    0%  { color:#fff; -webkit-text-stroke:0px; text-shadow:0 0 30px #fff,0 0 65px #cc1111,0 0 130px #880000; transform:scale(1.3) translateY(-10px); }
+    0%  { color:#fff; text-shadow:0 0 30px #fff,0 0 65px #cc1111,0 0 130px #880000; transform:scale(1.3) translateY(-10px); }
     45% { color:#ee3333; text-shadow:0 0 16px #cc1111,0 0 45px rgba(180,0,0,0.75); transform:scale(1.12) translateY(-5px); }
     100%{ color:#cc1111; text-shadow:0 0 9px #cc1111,0 0 25px rgba(160,0,0,0.6); transform:scale(1.05) translateY(-2px); }
   }
-  .tz-letter.tz-fade { animation:tzLetterFade 0.65s ease forwards !important; }
+  .tz-letter.tz-fade { animation: tzLetterFade 0.65s ease forwards !important; }
   @keyframes tzLetterFade {
     from { color:#cc1111; text-shadow:0 0 9px #cc1111,0 0 25px rgba(160,0,0,0.55); }
-    to   { color:rgba(255,255,255,0.13); text-shadow:none; }
+    to   { color:rgba(255,255,255,0.12); text-shadow:none; }
   }
 
-  /* ── VISUALIZER ── */
-  .tz-visualizer { display:flex; gap:3px; align-items:flex-end; height:38px; margin:1.8rem 0 1.5rem; }
+  /* VISUALIZER */
+  .tz-visualizer { display:flex; gap:3px; align-items:flex-end; height:34px; margin:1.5rem 0 1.2rem; flex-shrink:0; }
   .tz-bar { width:4px; background:rgba(255,255,255,0.1); border-radius:1px 1px 0 0; height:3px; transition:height 0.06s ease,background 0.12s ease; }
 
-  /* ── TRACK INFO ── */
-  .tz-track-info { font-family:'EB Garamond',serif; font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.22); text-align:center; min-height:1.2em; transition:color 0.4s,text-shadow 0.4s; margin-bottom:1.5rem; }
-  .tz-track-info.tz-live { color:rgba(210,45,45,0.85); text-shadow:0 0 12px rgba(180,0,0,0.38); }
+  /* TRACK INFO */
+  .tz-track-info {
+    font-family:'Cormorant Garamond',serif; font-size:0.68rem; font-weight:300;
+    letter-spacing:0.22em; text-transform:uppercase;
+    color:rgba(255,255,255,0.18); text-align:center;
+    min-height:1.2em; transition:color 0.4s,text-shadow 0.4s;
+    margin-bottom:1.2rem; flex-shrink:0;
+  }
+  .tz-track-info.tz-live { color:rgba(210,45,45,0.82); text-shadow:0 0 12px rgba(180,0,0,0.35); }
 
-  /* ── STOP ── */
-  .tz-stop { font-family:'EB Garamond',serif; font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; background:none; border:1px solid rgba(255,255,255,0.13); color:rgba(255,255,255,0.22); padding:0.6rem 2rem; cursor:pointer; transition:all 0.3s ease; opacity:0; pointer-events:none; }
+  /* STOP */
+  .tz-stop {
+    font-family:'Cormorant Garamond',serif; font-size:0.68rem; font-weight:300;
+    letter-spacing:0.2em; text-transform:uppercase;
+    background:none; border:1px solid rgba(255,255,255,0.11);
+    color:rgba(255,255,255,0.2); padding:0.5rem 1.8rem;
+    cursor:pointer; transition:all 0.3s ease;
+    opacity:0; pointer-events:none;
+    margin-bottom:2rem; flex-shrink:0;
+  }
   .tz-stop.visible { opacity:1; pointer-events:all; }
-  .tz-stop:hover { border-color:rgba(200,20,20,0.55); color:#cc1111; box-shadow:0 0 12px rgba(180,0,0,0.14); }
+  .tz-stop:hover { border-color:rgba(200,20,20,0.5); color:#cc1111; box-shadow:0 0 10px rgba(180,0,0,0.1); }
 
-  /* ── CORNER CIRCLES ── */
-  .tz-circle {
-    position:fixed; bottom:2.5rem; z-index:30;
-    border-radius:50%; cursor:pointer;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    user-select:none;
-    transition:transform 0.2s ease, box-shadow 0.3s ease;
-    /* only visible when techno page active */
+  /* RECORDER */
+  .tz-recorder {
+    width:90%; max-width:600px; flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.07);
+    padding:1.2rem 1.8rem 1.4rem;
+    display:flex; flex-direction:column; align-items:center; gap:0.85rem;
+    background:rgba(255,255,255,0.012);
+    margin-bottom: 1.5rem;
   }
-  .tz-circle-left  { left:2.5rem;  width:90px; height:90px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.03); }
-  .tz-circle-right { right:2.5rem; width:90px; height:90px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.03); }
-  .tz-circle:hover { transform:scale(1.08); }
-  .tz-circle-label { font-family:'EB Garamond',serif; font-size:0.45rem; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:0.3rem; text-align:center; line-height:1.4; pointer-events:none; }
-  .tz-circle-icon  { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:300; color:rgba(255,255,255,0.25); pointer-events:none; transition:color 0.25s; }
-
-  .tz-circle.tz-con {
-    border-color:rgba(200,20,20,0.6);
-    background:rgba(180,0,0,0.06);
-    box-shadow:0 0 20px rgba(180,0,0,0.22), 0 0 50px rgba(160,0,0,0.1), inset 0 0 20px rgba(180,0,0,0.05);
-    animation:tzCirclePulse 0.5s ease-in-out infinite alternate;
+  .tz-rec-title {
+    font-family:'Cormorant Garamond',serif; font-size:0.55rem; font-weight:300;
+    letter-spacing:0.28em; text-transform:uppercase; color:rgba(255,255,255,0.18);
+    align-self:flex-start;
   }
-  .tz-circle.tz-con .tz-circle-icon  { color:#cc1111; }
-  .tz-circle.tz-con .tz-circle-label { color:rgba(200,80,80,0.7); }
-  @keyframes tzCirclePulse {
-    from { box-shadow:0 0 15px rgba(180,0,0,0.2), 0 0 35px rgba(160,0,0,0.08); }
-    to   { box-shadow:0 0 28px rgba(200,0,0,0.38), 0 0 70px rgba(160,0,0,0.18); }
+  .tz-rec-controls { display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap; justify-content:center; }
+  .tz-rec-btn {
+    font-family:'Cormorant Garamond',serif; font-size:0.7rem; font-weight:400;
+    letter-spacing:0.14em; text-transform:uppercase;
+    background:none; cursor:pointer; transition:all 0.25s ease;
+    padding:0.42rem 1.3rem; line-height:1;
   }
-
-  .tz-circle.tz-burst-anim { animation:tzCircleBurst 0.4s cubic-bezier(0.22,0.9,0.36,1) forwards !important; }
-  @keyframes tzCircleBurst {
-    0%  { transform:scale(1.25); box-shadow:0 0 40px rgba(255,255,255,0.3), 0 0 80px #cc1111; border-color:rgba(255,255,255,0.8); }
-    100%{ transform:scale(1); }
+  .tz-rec-btn.primary { border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.45); }
+  .tz-rec-btn.primary:hover { border-color:rgba(200,20,20,0.6); color:#cc1111; }
+  .tz-rec-btn.primary.recording {
+    border-color:#cc1111; color:#cc1111;
+    animation:tzRecBlink 1s ease-in-out infinite;
+    box-shadow:0 0 8px rgba(180,0,0,0.12);
+  }
+  @keyframes tzRecBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .tz-rec-btn.secondary { border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.28); }
+  .tz-rec-btn.secondary:hover { border-color:rgba(255,255,255,0.38); color:rgba(255,255,255,0.72); }
+  .tz-rec-btn:disabled { opacity:0.2; pointer-events:none; }
+  .tz-rec-time {
+    font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:300;
+    color:rgba(255,255,255,0.22); letter-spacing:0.06em; min-width:48px; text-align:center; transition:color 0.3s;
+  }
+  .tz-rec-time.active { color:#cc1111; }
+  .tz-rec-waveform {
+    width:100%; height:28px;
+    display:flex; align-items:center; gap:2px; justify-content:center; overflow:hidden;
+  }
+  .tz-rec-wbar { width:3px; height:3px; background:rgba(255,255,255,0.1); border-radius:1px; transition:height 0.05s ease; flex-shrink:0; }
+  .tz-rec-downloads { display:flex; flex-direction:column; gap:0.45rem; width:100%; }
+  .tz-rec-link {
+    font-family:'Cormorant Garamond',serif; font-size:0.65rem; font-weight:300;
+    letter-spacing:0.12em; color:rgba(255,255,255,0.38);
+    text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.08);
+    padding-bottom:0.22rem; transition:color 0.2s,border-color 0.2s;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .tz-rec-link:hover { color:rgba(255,255,255,0.78); border-color:rgba(255,255,255,0.28); }
+  .tz-rec-link-arrow { opacity:0.4; }
+  .tz-rec-link:hover .tz-rec-link-arrow { opacity:1; }
+  .tz-rec-status {
+    font-family:'Cormorant Garamond',serif; font-size:0.58rem; font-weight:300;
+    letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.18);
+    text-align:center; min-height:1em;
   }
 </style>
 
@@ -2692,32 +2819,25 @@ renderGrid();
 <div class="tz-bg-layer vignette"></div>
 <div id="tz-flash"></div>
 
-<!-- Corner circles — always fixed, only shown when techno page is active -->
-<div class="tz-circle tz-circle-left"  id="tz-circ-L" onclick="tzCircleClick('L',this)">
-  <div class="tz-circle-icon" id="tz-circ-L-icon">◯</div>
-  <div class="tz-circle-label" id="tz-circ-L-label">Pulse<br>Bass</div>
-</div>
-<div class="tz-circle tz-circle-right" id="tz-circ-R" onclick="tzCircleClick('R',this)">
-  <div class="tz-circle-icon" id="tz-circ-R-icon">◯</div>
-  <div class="tz-circle-label" id="tz-circ-R-label">White<br>Storm</div>
-</div>
+<!-- Floating back arrow -->
+<button class="tz-back-arrow" onclick="stopTechno(); showPage('page-home')" aria-label="Back to main page">
+  ←<span class="tz-back-arrow-label">return</span>
+</button>
 
-<header class="tz-header">
-  <button class="tz-back" onclick="stopTechno(); showPage('page-home')">← Powrót</button>
-  <span class="tz-header-title">Techno Zuzanka</span>
-  <div class="tz-header-right"></div>
-</header>
-
+<!-- Tempo bar -->
 <div class="tz-tempo-bar">
   <button class="tz-bpm-btn" onclick="tzChangeBPM(-10)">−10</button>
   <button class="tz-bpm-btn" onclick="tzChangeBPM(-1)">−</button>
-  <div><div class="tz-bpm-display" id="tz-bpm-val">128</div><div class="tz-bpm-label">bpm</div></div>
+  <div>
+    <div class="tz-bpm-display" id="tz-bpm-val">128</div>
+    <div class="tz-bpm-label">bpm</div>
+  </div>
   <button class="tz-bpm-btn" onclick="tzChangeBPM(+1)">+</button>
   <button class="tz-bpm-btn" onclick="tzChangeBPM(+10)">+10</button>
   <input class="tz-tempo-slider" type="range" min="60" max="220" value="128" id="tz-bpm-slider" oninput="tzSetBPM(+this.value)">
-  <button class="tz-bpm-btn" id="tz-tap-btn" onclick="tzTap()">tap</button>
 </div>
 
+<!-- Scrollable content -->
 <div class="tz-stage">
   <div class="tz-row tz-row-a" id="tz-row-a"></div>
   <div class="tz-rows-sep"></div>
@@ -2732,8 +2852,21 @@ renderGrid();
   <div class="tz-visualizer" id="tz-viz"></div>
   <div class="tz-track-info" id="tz-info">— —</div>
   <button class="tz-stop" id="tz-stop" onclick="stopTechno()">■ &nbsp; stop all</button>
+
+  <!-- Recorder -->
+  <div class="tz-recorder">
+    <div class="tz-rec-title">Recording</div>
+    <div class="tz-rec-waveform" id="tz-rec-waveform"></div>
+    <div class="tz-rec-controls">
+      <button class="tz-rec-btn primary" id="tz-rec-btn" onclick="tzRecToggle()">● Record</button>
+      <div class="tz-rec-time" id="tz-rec-time">0:00</div>
+      <button class="tz-rec-btn secondary" id="tz-stop-rec-btn" onclick="tzRecStop()" disabled>■ Stop</button>
+    </div>
+    <div class="tz-rec-status" id="tz-rec-status">ready to record</div>
+    <div class="tz-rec-downloads" id="tz-rec-downloads"></div>
+  </div>
 </div>
-</div>
+</div><!-- end page-techno -->
 
 <script>
 (function(){
@@ -2784,14 +2917,7 @@ const ROW_E=[
   {letter:'K',key:'e-whoosh',label:'Whoosh', interval:null             },
   {letter:'A',key:'e-acid5', label:'Acid 5', interval:()=>bpmMs(2)    },
 ];
-
 const ALL=[...ROW_A,...ROW_B,...ROW_C,...ROW_D,...ROW_E];
-
-// Circle sound defs
-const CIRCLES={
-  L:{ label:'Pulse Bass', icon:'◉', key:'circ-L' },
-  R:{ label:'White Storm', icon:'◎', key:'circ-R' },
-};
 
 const ARP  =[440,554,659,880,659,554,440,370];
 const ACID =[55,55,73,55,55,73,82,73];
@@ -2804,29 +2930,43 @@ const CHORD=[[261,330,392],[294,370,440],[330,415,494],[261,330,392]];
 const STAB =[220,277,330,415];
 const BLIP =[880,1108,1318,1760,1318,1108];
 
-let audioCtx=null, playing={}, bpm=128, vizTimer=null, beatFlashTimer=null, tapTimes=[];
+let audioCtx=null,playing={},bpm=128,vizTimer=null,beatFlashTimer=null;
+let mediaRecorder=null,recChunks=[],recTimer=null,recSeconds=0,recIsRecording=false;
+let recDestination=null,recGain=null;
+
+const N_WBARS=40;
+const waveformEl=document.getElementById('tz-rec-waveform');
+for(let i=0;i<N_WBARS;i++){const b=document.createElement('div');b.className='tz-rec-wbar';waveformEl.appendChild(b);}
+const wbars=waveformEl.querySelectorAll('.tz-rec-wbar');
+let waveTimer=null;
 
 function bpmMs(b){return(60000/bpm)*b;}
-function ac(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function ac(){
+  if(!audioCtx){
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    recDestination=audioCtx.createMediaStreamDestination();
+    recGain=audioCtx.createGain(); recGain.gain.value=1; recGain.connect(recDestination);
+  }
+  return audioCtx;
+}
 
-// build letter rows
+// build rows
 function buildRow(defs,id){
   const row=document.getElementById(id);
   defs.forEach(d=>{
-    const el=document.createElement('div'); el.className='tz-letter'; el.id='tzl-'+d.key;
+    const el=document.createElement('div');el.className='tz-letter';el.id='tzl-'+d.key;
     el.innerHTML=d.letter+'<span class="tz-letter-name">'+d.label+'</span>';
     el.addEventListener('click',ev=>letterClick(d,el,ev));
     row.appendChild(el);
   });
 }
-buildRow(ROW_A,'tz-row-a'); buildRow(ROW_B,'tz-row-b'); buildRow(ROW_C,'tz-row-c');
-buildRow(ROW_D,'tz-row-d'); buildRow(ROW_E,'tz-row-e');
+buildRow(ROW_A,'tz-row-a');buildRow(ROW_B,'tz-row-b');buildRow(ROW_C,'tz-row-c');
+buildRow(ROW_D,'tz-row-d');buildRow(ROW_E,'tz-row-e');
 
-// visualizer bars
-const vizEl=document.getElementById('tz-viz'), N=36;
+const vizEl=document.getElementById('tz-viz'),N=36;
 for(let i=0;i<N;i++){const b=document.createElement('div');b.className='tz-bar';vizEl.appendChild(b);}
 
-// ── TEMPO ────────────────────────────────────────────────────────
+// TEMPO
 window.tzSetBPM=function(v){
   bpm=Math.max(60,Math.min(220,v));
   document.getElementById('tz-bpm-val').textContent=bpm;
@@ -2838,229 +2978,163 @@ window.tzSetBPM=function(v){
   if(beatFlashTimer){clearInterval(beatFlashTimer);beatFlashTimer=null;startBeatFlash();}
 };
 window.tzChangeBPM=function(d){tzSetBPM(bpm+d);};
-window.tzTap=function(){
-  const now=Date.now(); tapTimes.push(now); if(tapTimes.length>8)tapTimes.shift();
-  if(tapTimes.length>=2){const g=[];for(let i=1;i<tapTimes.length;i++)g.push(tapTimes[i]-tapTimes[i-1]);tzSetBPM(Math.round(60000/(g.reduce((a,b)=>a+b,0)/g.length)));}
-  const b=document.getElementById('tz-tap-btn'); b.classList.add('active'); setTimeout(()=>b.classList.remove('active'),80);
-};
 function startBeatFlash(){if(beatFlashTimer)return;beatFlashTimer=setInterval(()=>{const e=document.getElementById('tz-bpm-val');e.classList.add('beat');setTimeout(()=>e.classList.remove('beat'),60);},bpmMs(1));}
 function stopBeatFlash(){clearInterval(beatFlashTimer);beatFlashTimer=null;document.getElementById('tz-bpm-val').classList.remove('beat');}
 
-// ── RIPPLE + FLASH helpers ────────────────────────────────────────
-function spawnRipple(x,y,red){
-  const r=document.createElement('div');
-  r.className='tz-ripple'+(red?' red':'');
-  r.style.left=x+'px';r.style.top=y+'px';
-  document.body.appendChild(r);setTimeout(()=>r.remove(),900);
-}
-function flashScreen(){
-  const f=document.getElementById('tz-flash');f.classList.remove('tz-pop');void f.offsetWidth;f.classList.add('tz-pop');
-}
-
-// ── LETTER CLICK ─────────────────────────────────────────────────
-function letterClick(d,el,ev){
-  spawnRipple(ev.clientX,ev.clientY,(d.key.startsWith('b-')||d.key.startsWith('d-')));
-  flashScreen();
-  if(playing[d.key])stopTrack(d.key,el); else startTrack(d,el);
-  updateUI();
-}
-
-// ── CIRCLE CLICK ─────────────────────────────────────────────────
-window.tzCircleClick=function(side,el){
-  const key='circ-'+side;
-  flashScreen();
-  const rect=el.getBoundingClientRect();
-  spawnRipple(rect.left+rect.width/2, rect.top+rect.height/2, side==='L');
-
-  if(playing[key]){
-    stopCircle(key,el);
-  } else {
-    startCircle(side,key,el);
-  }
-  updateUI();
+// RECORDER
+window.tzRecToggle=function(){
+  if(recIsRecording){tzRecStop();return;}
+  const ctx=ac();if(ctx.state==='suspended')ctx.resume();
+  recChunks=[];
+  const mimes=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/mp4'];
+  const mime=mimes.find(m=>MediaRecorder.isTypeSupported(m))||'';
+  try{mediaRecorder=new MediaRecorder(recDestination.stream,mime?{mimeType:mime}:{});}
+  catch(e){setRecStatus('not supported in this browser');return;}
+  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};
+  mediaRecorder.onstop=onRecStop;
+  mediaRecorder.start(100);
+  recIsRecording=true; recSeconds=0;
+  document.getElementById('tz-rec-btn').textContent='● Recording…';
+  document.getElementById('tz-rec-btn').classList.add('recording');
+  document.getElementById('tz-stop-rec-btn').disabled=false;
+  document.getElementById('tz-rec-time').classList.add('active');
+  setRecStatus('recording live audio…');
+  recTimer=setInterval(()=>{recSeconds++;const m=Math.floor(recSeconds/60),s=recSeconds%60;document.getElementById('tz-rec-time').textContent=m+':'+(s<10?'0':'')+s;},1000);
+  startWaveAnim();
 };
-
-function startCircle(side,key,el){
-  const ctx=ac(); if(ctx.state==='suspended') ctx.resume();
-  const mg=ctx.createGain(); mg.connect(ctx.destination); mg.gain.value=0.001;
-  let node=null, tid=null, fn=null;
-
-  if(side==='L'){
-    // LEFT CIRCLE — "Pulse Bass"
-    // A thick resonant bass that pulses rhythmically with a heavy LFO on gain
-    // Built from 3 oscillators: a deep sine sub, a mid sawtooth, and a square an octave up
-    const sub  = ctx.createOscillator();
-    const mid  = ctx.createOscillator();
-    const top  = ctx.createOscillator();
-    const subG = ctx.createGain();
-    const midF = ctx.createBiquadFilter();
-    const lfo  = ctx.createOscillator();
-    const lfoG = ctx.createGain();
-
-    sub.type='sine';    sub.frequency.value=41;
-    mid.type='sawtooth';mid.frequency.value=41;
-    top.type='square';  top.frequency.value=82;
-
-    midF.type='lowpass'; midF.frequency.value=280; midF.Q.value=5;
-    // LFO on gain for the rhythmic pulse
-    lfo.type='sine'; lfo.frequency.value=bpm/60*2; // 2 pulses per beat
-    lfoG.gain.value=0.25;
-    lfo.connect(lfoG); lfoG.connect(mg.gain);
-
-    sub.connect(subG);  subG.gain.value=1.2; subG.connect(mg);
-    mid.connect(midF);  midF.connect(mg);
-    top.connect(mg);
-
-    mg.gain.linearRampToValueAtTime(0.35, ctx.currentTime+0.2);
-
-    sub.start(); mid.start(); top.start(); lfo.start();
-    node={stop:()=>{try{sub.stop();mid.stop();top.stop();lfo.stop();}catch(e){}}};
-
-    // update circle label
-    document.getElementById('tz-circ-L-icon').textContent='◉';
-    document.getElementById('tz-circ-L-label').textContent='Pulse\nBass';
-
-  } else {
-    // RIGHT CIRCLE — "White Storm"
-    // A layered noise storm: three noise bands swept by LFOs at different rates
-    // Creates a dense, evolving textural wall of sound
-
-    // Band 1: low rumble, slow sweep
-    const buf1=ctx.createBuffer(1,ctx.sampleRate*4,ctx.sampleRate);
-    const d1=buf1.getChannelData(0); for(let i=0;i<d1.length;i++) d1[i]=Math.random()*2-1;
-    const src1=ctx.createBufferSource(); src1.buffer=buf1; src1.loop=true;
-    const f1=ctx.createBiquadFilter(); f1.type='bandpass'; f1.frequency.value=200; f1.Q.value=3;
-    const lfo1=ctx.createOscillator(),lG1=ctx.createGain();
-    lfo1.frequency.value=0.15; lG1.gain.value=150; lfo1.connect(lG1); lG1.connect(f1.frequency);
-    const g1=ctx.createGain(); g1.gain.value=0.18;
-    src1.connect(f1); f1.connect(g1); g1.connect(mg);
-
-    // Band 2: mid hiss, medium sweep
-    const buf2=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate);
-    const d2=buf2.getChannelData(0); for(let i=0;i<d2.length;i++) d2[i]=Math.random()*2-1;
-    const src2=ctx.createBufferSource(); src2.buffer=buf2; src2.loop=true;
-    const f2=ctx.createBiquadFilter(); f2.type='bandpass'; f2.frequency.value=1200; f2.Q.value=4;
-    const lfo2=ctx.createOscillator(),lG2=ctx.createGain();
-    lfo2.frequency.value=0.4; lG2.gain.value=600; lfo2.connect(lG2); lG2.connect(f2.frequency);
-    const g2=ctx.createGain(); g2.gain.value=0.14;
-    src2.connect(f2); f2.connect(g2); g2.connect(mg);
-
-    // Band 3: high crackle, fast sweep
-    const buf3=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
-    const d3=buf3.getChannelData(0); for(let i=0;i<d3.length;i++) d3[i]=Math.random()*2-1;
-    const src3=ctx.createBufferSource(); src3.buffer=buf3; src3.loop=true;
-    const f3=ctx.createBiquadFilter(); f3.type='highpass'; f3.frequency.value=6000;
-    const g3=ctx.createGain(); g3.gain.value=0.1;
-    src3.connect(f3); f3.connect(g3); g3.connect(mg);
-
-    mg.gain.linearRampToValueAtTime(0.8, ctx.currentTime+0.4);
-
-    src1.start(); src2.start(); src3.start(); lfo1.start(); lfo2.start();
-    node={stop:()=>{try{src1.stop();src2.stop();src3.stop();lfo1.stop();lfo2.stop();}catch(e){}}};
-
-    document.getElementById('tz-circ-R-icon').textContent='◎';
-    document.getElementById('tz-circ-R-label').textContent='White\nStorm';
-  }
-
-  playing[key]={node,intervalId:tid,masterGain:mg,def:null,fn};
-
-  // animate circle
-  el.classList.remove('tz-burst-anim','tz-con');
-  void el.offsetWidth;
-  el.classList.add('tz-burst-anim');
-  setTimeout(()=>{el.classList.remove('tz-burst-anim');el.classList.add('tz-con');},420);
-
-  if(Object.keys(playing).length===1){startViz();startBeatFlash();}
+window.tzRecStop=function(){
+  if(!recIsRecording||!mediaRecorder)return;
+  mediaRecorder.stop(); recIsRecording=false; clearInterval(recTimer);
+  document.getElementById('tz-rec-btn').textContent='● Record';
+  document.getElementById('tz-rec-btn').classList.remove('recording');
+  document.getElementById('tz-stop-rec-btn').disabled=true;
+  document.getElementById('tz-rec-time').classList.remove('active');
+  stopWaveAnim(); setRecStatus('processing…');
+};
+function onRecStop(){
+  if(recChunks.length===0){setRecStatus('nothing recorded');return;}
+  const mime=recChunks[0].type||'audio/webm';
+  const blob=new Blob(recChunks,{type:mime});
+  const ext=mime.includes('ogg')?'ogg':mime.includes('mp4')?'m4a':'webm';
+  const url=URL.createObjectURL(blob);
+  const ts=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const fname='zuzanka-'+ts+'.'+ext;
+  const dlContainer=document.getElementById('tz-rec-downloads');
+  const link=document.createElement('a');
+  link.className='tz-rec-link';link.href=url;link.download=fname;
+  link.innerHTML=fname+'<span class="tz-rec-link-arrow">↓</span>';
+  dlContainer.prepend(link);
+  setRecStatus('saved — click to download');
+}
+function setRecStatus(msg){document.getElementById('tz-rec-status').textContent=msg;}
+function startWaveAnim(){
+  if(waveTimer)return;
+  waveTimer=setInterval(()=>{
+    const active=recIsRecording&&Object.keys(playing).length>0;
+    wbars.forEach((b,i)=>{
+      if(!active){b.style.height='3px';b.style.background='rgba(255,255,255,0.1)';return;}
+      const h=Math.round(3+Math.random()*22*(0.4+0.6*Math.sin(i/N_WBARS*Math.PI)));
+      b.style.height=h+'px';
+      b.style.background=h>10?`rgba(200,${Math.round(20+h)},${Math.round(h*0.4)},0.72)`:'rgba(255,255,255,0.2)';
+    });
+  },55);
+}
+function stopWaveAnim(){
+  clearInterval(waveTimer);waveTimer=null;
+  wbars.forEach(b=>{b.style.height='3px';b.style.background='rgba(255,255,255,0.1)';});
 }
 
-function stopCircle(key,el){
-  const p=playing[key]; if(!p)return;
-  clearInterval(p.intervalId);
-  if(p.node){try{if(p.node.stop)p.node.stop();}catch(e){}}
-  if(p.masterGain){try{p.masterGain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.12);}catch(e){}}
-  delete playing[key];
-  el.classList.remove('tz-con','tz-burst-anim');
+// CLICK
+function letterClick(d,el,ev){
+  const r=document.createElement('div');r.className='tz-ripple';
+  r.style.left=ev.clientX+'px';r.style.top=ev.clientY+'px';
+  document.body.appendChild(r);setTimeout(()=>r.remove(),950);
+  const f=document.getElementById('tz-flash');f.classList.remove('tz-pop');void f.offsetWidth;f.classList.add('tz-pop');
+  if(playing[d.key])stopTrack(d.key,el);else startTrack(d,el);
+  updateUI();
 }
 
-// ── START / STOP TRACK (letters) ─────────────────────────────────
+// START TRACK
 function startTrack(d,el){
-  const ctx=ac(); if(ctx.state==='suspended') ctx.resume();
-  const mg=ctx.createGain(); mg.connect(ctx.destination); mg.gain.value=0.001;
+  const ctx=ac();if(ctx.state==='suspended')ctx.resume();
+  const mg=ctx.createGain();mg.connect(ctx.destination);if(recGain)mg.connect(recGain);
+  mg.gain.value=0.001;
   let node=null,tid=null,fn=null;
   const k=d.key;
 
   function loop(f,intFn){f();fn=f;tid=setInterval(f,intFn());return tid;}
+  function dest(g){g.connect(ctx.destination);if(recGain)g.connect(recGain);}
 
   if(k==='a-kick'){
-    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(160,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.28);g.gain.setValueAtTime(1.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.28);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.3);},d.interval);
+    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(160,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.28);g.gain.setValueAtTime(1.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.28);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.3);},d.interval);
   }else if(k==='a-snare'){
-    loop(()=>{const len=ctx.sampleRate*0.18,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=1800;filt.Q.value=0.8;const g=ctx.createGain();g.gain.setValueAtTime(0.6,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.18);src.connect(filt);filt.connect(g);g.connect(ctx.destination);src.start();src.stop(ctx.currentTime+0.2);const o=ctx.createOscillator(),g2=ctx.createGain();o.type='triangle';o.frequency.value=200;g2.gain.setValueAtTime(0.35,ctx.currentTime);g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);o.connect(g2);g2.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.1);},d.interval);
+    loop(()=>{const len=ctx.sampleRate*0.18,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=1800;filt.Q.value=0.8;const g=ctx.createGain();g.gain.setValueAtTime(0.6,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.18);src.connect(filt);filt.connect(g);dest(g);src.start();src.stop(ctx.currentTime+0.2);const o=ctx.createOscillator(),g2=ctx.createGain();o.type='triangle';o.frequency.value=200;g2.gain.setValueAtTime(0.35,ctx.currentTime);g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);o.connect(g2);dest(g2);o.start();o.stop(ctx.currentTime+0.1);},d.interval);
   }else if(k==='a-hat'){
-    loop(()=>{const len=ctx.sampleRate*0.05,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='highpass';filt.frequency.value=9000;const g=ctx.createGain();g.gain.setValueAtTime(0.35,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.05);src.connect(filt);filt.connect(g);g.connect(ctx.destination);src.start();src.stop(ctx.currentTime+0.06);},d.interval);
+    loop(()=>{const len=ctx.sampleRate*0.05,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='highpass';filt.frequency.value=9000;const g=ctx.createGain();g.gain.setValueAtTime(0.35,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.05);src.connect(filt);filt.connect(g);dest(g);src.start();src.stop(ctx.currentTime+0.06);},d.interval);
   }else if(k==='a-clap'){
-    loop(()=>{for(let c=0;c<3;c++)setTimeout(()=>{const len=ctx.sampleRate*0.045,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=1200;filt.Q.value=1.2;const g=ctx.createGain();g.gain.setValueAtTime(0.55*(1-c*0.15),ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.05);src.connect(filt);filt.connect(g);g.connect(ctx.destination);src.start();},c*14);},d.interval);
+    loop(()=>{for(let c=0;c<3;c++)setTimeout(()=>{const len=ctx.sampleRate*0.045,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=1200;filt.Q.value=1.2;const g=ctx.createGain();g.gain.setValueAtTime(0.55*(1-c*0.15),ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.05);src.connect(filt);filt.connect(g);dest(g);src.start();},c*14);},d.interval);
   }else if(k==='a-tom'){
-    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(120,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(50,ctx.currentTime+0.22);g.gain.setValueAtTime(0.9,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.28);},d.interval);
+    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(120,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(50,ctx.currentTime+0.22);g.gain.setValueAtTime(0.9,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.28);},d.interval);
   }else if(k==='a-rim'){
-    loop(()=>{const len=ctx.sampleRate*0.025,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=4000;filt.Q.value=3;const g=ctx.createGain();g.gain.setValueAtTime(0.7,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.025);src.connect(filt);filt.connect(g);g.connect(ctx.destination);src.start();},d.interval);
+    loop(()=>{const len=ctx.sampleRate*0.025,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=4000;filt.Q.value=3;const g=ctx.createGain();g.gain.setValueAtTime(0.7,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.025);src.connect(filt);filt.connect(g);dest(g);src.start();},d.interval);
   }else if(k==='a-open'){
-    loop(()=>{const len=ctx.sampleRate*0.35,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='highpass';filt.frequency.value=7000;const g=ctx.createGain();g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);src.connect(filt);filt.connect(g);g.connect(ctx.destination);src.start();src.stop(ctx.currentTime+0.38);},d.interval);
+    loop(()=>{const len=ctx.sampleRate*0.35,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='highpass';filt.frequency.value=7000;const g=ctx.createGain();g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);src.connect(filt);filt.connect(g);dest(g);src.start();src.stop(ctx.currentTime+0.38);},d.interval);
   }else if(k==='b-sub'){
     const o=ctx.createOscillator();o.type='sine';o.frequency.value=40;o.connect(mg);mg.gain.linearRampToValueAtTime(0.5,ctx.currentTime+0.12);o.start();node=o;
   }else if(k==='b-bass'){
     const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=55;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=220;o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.42,ctx.currentTime+0.12);o.start();node=o;
   }else if(k==='b-arp'){
-    let ni=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=ARP[ni%ARP.length];g.gain.setValueAtTime(0.13,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.14);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.17);ni++;},d.interval);
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=ARP[ni%ARP.length];g.gain.setValueAtTime(0.13,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.14);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.17);ni++;},d.interval);
   }else if(k==='b-acid'){
-    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID[ni%ACID.length];filt.type='lowpass';filt.Q.value=14;filt.frequency.setValueAtTime(180,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(2200,ctx.currentTime+0.09);filt.frequency.exponentialRampToValueAtTime(350,ctx.currentTime+0.34);g.gain.setValueAtTime(0.42,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.36);o.connect(filt);filt.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.38);ni++;},d.interval);
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID[ni%ACID.length];filt.type='lowpass';filt.Q.value=14;filt.frequency.setValueAtTime(180,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(2200,ctx.currentTime+0.09);filt.frequency.exponentialRampToValueAtTime(350,ctx.currentTime+0.34);g.gain.setValueAtTime(0.42,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.36);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.38);ni++;},d.interval);
   }else if(k==='b-pad'){
     const oscs=[110,110.5,220,220.8].map(f=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;o.connect(mg);o.start();return o;});mg.gain.linearRampToValueAtTime(0.18,ctx.currentTime+0.8);node={stop:()=>oscs.forEach(o=>{try{o.stop();}catch(e){}})};
   }else if(k==='b-lead'){
-    let ni=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=LEAD[ni%LEAD.length];g.gain.setValueAtTime(0.17,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.21);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.24);ni++;},d.interval);
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=LEAD[ni%LEAD.length];g.gain.setValueAtTime(0.17,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.21);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.24);ni++;},d.interval);
   }else if(k==='b-chord'){
-    let ci=0;loop(()=>{CHORD[ci%CHORD.length].forEach(f=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.6);});ci++;},d.interval);
+    let ci=0;loop(()=>{CHORD[ci%CHORD.length].forEach(f=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.6);});ci++;},d.interval);
   }else if(k==='c-noise'){
-    loop(()=>{const len=ctx.sampleRate*0.04,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=3000+Math.random()*3000;filt.Q.value=2;const g=ctx.createGain();g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.04);src.connect(filt);filt.connect(g);g.connect(ctx.destination);src.start();},d.interval);
+    loop(()=>{const len=ctx.sampleRate*0.04,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=3000+Math.random()*3000;filt.Q.value=2;const g=ctx.createGain();g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.04);src.connect(filt);filt.connect(g);dest(g);src.start();},d.interval);
   }else if(k==='c-drone'){
     const o1=ctx.createOscillator(),o2=ctx.createOscillator();o1.type='sawtooth';o1.frequency.value=82.5;o2.type='sawtooth';o2.frequency.value=82.8;o1.connect(mg);o2.connect(mg);mg.gain.linearRampToValueAtTime(0.15,ctx.currentTime+1.2);o1.start();o2.start();node={stop:()=>{try{o1.stop();o2.stop();}catch(e){}}};
   }else if(k==='c-perc'){
-    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=1200+Math.random()*800;g.gain.setValueAtTime(0.18,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.018);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.02);},d.interval);
+    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=1200+Math.random()*800;g.gain.setValueAtTime(0.18,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.018);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.02);},d.interval);
   }else if(k==='c-stab'){
-    let si=0;loop(()=>{const f=STAB[si%STAB.length];[f,f*1.5,f*2].forEach(ff=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ff;g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.1);});si++;},d.interval);
+    let si=0;loop(()=>{const f=STAB[si%STAB.length];[f,f*1.5,f*2].forEach(ff=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ff;g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.1);});si++;},d.interval);
   }else if(k==='c-sweep'){
     const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=165;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.Q.value=8;filt.frequency.value=800;const lfo=ctx.createOscillator(),lfoG=ctx.createGain();lfo.type='sine';lfo.frequency.value=0.3;lfoG.gain.value=1200;lfo.connect(lfoG);lfoG.connect(filt.frequency);o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.22,ctx.currentTime+0.5);o.start();lfo.start();node={stop:()=>{try{o.stop();lfo.stop();}catch(e){}}};
   }else if(k==='c-blip'){
-    let bi=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=BLIP[bi%BLIP.length];g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.06);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.07);bi++;},d.interval);
+    let bi=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=BLIP[bi%BLIP.length];g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.06);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.07);bi++;},d.interval);
   }else if(k==='c-glitch'){
-    loop(()=>{if(Math.random()<0.4)return;const o=ctx.createOscillator(),g=ctx.createGain();o.type=['square','sawtooth','triangle'][Math.floor(Math.random()*3)];o.frequency.value=200+Math.random()*3000;g.gain.setValueAtTime(0.15*Math.random(),ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.015);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.02);},d.interval);
+    loop(()=>{if(Math.random()<0.4)return;const o=ctx.createOscillator(),g=ctx.createGain();o.type=['square','sawtooth','triangle'][Math.floor(Math.random()*3)];o.frequency.value=200+Math.random()*3000;g.gain.setValueAtTime(0.15*Math.random(),ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.015);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.02);},d.interval);
   }else if(k==='d-sub2'){
     const o=ctx.createOscillator(),lfo=ctx.createOscillator(),lfoG=ctx.createGain();o.type='sine';o.frequency.value=28;lfo.frequency.value=1.8;lfoG.gain.value=3;lfo.connect(lfoG);lfoG.connect(o.frequency);o.connect(mg);mg.gain.linearRampToValueAtTime(0.55,ctx.currentTime+0.2);o.start();lfo.start();node={stop:()=>{try{o.stop();lfo.stop();}catch(e){}}};
   }else if(k==='d-808'){
-    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(220,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(40,ctx.currentTime+0.15);o.frequency.exponentialRampToValueAtTime(28,ctx.currentTime+0.6);g.gain.setValueAtTime(1.2,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.65);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.7);},d.interval);
+    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(220,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(40,ctx.currentTime+0.15);o.frequency.exponentialRampToValueAtTime(28,ctx.currentTime+0.6);g.gain.setValueAtTime(1.2,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.65);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.7);},d.interval);
   }else if(k==='d-noise2'){
-    loop(()=>{const len=ctx.sampleRate*0.09,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=600+Math.random()*400;filt.Q.value=4;const g=ctx.createGain();g.gain.setValueAtTime(0.45,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.09);src.connect(filt);filt.connect(g);g.connect(ctx.destination);src.start();},d.interval);
+    loop(()=>{const len=ctx.sampleRate*0.09,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=600+Math.random()*400;filt.Q.value=4;const g=ctx.createGain();g.gain.setValueAtTime(0.45,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.09);src.connect(filt);filt.connect(g);dest(g);src.start();},d.interval);
   }else if(k==='d-acid2'){
-    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID2[ni%ACID2.length];filt.type='lowpass';filt.Q.value=18;filt.frequency.setValueAtTime(80,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(1400,ctx.currentTime+0.12);filt.frequency.exponentialRampToValueAtTime(120,ctx.currentTime+0.5);g.gain.setValueAtTime(0.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.52);o.connect(filt);filt.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.55);ni++;},d.interval);
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID2[ni%ACID2.length];filt.type='lowpass';filt.Q.value=18;filt.frequency.setValueAtTime(80,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(1400,ctx.currentTime+0.12);filt.frequency.exponentialRampToValueAtTime(120,ctx.currentTime+0.5);g.gain.setValueAtTime(0.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.52);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.55);ni++;},d.interval);
   }else if(k==='d-drone2'){
     const o1=ctx.createOscillator(),o2=ctx.createOscillator(),o3=ctx.createOscillator();o1.type='square';o1.frequency.value=55;o2.type='square';o2.frequency.value=55.4;o3.type='sine';o3.frequency.value=27.5;o1.connect(mg);o2.connect(mg);o3.connect(mg);mg.gain.linearRampToValueAtTime(0.13,ctx.currentTime+1.5);o1.start();o2.start();o3.start();node={stop:()=>{try{o1.stop();o2.stop();o3.stop();}catch(e){}}};
   }else if(k==='d-reese'){
     const o1=ctx.createOscillator(),o2=ctx.createOscillator();o1.type='sawtooth';o1.frequency.value=41;o2.type='sawtooth';o2.frequency.value=41.6;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=180;filt.Q.value=3;const lfo=ctx.createOscillator(),lfoG=ctx.createGain();lfo.frequency.value=0.8;lfoG.gain.value=80;lfo.connect(lfoG);lfoG.connect(filt.frequency);o1.connect(filt);o2.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.38,ctx.currentTime+0.3);o1.start();o2.start();lfo.start();node={stop:()=>{try{o1.stop();o2.stop();lfo.stop();}catch(e){}}};
   }else if(k==='d-acid3'){
-    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID3[ni%ACID3.length];filt.type='lowpass';filt.Q.value=12;filt.frequency.setValueAtTime(300,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(3500,ctx.currentTime+0.07);filt.frequency.exponentialRampToValueAtTime(500,ctx.currentTime+0.28);g.gain.setValueAtTime(0.38,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);o.connect(filt);filt.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.32);ni++;},d.interval);
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID3[ni%ACID3.length];filt.type='lowpass';filt.Q.value=12;filt.frequency.setValueAtTime(300,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(3500,ctx.currentTime+0.07);filt.frequency.exponentialRampToValueAtTime(500,ctx.currentTime+0.28);g.gain.setValueAtTime(0.38,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.32);ni++;},d.interval);
   }else if(k==='e-infra'){
     const o=ctx.createOscillator();o.type='sine';o.frequency.value=20;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=60;o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.6,ctx.currentTime+0.5);o.start();node=o;
   }else if(k==='e-spray'){
-    loop(()=>{const len=ctx.sampleRate*0.02,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const g=ctx.createGain();g.gain.setValueAtTime(0.22,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.018);src.connect(g);g.connect(ctx.destination);src.start();},d.interval);
+    loop(()=>{const len=ctx.sampleRate*0.02,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const g=ctx.createGain();g.gain.setValueAtTime(0.22,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.018);src.connect(g);dest(g);src.start();},d.interval);
   }else if(k==='e-drone3'){
     const o=ctx.createOscillator(),lfo=ctx.createOscillator(),lfoG=ctx.createGain();o.type='sawtooth';o.frequency.value=110;lfo.type='sine';lfo.frequency.value=0.08;lfoG.gain.value=40;lfo.connect(lfoG);lfoG.connect(o.frequency);const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.Q.value=5;filt.frequency.value=400;o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.25,ctx.currentTime+2);o.start();lfo.start();node={stop:()=>{try{o.stop();lfo.stop();}catch(e){}}};
   }else if(k==='e-acid4'){
-    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID4[ni%ACID4.length];filt.type='lowpass';filt.Q.value=20;filt.frequency.setValueAtTime(60,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(900,ctx.currentTime+0.15);filt.frequency.exponentialRampToValueAtTime(80,ctx.currentTime+0.7);g.gain.setValueAtTime(0.55,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.72);o.connect(filt);filt.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.75);ni++;},d.interval);
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID4[ni%ACID4.length];filt.type='lowpass';filt.Q.value=20;filt.frequency.setValueAtTime(60,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(900,ctx.currentTime+0.15);filt.frequency.exponentialRampToValueAtTime(80,ctx.currentTime+0.7);g.gain.setValueAtTime(0.55,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.72);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.75);ni++;},d.interval);
   }else if(k==='e-rubbr'){
     const o=ctx.createOscillator(),lfo=ctx.createOscillator(),lfoG=ctx.createGain();o.type='sawtooth';o.frequency.value=55;lfo.type='sine';lfo.frequency.value=3;lfoG.gain.value=15;lfo.connect(lfoG);lfoG.connect(o.frequency);const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=300;filt.Q.value=6;o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.4,ctx.currentTime+0.1);o.start();lfo.start();node={stop:()=>{try{o.stop();lfo.stop();}catch(e){}}};
   }else if(k==='e-whoosh'){
     const len=ctx.sampleRate*4,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.Q.value=6;filt.frequency.value=800;const lfo=ctx.createOscillator(),lfoG=ctx.createGain();lfo.type='sine';lfo.frequency.value=0.4;lfoG.gain.value=700;lfo.connect(lfoG);lfoG.connect(filt.frequency);src.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.3,ctx.currentTime+0.5);src.start();lfo.start();node={stop:()=>{try{src.stop();lfo.stop();}catch(e){}}};
   }else if(k==='e-acid5'){
-    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID5[ni%ACID5.length];filt.type='lowpass';filt.Q.value=10;filt.frequency.setValueAtTime(500,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(6000,ctx.currentTime+0.06);filt.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.22);g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.24);o.connect(filt);filt.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.26);ni++;},d.interval);
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID5[ni%ACID5.length];filt.type='lowpass';filt.Q.value=10;filt.frequency.setValueAtTime(500,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(6000,ctx.currentTime+0.06);filt.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.22);g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.24);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.26);ni++;},d.interval);
   }
 
   playing[k]={node,intervalId:tid,masterGain:mg,def:d,fn};
@@ -3073,29 +3147,24 @@ function stopTrack(k,el){
   const p=playing[k];if(!p)return;clearInterval(p.intervalId);
   if(p.node){try{if(p.node.stop)p.node.stop();}catch(e){}}
   if(p.masterGain){try{p.masterGain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.06);}catch(e){}}
-  delete playing[k];el.classList.remove('tz-on','tz-burst');el.classList.add('tz-fade');
+  delete playing[k];
+  el.classList.remove('tz-on','tz-burst');el.classList.add('tz-fade');
   setTimeout(()=>el.classList.remove('tz-fade'),700);
 }
 
-// ── UI ────────────────────────────────────────────────────────────
 function updateUI(){
   const keys=Object.keys(playing);
   const infoEl=document.getElementById('tz-info'),stopEl=document.getElementById('tz-stop');
   if(keys.length===0){
     infoEl.textContent='— —';infoEl.classList.remove('tz-live');
     stopEl.classList.remove('visible');stopViz();stopBeatFlash();
-  } else {
-    const labels=keys.map(k=>{
-      if(k==='circ-L') return 'Pulse Bass';
-      if(k==='circ-R') return 'White Storm';
-      return ALL.find(d=>d.key===k)?.label;
-    }).filter(Boolean);
+  }else{
+    const labels=keys.map(k=>ALL.find(d=>d.key===k)?.label).filter(Boolean);
     infoEl.textContent='▶ '+labels.join('  ·  ');
     infoEl.classList.add('tz-live');stopEl.classList.add('visible');
   }
 }
 
-// ── VISUALIZER ────────────────────────────────────────────────────
 function startViz(){
   if(vizTimer)return;
   const bars=vizEl.querySelectorAll('.tz-bar');
@@ -3107,8 +3176,8 @@ function startViz(){
       const h=Math.round((base+Math.random()*0.65)*count/ALL.length*32)+3;
       const intensity=h/35,zone=i/N;
       let bg,shadow;
-      if(zone<0.28){bg=`rgba(255,255,255,${0.3+intensity*0.6})`;shadow=intensity>0.35?`0 0 4px rgba(255,255,255,0.25)`:'none';}
-      else if(zone<0.55){bg=`rgba(${Math.round(200+intensity*55)},${Math.round(30+intensity*20)},${Math.round(intensity*18)},${0.45+intensity*0.5})`;shadow=intensity>0.3?`0 0 4px rgba(200,20,20,0.45)`:'none';}
+      if(zone<0.28){bg=`rgba(255,255,255,${0.3+intensity*0.6})`;shadow=intensity>0.35?'0 0 4px rgba(255,255,255,0.2)':'none';}
+      else if(zone<0.55){bg=`rgba(${Math.round(200+intensity*55)},${Math.round(20+intensity*20)},${Math.round(intensity*14)},${0.45+intensity*0.5})`;shadow=intensity>0.3?'0 0 4px rgba(200,20,20,0.38)':'none';}
       else{bg=`rgba(255,255,255,${0.15+intensity*0.35})`;shadow='none';}
       b.style.height=h+'px';b.style.background=bg;b.style.boxShadow=shadow;
     });
@@ -3119,25 +3188,10 @@ function stopViz(){
   vizEl.querySelectorAll('.tz-bar').forEach(b=>{b.style.height='3px';b.style.background='rgba(255,255,255,0.1)';b.style.boxShadow='none';});
 }
 
-// ── GLOBAL STOP ───────────────────────────────────────────────────
 window.stopTechno=function(){
   ALL.forEach(d=>{const el=document.getElementById('tzl-'+d.key);if(el&&playing[d.key])stopTrack(d.key,el);});
-  ['L','R'].forEach(s=>{const k='circ-'+s,el=document.getElementById('tz-circ-'+s);if(el&&playing[k])stopCircle(k,el);});
   updateUI();
 };
-
-// Hide circles when not on techno page
-const origShow=window.showPage;
-window.showPage=function(id){
-  if(origShow)origShow(id);
-  const L=document.getElementById('tz-circ-L'),R=document.getElementById('tz-circ-R');
-  if(L&&R){const show=id==='page-techno';L.style.display=show?'flex':'none';R.style.display=show?'flex':'none';}
-};
-// init hidden
-(function(){
-  const L=document.getElementById('tz-circ-L'),R=document.getElementById('tz-circ-R');
-  if(L)L.style.display='none';if(R)R.style.display='none';
-})();
 
 })();
 </script>
