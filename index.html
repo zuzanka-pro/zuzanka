@@ -467,6 +467,89 @@
   .msg.success { border-color: var(--black); background: var(--light-gray); }
 
   /* ─────────────────────────────────────── SUCCESS OVERLAY ─── */
+  /* PASSWORD MODAL */
+  .pw-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .pw-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .pw-box {
+    text-align: center;
+    padding: 3rem 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .pw-question {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--white);
+    margin-bottom: 2rem;
+    line-height: 1.4;
+  }
+  .pw-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 400;
+    text-align: center;
+    padding: 0.5rem 0;
+    outline: none;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.6rem;
+    transition: border-color 0.25s;
+    box-sizing: border-box;
+  }
+  .pw-input:focus { border-color: rgba(255,255,255,0.7); }
+  .pw-input.wrong { border-color: rgba(200,50,50,0.8); animation: pwShake 0.35s ease; }
+  @keyframes pwShake {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)}
+  }
+  .pw-hint {
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 2rem;
+    min-height: 1em;
+    transition: color 0.3s;
+  }
+  .pw-hint.show { color: rgba(255,255,255,0.55); }
+  .pw-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .pw-btn {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: none;
+    cursor: pointer;
+    padding: 0.55rem 1.6rem;
+    transition: all 0.25s ease;
+  }
+  .pw-btn.confirm { border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
+  .pw-btn.confirm:hover { border-color: rgba(255,255,255,0.8); color: var(--white); }
+  .pw-btn.cancel  { border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.25); }
+  .pw-btn.cancel:hover  { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
+
   .success-overlay {
     position: fixed;
     inset: 0;
@@ -1587,6 +1670,19 @@
 
 
 <!-- ═══════════════════════════════════════════════════════ SUCCESS OVERLAY -->
+<!-- PASSWORD MODAL -->
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-box">
+    <div class="pw-question">Gdzie najlepiej jechać po Kindla?</div>
+    <input class="pw-input" id="pw-input" type="text" autocomplete="off" spellcheck="false" placeholder="odpowiedź…" onkeydown="if(event.key==='Enter')pwConfirm();else pwClearWrong(this)">
+    <div class="pw-hint" id="pw-hint">Do …</div>
+    <div class="pw-actions">
+      <button class="pw-btn confirm" onclick="pwConfirm()">Wejdź →</button>
+      <button class="pw-btn cancel"  onclick="pwCancel()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
 <div class="success-overlay" id="success-overlay">  <div style="text-align:center; padding:2rem">
     <p>Pokój ukończony</p>
     <h2 id="success-title">Brawo!</h2>
@@ -1637,15 +1733,55 @@ function showPage(id) {
   if (id === 'page-lysy') initLysy();
 }
 
+// ─── PASSWORD GATE ───────────────────────────────────────────────
+let _pwPending = null; // room number waiting for password
+
 function showRoom(n) {
-  if (n === 9 || n === 10) { showPage('page-room-' + n); return; }
   if (n === 8) { showPage('page-room-8'); return; }
-  // check if locked
-  const minUnlocked = n === 1 ? true : completed.includes(n - 1);
+  const minUnlocked = n === 1 ? true : completed.includes(n - 1) || n === 9 || n === 10;
   if (!minUnlocked) return;
+  // Ask for password before entering any room
+  _pwPending = n;
+  const overlay = document.getElementById('pw-overlay');
+  const input = document.getElementById('pw-input');
+  const hint = document.getElementById('pw-hint');
+  input.value = '';
+  input.classList.remove('wrong');
+  hint.classList.remove('show');
+  overlay.classList.add('visible');
+  setTimeout(() => input.focus(), 50);
+}
+
+function _enterRoom(n) {
   if (n === 2) initRoom2();
   if (n === 3) resetRoom3();
   showPage('page-room-' + n);
+}
+
+function pwConfirm() {
+  const input = document.getElementById('pw-input');
+  const hint = document.getElementById('pw-hint');
+  const answer = input.value.trim().toLowerCase().replace(/\s+/g, ' ');
+  if (answer === 'do cch') {
+    document.getElementById('pw-overlay').classList.remove('visible');
+    const n = _pwPending; _pwPending = null;
+    _enterRoom(n);
+  } else {
+    input.classList.add('wrong');
+    hint.classList.add('show');
+    setTimeout(() => input.classList.remove('wrong'), 400);
+    input.value = '';
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+function pwCancel() {
+  document.getElementById('pw-overlay').classList.remove('visible');
+  _pwPending = null;
+}
+
+function pwClearWrong(el) {
+  el.classList.remove('wrong');
 }
 
 // ═══════════════════════════════════════ GRID RENDER
