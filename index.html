@@ -2216,13 +2216,33 @@ function stopWarSiren() {
 let zuliAdminMode = false;
 let zuliAdminPanel = null;
 
+async function sha256(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
 function toggleZuliAdmin() {
   if (!zuliAdminMode) {
     const pw = prompt('Admin password:');
-    if (pw === 'SUNNATA') {
-      zuliAdminMode = true;
-      showZuliAdminPanel();
+    if (!pw) {
+      // User clicked cancel or entered nothing - trigger OSZUST
+      showOszustPopup();
+      return;
     }
+    
+    sha256(pw).then(hash => {
+      if (hash === '1b2f638e5794e4dc339011084a4501e5c7e94172459e8d0b82a46c1fd3262679') {
+        zuliAdminMode = true;
+        showZuliAdminPanel();
+      } else {
+        // Wrong password - trigger OSZUST
+        showOszustPopup();
+      }
+    });
   } else {
     zuliAdminMode = false;
     if (zuliAdminPanel) {
@@ -2269,6 +2289,50 @@ function zuliAdminSkip() {
   showZuliResult('✓ Admin skip', true);
   awardZuliXP(25);
 }
+
+// ═══════════════════════════════════════ OSZUST POPUP
+function showOszustPopup() {
+  const overlay = document.getElementById('oszust-overlay');
+  const flash = document.getElementById('oszust-flash');
+  const countdown = document.getElementById('oszust-countdown');
+  
+  // Immediate red flashes
+  flash.style.opacity = '0.5';
+  setTimeout(() => { flash.style.opacity = '0'; }, 100);
+  setTimeout(() => { flash.style.opacity = '0.5'; }, 200);
+  setTimeout(() => { flash.style.opacity = '0'; }, 300);
+  setTimeout(() => { flash.style.opacity = '0.7'; }, 400);
+  setTimeout(() => { flash.style.opacity = '0'; }, 500);
+  
+  overlay.style.display = 'block';
+  
+  // Wipe ALL progress immediately
+  localStorage.clear();
+  completed = [];
+  zuliLevel = 1;
+  zuliXP = 0;
+  
+  // Countdown from 3
+  let count = 3;
+  countdown.textContent = count;
+  
+  const countdownInterval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      countdown.textContent = count;
+      // Flash on each count
+      flash.style.opacity = '0.4';
+      setTimeout(() => { flash.style.opacity = '0'; }, 150);
+    } else {
+      clearInterval(countdownInterval);
+      overlay.style.display = 'none';
+      
+      // Return to home page
+      showPage('page-home');
+      renderGrid();
+    }
+  }, 1000);
+}
 </script>
 
 <!-- LEVEL 9 CHALLENGE OVERLAY -->
@@ -2312,6 +2376,44 @@ function zuliAdminSkip() {
 @keyframes zuliChallengeLine {
   from { height: 60px; opacity: 0.4; }
   to   { height: 100px; opacity: 1; }
+}
+</style>
+
+<!-- OSZUST FRAUD POPUP -->
+<div id="oszust-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:20000">
+  <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem">
+    <div id="oszust-flash" style="position:absolute; inset:0; background:var(--accent); opacity:0"></div>
+    
+    <div style="position:relative; z-index:1">
+      <div style="font-family:var(--font-display); font-size:clamp(4rem, 15vw, 10rem); font-weight:900; font-style:italic; color:var(--accent); margin-bottom:2rem; letter-spacing:-0.04em; line-height:0.9; text-transform:uppercase; animation:oszustGlitch 0.3s ease infinite">
+        OSZUST
+      </div>
+      
+      <div style="width:200px; height:4px; background:var(--accent); margin:0 auto 2rem"></div>
+      
+      <div style="font-size:1.2rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--white); margin-bottom:1rem; font-weight:600">
+        NIEAUTORYZOWANY DOSTĘP
+      </div>
+      
+      <div style="font-size:0.9rem; color:var(--mid-gray); margin-bottom:2rem">
+        Wszystkie postępy zostały usunięte.
+      </div>
+      
+      <div id="oszust-countdown" style="font-family:var(--font-display); font-size:4rem; color:var(--accent); font-weight:700; margin:2rem 0">3</div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes oszustGlitch {
+  0%, 33%, 66%, 100% { 
+    text-shadow: 5px 0 0 rgba(200,16,46,1), -5px 0 0 rgba(0,255,255,1);
+    transform: translate(0, 0) scale(1);
+  }
+  16%, 50%, 83% { 
+    text-shadow: -5px 0 0 rgba(200,16,46,1), 5px 0 0 rgba(0,255,255,1);
+    transform: translate(2px, -2px) scale(1.02);
+  }
 }
 </style>
 
