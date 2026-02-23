@@ -1510,20 +1510,811 @@
   </div>
 </div>
 
-<!-- Room 8 -->
+<!-- Room 8 - ZULITEWSKI -->
 <div id="page-room-8" class="page">
   <header>
     <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
-    <span class="room-page-number">Pokój VIII — Oczekiwanie</span>
+    <span class="room-page-number">Pokój VIII — Zulitewski</span>
   </header>
   <div class="room-content">
-    <p class="room-desc">Obiekt 008 / Informacja</p>
-    <h2 class="room-headline">Pokój zostanie otwarty.</h2>
+    <p class="room-desc">Obiekt 008 / Nauka litewskiego</p>
+    <h2 class="room-headline">Osiągnij poziom 10, aby ukończyć pokój.</h2>
     <div class="divider-thin"></div>
-    <div class="date-display">24.02.2026</div>
-    <p style="font-size:0.82rem; color:var(--mid-gray); margin-top:1rem">Prosimy o cierpliwość. Powróć w wyznaczonym terminie.</p>
+    
+    <div id="zuli-game">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin:2rem 0">
+        <div style="font-family:var(--font-display); font-size:1.8rem; color:var(--accent)">
+          Poziom <span id="zuli-level">1</span> / 10
+        </div>
+        <div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray)">
+          XP: <span id="zuli-xp">0</span> / <span id="zuli-xp-needed">100</span>
+        </div>
+      </div>
+      
+      <div style="background:var(--light-gray); height:8px; border-radius:4px; margin-bottom:3rem; overflow:hidden">
+        <div id="zuli-progress-bar" style="height:100%; background:var(--accent); width:0%; transition:width 0.5s ease"></div>
+      </div>
+
+      <div id="zuli-exercise-area">
+        <!-- Filled by JS -->
+      </div>
+
+      <div id="zuli-result" style="margin-top:2rem; font-size:0.9rem; text-align:center; min-height:2rem"></div>
+      
+      <button id="zuli-admin-btn" onclick="toggleZuliAdmin()" style="position:fixed; bottom:1.5rem; right:1.5rem; width:32px; height:32px; border:1px solid rgba(0,0,0,0.2); border-radius:6px; background:rgba(255,255,255,0.95); font-size:0.8rem; font-weight:600; color:rgba(0,0,0,0.5); cursor:pointer; font-family:monospace; transition:all 0.3s ease; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,0.1)" onmouseover="this.style.color='rgba(0,0,0,0.8)'; this.style.borderColor='rgba(0,0,0,0.4)'; this.style.background='rgba(255,255,255,1)'" onmouseout="this.style.color='rgba(0,0,0,0.5)'; this.style.borderColor='rgba(0,0,0,0.2)'; this.style.background='rgba(255,255,255,0.95)'">F</button>
+    </div>
   </div>
 </div>
+
+<style>
+.zuli-word-card {
+  border: 1px solid var(--light-gray);
+  padding: 2rem;
+  margin: 1.5rem 0;
+  background: rgba(0,0,0,0.01);
+  transition: all 0.3s ease;
+}
+
+.zuli-word-card:hover {
+  background: rgba(0,0,0,0.02);
+  border-color: var(--warm-gray);
+}
+
+.zuli-lt {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 0.5rem;
+}
+
+.zuli-pl {
+  font-size: 1.1rem;
+  color: var(--mid-gray);
+  margin-bottom: 0.3rem;
+}
+
+.zuli-category {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.zuli-option {
+  display: block;
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  margin: 0.8rem 0;
+  border: 1px solid var(--light-gray);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.zuli-option:hover {
+  background: rgba(0,0,0,0.02);
+  border-color: var(--warm-gray);
+}
+
+.zuli-option.correct {
+  background: rgba(107, 142, 35, 0.1);
+  border-color: rgb(107, 142, 35);
+  color: rgb(107, 142, 35);
+}
+
+.zuli-option.incorrect {
+  background: rgba(200, 16, 46, 0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.zuli-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  margin: 1rem 0;
+  transition: all 0.3s ease;
+}
+
+.zuli-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.zuli-match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.zuli-match-item {
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.zuli-match-item:hover {
+  background: rgba(0,0,0,0.02);
+}
+
+.zuli-match-item.selected {
+  background: rgba(0, 49, 83, 0.1);
+  border-color: var(--prussian);
+}
+
+.zuli-match-item.matched {
+  background: rgba(107, 142, 35, 0.1);
+  border-color: rgb(107, 142, 35);
+  cursor: default;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .zuli-match-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+</style>
+
+<script>
+// ═══════════════════════════════════════ ZULITEWSKI GAME
+const zuliVocab = {
+  torun: [
+    { lt: 'Torunė', pl: 'Toruń', category: 'Toruń' },
+    { lt: 'senamiestis', pl: 'stare miasto', category: 'Toruń' },
+    { lt: 'pilis', pl: 'zamek', category: 'Toruń' },
+    { lt: 'upė', pl: 'rzeka', category: 'Toruń' },
+    { lt: 'Vysla', pl: 'Wisła', category: 'Toruń' },
+    { lt: 'gotika', pl: 'gotyk', category: 'Toruń' },
+    { lt: 'bokštas', pl: 'wieża', category: 'Toruń' },
+    { lt: 'miestas', pl: 'miasto', category: 'Toruń' },
+    { lt: 'tiltas', pl: 'most', category: 'Toruń' },
+    { lt: 'universitetas', pl: 'uniwersytet', category: 'Toruń' },
+    { lt: 'mūrinė siena', pl: 'murowany mur', category: 'Toruń' },
+    { lt: 'vidurinioji architektūra', pl: 'architektura średniowieczna', category: 'Toruń' },
+    { lt: 'paveldo paminklas', pl: 'zabytek', category: 'Toruń' },
+    { lt: 'astronomas', pl: 'astronom', category: 'Toruń' },
+    { lt: 'gimtinė', pl: 'miejsce urodzenia', category: 'Toruń' },
+  ],
+  poznan: [
+    { lt: 'Poznanė', pl: 'Poznań', category: 'Poznań' },
+    { lt: 'turgaus aikštė', pl: 'rynek', category: 'Poznań' },
+    { lt: 'rotušė', pl: 'ratusz', category: 'Poznań' },
+    { lt: 'ožiai', pl: 'koziołki', category: 'Poznań' },
+    { lt: 'katedra', pl: 'katedra', category: 'Poznań' },
+    { lt: 'sala', pl: 'wyspa', category: 'Poznań' },
+    { lt: 'sostinė', pl: 'stolica', category: 'Poznań' },
+    { lt: 'festivalis', pl: 'festiwal', category: 'Poznań' },
+    { lt: 'kelias', pl: 'droga', category: 'Poznań' },
+    { lt: 'parkas', pl: 'park', category: 'Poznań' },
+    { lt: 'prekybos centras', pl: 'centrum handlowe', category: 'Poznań' },
+    { lt: 'DidžiosiosLenkijos', pl: 'Wielkopolski', category: 'Poznań' },
+    { lt: 'pirmoji sostinė', pl: 'pierwsza stolica', category: 'Poznań' },
+    { lt: 'legendinė tradicija', pl: 'legendarna tradycja', category: 'Poznań' },
+    { lt: 'viduramžių įtvirtinimai', pl: 'umocnienia średniowieczne', category: 'Poznań' },
+  ],
+  safety: [
+    { lt: 'saugumas', pl: 'bezpieczeństwo', category: 'Bezpieczeństwo' },
+    { lt: 'saugus', pl: 'bezpieczny', category: 'Bezpieczeństwo' },
+    { lt: 'apsauga', pl: 'ochrona', category: 'Bezpieczeństwo' },
+    { lt: 'pagalba', pl: 'pomoc', category: 'Bezpieczeństwo' },
+    { lt: 'pavojus', pl: 'niebezpieczeństwo', category: 'Bezpieczeństwo' },
+    { lt: 'ramus', pl: 'spokojny', category: 'Bezpieczeństwo' },
+    { lt: 'pasitikėjimas', pl: 'zaufanie', category: 'Bezpieczeństwo' },
+    { lt: 'stiprus', pl: 'silny', category: 'Bezpieczeństwo' },
+    { lt: 'drąsus', pl: 'odważny', category: 'Bezpieczeństwo' },
+    { lt: 'gynėjas', pl: 'obrońca', category: 'Bezpieczeństwo' },
+    { lt: 'prieglobstis', pl: 'schronienie', category: 'Bezpieczeństwo' },
+    { lt: 'tvirtovė', pl: 'twierdza', category: 'Bezpieczeństwo' },
+    { lt: 'patikimumas', pl: 'niezawodność', category: 'Bezpieczeństwo' },
+    { lt: 'ištikimybė', pl: 'wierność', category: 'Bezpieczeństwo' },
+    { lt: 'ramybė', pl: 'spokój', category: 'Bezpieczeństwo' },
+    { lt: 'išsaugojimas', pl: 'zachowanie', category: 'Bezpieczeństwo' },
+    { lt: 'užtikrinimas', pl: 'zapewnienie', category: 'Bezpieczeństwo' },
+    { lt: 'slaptažodis', pl: 'hasło', category: 'Bezpieczeństwo' },
+    { lt: 'šifravimas', pl: 'szyfrowanie', category: 'Bezpieczeństwo' },
+    { lt: 'kibernetinis saugumas', pl: 'cyberbezpieczeństwo', category: 'Bezpieczeństwo' },
+    { lt: 'ugniasienė', pl: 'zapora ogniowa', category: 'Bezpieczeństwo' },
+    { lt: 'duomenų apsauga', pl: 'ochrona danych', category: 'Bezpieczeństwo' },
+    { lt: 'privatumas', pl: 'prywatność', category: 'Bezpieczeństwo' },
+    { lt: 'tapatybės vagystė', pl: 'kradzież tożsamości', category: 'Bezpieczeństwo' },
+    { lt: 'sukčiavimas', pl: 'oszustwo', category: 'Bezpieczeństwo' },
+    { lt: 'kenkėjiška programa', pl: 'szkodliwe oprogramowanie', category: 'Bezpieczeństwo' },
+    { lt: 'virusas', pl: 'wirus', category: 'Bezpieczeństwo' },
+    { lt: 'antivirusinė programa', pl: 'program antywirusowy', category: 'Bezpieczeństwo' },
+    { lt: 'autentifikavimas', pl: 'uwierzytelnianie', category: 'Bezpieczeństwo' },
+    { lt: 'dviejų veiksnių autentifikavimas', pl: 'uwierzytelnianie dwuskładnikowe', category: 'Bezpieczeństwo' },
+    { lt: 'įsilaužimas', pl: 'włamanie', category: 'Bezpieczeństwo' },
+    { lt: 'kibernetinė ataka', pl: 'cyberatak', category: 'Bezpieczeństwo' },
+    { lt: 'duomenų nutekėjimas', pl: 'wyciek danych', category: 'Bezpieczeństwo' },
+    { lt: 'atsarginė kopija', pl: 'kopia zapasowa', category: 'Bezpieczeństwo' },
+    { lt: 'saugi jungtis', pl: 'bezpieczne połączenie', category: 'Bezpieczeństwo' },
+    { lt: 'virtuali privati tinklas', pl: 'wirtualna sieć prywatna', category: 'Bezpieczeństwo' },
+    { lt: 'fišingas', pl: 'phishing', category: 'Bezpieczeństwo' },
+    { lt: 'socialinė inžinerija', pl: 'inżynieria społeczna', category: 'Bezpieczeństwo' },
+    { lt: 'saugumo pažeidžiamumas', pl: 'podatność bezpieczeństwa', category: 'Bezpieczeństwo' },
+    { lt: 'atnaujinimas', pl: 'aktualizacja', category: 'Bezpieczeństwo' },
+    { lt: 'skaitmeninis saugumas', pl: 'bezpieczeństwo cyfrowe', category: 'Bezpieczeństwo' },
+    { lt: 'šifrinis raktas', pl: 'klucz szyfrujący', category: 'Bezpieczeństwo' },
+    { lt: 'asmens duomenų apsauga', pl: 'ochrona danych osobowych', category: 'Bezpieczeństwo' },
+    { lt: 'grėsmė', pl: 'zagrożenie', category: 'Bezpieczeństwo' },
+    { lt: 'rizikos valdymas', pl: 'zarządzanie ryzykiem', category: 'Bezpieczeństwo' },
+  ],
+  poetry: [
+    { lt: 'poezija', pl: 'poezja', category: 'Poezja' },
+    { lt: 'eilėraštis', pl: 'wiersz', category: 'Poezja' },
+    { lt: 'poetas', pl: 'poeta', category: 'Poezja' },
+    { lt: 'žodis', pl: 'słowo', category: 'Poezja' },
+    { lt: 'grožis', pl: 'piękno', category: 'Poezja' },
+    { lt: 'rima', pl: 'rym', category: 'Poezja' },
+    { lt: 'ritmas', pl: 'rytm', category: 'Poezja' },
+    { lt: 'metafora', pl: 'metafora', category: 'Poezja' },
+    { lt: 'jausmas', pl: 'uczucie', category: 'Poezja' },
+    { lt: 'kūryba', pl: 'twórczość', category: 'Poezja' },
+    { lt: 'eilutė', pl: 'wers', category: 'Poezja' },
+    { lt: 'posmas', pl: 'strofa', category: 'Poezja' },
+    { lt: 'įkvėpimas', pl: 'natchnienie', category: 'Poezja' },
+    { lt: 'vaizduotė', pl: 'wyobraźnia', category: 'Poezja' },
+    { lt: 'lirika', pl: 'liryka', category: 'Poezja' },
+    { lt: 'eilėdara', pl: 'wersyfikacja', category: 'Poezja' },
+    { lt: 'melodingumas', pl: 'melodyjność', category: 'Poezja' },
+    { lt: 'sielos gelmės', pl: 'głębia duszy', category: 'Poezja' },
+  ],
+  love: [
+    { lt: 'meilė', pl: 'miłość', category: 'Miłość' },
+    { lt: 'myliu', pl: 'kocham', category: 'Miłość' },
+    { lt: 'širdis', pl: 'serce', category: 'Miłość' },
+    { lt: 'mylimas', pl: 'ukochany', category: 'Miłość' },
+    { lt: 'bučinys', pl: 'pocałunek', category: 'Miłość' },
+    { lt: 'glėbys', pl: 'uścisk', category: 'Miłość' },
+    { lt: 'šypsena', pl: 'uśmiech', category: 'Miłość' },
+    { lt: 'kartu', pl: 'razem', category: 'Miłość' },
+    { lt: 'amžinai', pl: 'na zawsze', category: 'Miłość' },
+    { lt: 'siela', pl: 'dusza', category: 'Miłość' },
+    { lt: 'atsidavimas', pl: 'oddanie', category: 'Miłość' },
+    { lt: 'švelnumas', pl: 'czułość', category: 'Miłość' },
+    { lt: 'troškimas', pl: 'tęsknota', category: 'Miłość' },
+    { lt: 'geismas', pl: 'pożądanie', category: 'Miłość' },
+    { lt: 'aistra', pl: 'namiętność', category: 'Miłość' },
+    { lt: 'ištikimybė', pl: 'wierność', category: 'Miłość' },
+    { lt: 'artumas', pl: 'bliskość', category: 'Miłość' },
+    { lt: 'susijungimas', pl: 'zjednoczenie', category: 'Miłość' },
+    { lt: 'meilės prisiekimas', pl: 'przysięga miłości', category: 'Miłość' },
+  ],
+};
+
+const zuliAllWords = [
+  ...zuliVocab.torun,
+  ...zuliVocab.poznan,
+  ...zuliVocab.safety,
+  ...zuliVocab.poetry,
+  ...zuliVocab.love
+];
+
+let zuliLevel = 1;
+let zuliXP = 0;
+let zuliCurrentExercise = null;
+let zuliLocked = false;
+let zuliUsedWords = new Set(); // Track used words to prevent repetition
+
+function initZulitewski() {
+  zuliLevel = parseInt(localStorage.getItem('zuli-level') || '1');
+  zuliXP = parseInt(localStorage.getItem('zuli-xp') || '0');
+  zuliUsedWords.clear(); // Reset used words on init
+  updateZuliUI();
+  generateZuliExercise();
+}
+
+function updateZuliUI() {
+  document.getElementById('zuli-level').textContent = zuliLevel;
+  document.getElementById('zuli-xp').textContent = zuliXP;
+  const xpNeeded = zuliLevel * 100;
+  document.getElementById('zuli-xp-needed').textContent = xpNeeded;
+  const progress = (zuliXP / xpNeeded) * 100;
+  document.getElementById('zuli-progress-bar').style.width = progress + '%';
+}
+
+function getRandomUnusedWord() {
+  // If all words have been used, reset the set
+  if (zuliUsedWords.size >= zuliAllWords.length - 1) {
+    zuliUsedWords.clear();
+  }
+  
+  let word;
+  let attempts = 0;
+  do {
+    word = zuliAllWords[Math.floor(Math.random() * zuliAllWords.length)];
+    attempts++;
+  } while (zuliUsedWords.has(word.lt) && attempts < 50);
+  
+  zuliUsedWords.add(word.lt);
+  return word;
+}
+
+function generateZuliExercise() {
+  if (zuliLevel >= 10) {
+    document.getElementById('zuli-exercise-area').innerHTML = `
+      <div style="text-align:center; padding:3rem 0">
+        <h3 style="font-family:var(--font-display); font-size:2rem; margin-bottom:1rem">Gratulacje!</h3>
+        <p style="color:var(--mid-gray); margin-bottom:2rem">Osiągnąłeś poziom 10. Pokój ukończony.</p>
+      </div>
+    `;
+    markComplete(8);
+    return;
+  }
+
+  const exerciseTypes = ['translate', 'choice', 'match', 'type'];
+  const type = exerciseTypes[Math.floor(Math.random() * exerciseTypes.length)];
+  
+  zuliLocked = false;
+  document.getElementById('zuli-result').innerHTML = '';
+  
+  if (type === 'translate') generateTranslateExercise();
+  else if (type === 'choice') generateChoiceExercise();
+  else if (type === 'match') generateMatchExercise();
+  else if (type === 'type') generateTypeExercise();
+}
+
+function generateTranslateExercise() {
+  const word = getRandomUnusedWord();
+  zuliCurrentExercise = { type: 'translate', answer: word.pl };
+  
+  document.getElementById('zuli-exercise-area').innerHTML = `
+    <div class="zuli-word-card">
+      <div class="zuli-category">${word.category}</div>
+      <div class="zuli-lt">${word.lt}</div>
+      <div class="zuli-pl">Co to znaczy po polsku?</div>
+    </div>
+    <input type="text" class="zuli-input" id="zuli-answer" placeholder="Wpisz tłumaczenie..." onkeydown="if(event.key==='Enter')checkZuliAnswer()">
+    <button class="btn" onclick="checkZuliAnswer()" style="margin-top:1rem">Sprawdź →</button>
+  `;
+  setTimeout(() => document.getElementById('zuli-answer').focus(), 100);
+  if (zuliAdminMode) updateZuliAdminPanel();
+}
+
+function generateChoiceExercise() {
+  const correct = getRandomUnusedWord();
+  const others = zuliAllWords.filter(w => w.pl !== correct.pl).sort(() => Math.random() - 0.5).slice(0, 3);
+  const options = [correct, ...others].sort(() => Math.random() - 0.5);
+  
+  zuliCurrentExercise = { type: 'choice', answer: correct.pl };
+  
+  document.getElementById('zuli-exercise-area').innerHTML = `
+    <div style="text-align:center; margin:2rem 0">
+      <div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:1rem">${correct.category}</div>
+      <div style="font-family:var(--font-display); font-size:2.5rem; font-weight:600; margin-bottom:2rem">${correct.lt}</div>
+      <p style="color:var(--mid-gray)">Wybierz poprawne tłumaczenie:</p>
+    </div>
+    ${options.map(w => `<button class="zuli-option" onclick="selectZuliOption(this, '${w.pl}')">${w.pl}</button>`).join('')}
+  `;
+  if (zuliAdminMode) updateZuliAdminPanel();
+}
+
+function generateMatchExercise() {
+  const words = zuliAllWords.sort(() => Math.random() - 0.5).slice(0, 4);
+  zuliCurrentExercise = { type: 'match', pairs: words, selected: null, matched: [] };
+  
+  const ltWords = words.map(w => ({ word: w.lt, key: w.lt })).sort(() => Math.random() - 0.5);
+  const plWords = words.map(w => ({ word: w.pl, key: w.lt })).sort(() => Math.random() - 0.5);
+  
+  document.getElementById('zuli-exercise-area').innerHTML = `
+    <div style="text-align:center; margin-bottom:2rem">
+      <p style="color:var(--mid-gray)">Dopasuj litewskie słowa do polskich tłumaczeń:</p>
+    </div>
+    <div class="zuli-match-grid">
+      <div>
+        ${ltWords.map((w, i) => `<div class="zuli-match-item" data-key="${w.key}" data-side="lt" onclick="selectMatch(this)">${w.word}</div>`).join('')}
+      </div>
+      <div>
+        ${plWords.map((w, i) => `<div class="zuli-match-item" data-key="${w.key}" data-side="pl" onclick="selectMatch(this)">${w.word}</div>`).join('')}
+      </div>
+    </div>
+  `;
+  if (zuliAdminMode) updateZuliAdminPanel();
+}
+
+function generateTypeExercise() {
+  const word = getRandomUnusedWord();
+  zuliCurrentExercise = { type: 'type', answer: word.lt.toLowerCase() };
+  
+  document.getElementById('zuli-exercise-area').innerHTML = `
+    <div style="text-align:center; margin:2rem 0">
+      <div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:1rem">${word.category}</div>
+      <div style="font-size:1.8rem; color:var(--black); margin-bottom:2rem">${word.pl}</div>
+      <p style="color:var(--mid-gray); margin-bottom:1.5rem">Jak to powiedzieć po litewsku?</p>
+    </div>
+    <input type="text" class="zuli-input" id="zuli-answer" placeholder="Wpisz słowo po litewsku..." onkeydown="if(event.key==='Enter')checkZuliAnswer()">
+    <button class="btn" onclick="checkZuliAnswer()" style="margin-top:1rem">Sprawdź →</button>
+  `;
+  setTimeout(() => document.getElementById('zuli-answer').focus(), 100);
+  if (zuliAdminMode) updateZuliAdminPanel();
+}
+
+function selectZuliOption(el, answer) {
+  if (zuliLocked) return;
+  zuliLocked = true;
+  
+  const correct = answer === zuliCurrentExercise.answer;
+  el.classList.add(correct ? 'correct' : 'incorrect');
+  
+  if (correct) {
+    showZuliResult('✓ Poprawnie!', true);
+    awardZuliXP(20);
+  } else {
+    document.querySelectorAll('.zuli-option').forEach(opt => {
+      if (opt.textContent === zuliCurrentExercise.answer) opt.classList.add('correct');
+    });
+    showZuliResult('✗ Niepoprawnie. Spróbuj ponownie.', false);
+    setTimeout(() => generateZuliExercise(), 2000);
+  }
+}
+
+function checkZuliAnswer() {
+  if (zuliLocked) return;
+  zuliLocked = true;
+  
+  const input = document.getElementById('zuli-answer');
+  const answer = input.value.trim().toLowerCase();
+  const correct = answer === zuliCurrentExercise.answer.toLowerCase();
+  
+  if (correct) {
+    input.style.borderColor = 'rgb(107, 142, 35)';
+    showZuliResult('✓ Poprawnie!', true);
+    awardZuliXP(25);
+  } else {
+    input.style.borderColor = 'var(--accent)';
+    showZuliResult(`✗ Niepoprawnie. Poprawna odpowiedź: ${zuliCurrentExercise.answer}`, false);
+    setTimeout(() => generateZuliExercise(), 2500);
+  }
+}
+
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  
+  const side = el.dataset.side;
+  const key = el.dataset.key;
+  
+  if (!zuliCurrentExercise.selected) {
+    zuliCurrentExercise.selected = { el, side, key };
+    el.classList.add('selected');
+  } else {
+    const first = zuliCurrentExercise.selected;
+    
+    if (first.side === side) {
+      first.el.classList.remove('selected');
+      zuliCurrentExercise.selected = { el, side, key };
+      el.classList.add('selected');
+    } else {
+      if (first.key === key) {
+        first.el.classList.remove('selected');
+        first.el.classList.add('matched');
+        el.classList.add('matched');
+        zuliCurrentExercise.matched.push(key);
+        zuliCurrentExercise.selected = null;
+        
+        if (zuliCurrentExercise.matched.length === zuliCurrentExercise.pairs.length) {
+          showZuliResult('✓ Wszystkie pary dopasowane!', true);
+          awardZuliXP(30);
+        }
+      } else {
+        first.el.classList.remove('selected');
+        zuliCurrentExercise.selected = null;
+      }
+    }
+  }
+}
+
+function showZuliResult(msg, success) {
+  const result = document.getElementById('zuli-result');
+  result.textContent = msg;
+  result.style.color = success ? 'rgb(107, 142, 35)' : 'var(--accent)';
+}
+
+function awardZuliXP(amount) {
+  zuliXP += amount;
+  const xpNeeded = zuliLevel * 100;
+  
+  if (zuliXP >= xpNeeded) {
+    zuliXP = zuliXP - xpNeeded;
+    zuliLevel++;
+    localStorage.setItem('zuli-level', zuliLevel);
+    
+    // Trigger challenge at level 9
+    if (zuliLevel === 9) {
+      setTimeout(() => showZuliChallenge(), 800);
+      return; // Don't generate next exercise yet
+    }
+  }
+  
+  localStorage.setItem('zuli-xp', zuliXP);
+  updateZuliUI();
+  
+  setTimeout(() => generateZuliExercise(), 1500);
+}
+
+// ═══════════════════════════════════════ LEVEL 9 CHALLENGE
+let zuliChallengeTimer = null;
+let zuliChallengeTimeLeft = 10;
+
+function showZuliChallenge() {
+  const overlay = document.getElementById('zuli-challenge-overlay');
+  const input = document.getElementById('zuli-challenge-input');
+  const flash = document.getElementById('zuli-challenge-flash');
+  
+  // Flash effect
+  flash.style.opacity = '1';
+  setTimeout(() => { flash.style.opacity = '0'; }, 150);
+  setTimeout(() => { flash.style.opacity = '1'; }, 300);
+  setTimeout(() => { flash.style.opacity = '0'; }, 450);
+  
+  overlay.style.display = 'block';
+  zuliChallengeTimeLeft = 10;
+  
+  // Start war siren sound
+  playWarSiren();
+  
+  setTimeout(() => {
+    input.focus();
+    input.value = '';
+  }, 600);
+  
+  // Start countdown
+  zuliChallengeTimer = setInterval(() => {
+    zuliChallengeTimeLeft--;
+    document.getElementById('zuli-challenge-timer').textContent = zuliChallengeTimeLeft;
+    
+    if (zuliChallengeTimeLeft <= 0) {
+      clearInterval(zuliChallengeTimer);
+      zuliChallengeFailed();
+    }
+  }, 1000);
+  
+  // Handle input
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') {
+      checkZuliChallenge();
+    }
+  };
+}
+
+function checkZuliChallenge() {
+  const input = document.getElementById('zuli-challenge-input');
+  const answer = input.value.trim().toUpperCase();
+  const hint = document.getElementById('zuli-challenge-hint');
+  
+  if (answer === 'MENTAL REVOLUTION') {
+    clearInterval(zuliChallengeTimer);
+    stopWarSiren();
+    hint.style.color = 'rgb(107, 142, 35)';
+    hint.textContent = '✓ Correct. Proceeding...';
+    
+    setTimeout(() => {
+      document.getElementById('zuli-challenge-overlay').style.display = 'none';
+      localStorage.setItem('zuli-xp', zuliXP);
+      updateZuliUI();
+      generateZuliExercise();
+    }, 1500);
+  } else {
+    hint.style.color = 'var(--accent)';
+    hint.textContent = '✗ Incorrect. Try again.';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function zuliChallengeFailed() {
+  const hint = document.getElementById('zuli-challenge-hint');
+  hint.style.color = 'var(--accent)';
+  hint.style.fontSize = '1rem';
+  hint.textContent = '✗ Time expired. Progress lost.';
+  
+  stopWarSiren();
+  
+  // Flash red
+  const flash = document.getElementById('zuli-challenge-flash');
+  flash.style.opacity = '0.3';
+  setTimeout(() => { flash.style.opacity = '0'; }, 200);
+  setTimeout(() => { flash.style.opacity = '0.3'; }, 400);
+  setTimeout(() => { flash.style.opacity = '0'; }, 600);
+  
+  setTimeout(() => {
+    // Reset progress
+    zuliLevel = 1;
+    zuliXP = 0;
+    localStorage.setItem('zuli-level', 1);
+    localStorage.setItem('zuli-xp', 0);
+    
+    // Hide overlay and restart
+    document.getElementById('zuli-challenge-overlay').style.display = 'none';
+    updateZuliUI();
+    generateZuliExercise();
+  }, 2500);
+}
+
+// ═══════════════════════════════════════ WAR SIREN AUDIO
+let audioContext = null;
+let sirenOscillator = null;
+let sirenGain = null;
+let sirenInterval = null;
+
+function playWarSiren() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  
+  // Stop any existing siren
+  stopWarSiren();
+  
+  // Create oscillator for siren
+  sirenOscillator = audioContext.createOscillator();
+  sirenGain = audioContext.createGain();
+  
+  sirenOscillator.type = 'sine';
+  sirenOscillator.frequency.value = 200; // Start at low frequency
+  
+  sirenGain.gain.value = 0.5; // Volume
+  
+  sirenOscillator.connect(sirenGain);
+  sirenGain.connect(audioContext.destination);
+  
+  sirenOscillator.start();
+  
+  // Slow oscillation for civil defense siren (200Hz to 600Hz over 3 seconds cycle)
+  let direction = 1;
+  let currentFreq = 200;
+  const freqStep = 8; // Slower frequency change
+  const minFreq = 200;
+  const maxFreq = 600;
+  
+  sirenInterval = setInterval(() => {
+    currentFreq += direction * freqStep;
+    
+    if (currentFreq >= maxFreq) {
+      direction = -1;
+    } else if (currentFreq <= minFreq) {
+      direction = 1;
+    }
+    
+    if (sirenOscillator) {
+      sirenOscillator.frequency.value = currentFreq;
+    }
+  }, 50);
+}
+
+function stopWarSiren() {
+  if (sirenInterval) {
+    clearInterval(sirenInterval);
+    sirenInterval = null;
+  }
+  
+  if (sirenOscillator) {
+    sirenOscillator.stop();
+    sirenOscillator.disconnect();
+    sirenOscillator = null;
+  }
+  
+  if (sirenGain) {
+    sirenGain.disconnect();
+    sirenGain = null;
+  }
+}
+
+
+// ═══════════════════════════════════════ ADMIN FUNCTIONS
+let zuliAdminMode = false;
+let zuliAdminPanel = null;
+
+function toggleZuliAdmin() {
+  if (!zuliAdminMode) {
+    const pw = prompt('Admin password:');
+    if (pw === 'SUNNATA') {
+      zuliAdminMode = true;
+      showZuliAdminPanel();
+    }
+  } else {
+    zuliAdminMode = false;
+    if (zuliAdminPanel) {
+      zuliAdminPanel.remove();
+      zuliAdminPanel = null;
+    }
+  }
+}
+
+function showZuliAdminPanel() {
+  if (zuliAdminPanel) return;
+  
+  zuliAdminPanel = document.createElement('div');
+  zuliAdminPanel.style.cssText = 'position:fixed; bottom:5rem; right:1.5rem; background:rgba(0,0,0,0.92); color:#fff; padding:1rem 1.2rem; border-radius:6px; font-size:0.75rem; z-index:9999; font-family:monospace; box-shadow:0 4px 16px rgba(0,0,0,0.4); min-width:200px';
+  
+  updateZuliAdminPanel();
+  document.body.appendChild(zuliAdminPanel);
+}
+
+function updateZuliAdminPanel() {
+  if (!zuliAdminPanel || !zuliCurrentExercise) return;
+  
+  let answer = '';
+  if (zuliCurrentExercise.type === 'translate' || zuliCurrentExercise.type === 'type') {
+    answer = zuliCurrentExercise.answer;
+  } else if (zuliCurrentExercise.type === 'choice') {
+    answer = zuliCurrentExercise.answer;
+  } else if (zuliCurrentExercise.type === 'match') {
+    answer = zuliCurrentExercise.pairs.map(p => `${p.lt} = ${p.pl}`).join('<br>');
+  }
+  
+  zuliAdminPanel.innerHTML = `
+    <div style="margin-bottom:0.5rem; font-weight:bold; color:#4ade80">ADMIN MODE</div>
+    <div style="margin-bottom:0.5rem">Type: ${zuliCurrentExercise.type}</div>
+    <div style="margin-bottom:0.5rem">Answer: ${answer}</div>
+    <button onclick="zuliAdminSkip()" style="margin-top:0.5rem; padding:0.3rem 0.6rem; background:#4ade80; border:none; cursor:pointer; font-size:0.7rem; font-family:monospace">Skip →</button>
+  `;
+}
+
+function zuliAdminSkip() {
+  if (!zuliAdminMode) return;
+  
+  zuliLocked = false;
+  showZuliResult('✓ Admin skip', true);
+  awardZuliXP(25);
+}
+</script>
+
+<!-- LEVEL 9 CHALLENGE OVERLAY -->
+<div id="zuli-challenge-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:10000; animation:zuliChallengeReveal 0.8s ease forwards">
+  <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem">
+    <div id="zuli-challenge-flash" style="position:absolute; inset:0; background:var(--accent); opacity:0"></div>
+    
+    <div style="position:relative; z-index:1">
+      <div style="font-family:var(--font-display); font-size:clamp(2.5rem, 8vw, 5rem); font-weight:700; font-style:italic; color:var(--accent); margin-bottom:2rem; letter-spacing:-0.02em; line-height:1.1; animation:zuliChallengeGlitch 3s ease infinite">
+        THE ONLY SOLUTION IS A
+      </div>
+      
+      <div style="width:2px; height:80px; background:linear-gradient(to bottom, transparent, var(--accent), transparent); margin:0 auto 2rem; animation:zuliChallengeLine 1.5s ease infinite alternate"></div>
+      
+      <div style="margin-bottom:2rem">
+        <input type="text" id="zuli-challenge-input" placeholder="..." style="width:100%; max-width:500px; padding:1.5rem 2rem; font-family:var(--font-body); font-size:1.3rem; text-align:center; border:2px solid var(--accent); background:rgba(0,0,0,0.5); color:var(--white); letter-spacing:0.3em; text-transform:uppercase" autocomplete="off">
+      </div>
+      
+      <div style="font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:1rem">
+        Time remaining: <span id="zuli-challenge-timer" style="color:var(--accent); font-weight:600">10</span>s
+      </div>
+      
+      <div id="zuli-challenge-hint" style="font-size:0.75rem; color:rgba(200,16,46,0.7); min-height:1.5rem; margin-top:1rem"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes zuliChallengeReveal {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes zuliChallengeGlitch {
+  0%, 88%, 100% { text-shadow: none; }
+  90%  { text-shadow: 4px 0 0 rgba(200,16,46,0.8), -4px 0 0 rgba(0,255,255,0.8); }
+  92%  { text-shadow: none; }
+  94%  { text-shadow: -3px 0 0 rgba(0,255,255,0.8), 3px 0 0 rgba(200,16,46,0.8); }
+}
+
+@keyframes zuliChallengeLine {
+  from { height: 60px; opacity: 0.4; }
+  to   { height: 100px; opacity: 1; }
+}
+</style>
+
 
 <!-- Room 9 -->
 <div id="page-room-9" class="page">
@@ -1737,7 +2528,7 @@ function showPage(id) {
 let _pwPending = null; // room number waiting for password
 
 function showRoom(n) {
-  if (n === 8) { showPage('page-room-8'); return; }
+  if (n === 8) { showPage('page-room-8'); initZulitewski(); return; }
   const minUnlocked = n === 1 ? true : completed.includes(n - 1) || n === 9 || n === 10;
   if (!minUnlocked) return;
   // Ask for password before entering any room
