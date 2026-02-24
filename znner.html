@@ -2563,6 +2563,18 @@ function showOszustPopup() {
 
 
 <!-- ═══════════════════════════════════════════════════════ SUCCESS OVERLAY -->
+  <!-- PASSWORD MODAL -->
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-box">
+    <div class="pw-question">Gdzie najlepiej jechać po Kindla?</div>
+    <input class="pw-input" id="pw-input" type="text" autocomplete="off" spellcheck="false" placeholder="odpowiedź…" onkeydown="if(event.key==='Enter')pwConfirm();else pwClearWrong(this)">
+    <div class="pw-hint" id="pw-hint">Do …</div>
+    <div class="pw-actions">
+      <button class="pw-btn confirm" onclick="pwConfirm()">Wejdź →</button>
+      <button class="pw-btn cancel"  onclick="pwCancel()">Anuluj</button>
+    </div>
+  </div>
+</div>
 <div class="success-overlay" id="success-overlay">  <div style="text-align:center; padding:2rem">
     <p>Pokój ukończony</p>
     <h2 id="success-title">Brawo!</h2>
