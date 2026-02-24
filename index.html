@@ -506,6 +506,13 @@ async function run(cmd) {
     return;
   }
 
+  if (cmd === '5') {
+    out('launching zuzanka merger [beta] ...', 'dim');
+    await sleep(300);
+    window.location.href = 'zuzanka_merger.html';
+    return;
+  }
+
   if (cmd === 'p' || cmd === 'P') {
     await penTestErr();
     blank();
@@ -607,6 +614,7 @@ async function cmdHelp() {
   row('2', 'techno zuzanka');
   row('3', 'random łysy');
   row('4', 'witch house zuzanka');
+  row('5', 'zuzanka merger  [BETA]');
   row('P', 'pentest suite  [ADMIN ONLY]');
   blank();
   out('  filesystem', 'warn');
@@ -682,6 +690,10 @@ async function boot() {
   await sleep(60);
   outHTML(
     '  <span style="color:var(--p2)">  4</span><span style="color:var(--p3)">  \u2014  </span><span style="color:var(--p)"><a href="witch.html" style="color:inherit;text-decoration:none;">witch house zuzanka</a></span>'
+  );
+  await sleep(60);
+  outHTML(
+    '  <span style="color:var(--p2)">  5</span><span style="color:var(--p3)">  \u2014  </span><span style="color:var(--p)"><a href="zuzanka_merger.html" style="color:inherit;text-decoration:none;">zuzanka merger</a></span><span style="color:var(--p4)">  [BETA]</span>'
   );
   await sleep(60);
   outHTML(

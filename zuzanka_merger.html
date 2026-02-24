@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZUZANKA MERGER</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --border-hi: #333333;
+    --text: #e8e8e8;
+    --text-mid: #999999;
+    --text-dim: #555555;
+    --accent: #c8a96e;
+    --accent-dim: rgba(200,169,110,0.12);
+    --accent-glow: rgba(200,169,110,0.06);
+    --danger: #c04040;
+    --ok: #2ea870;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+
+  header h1 {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  header p {
+    margin-top: 0.55rem;
+    font-size: 0.48rem;
+    letter-spacing: 0.28em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .merger {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  /* DROP ZONE */
+  .drop-zone {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 1.6rem 1.4rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--border-hi);
+    background: var(--surface2);
+  }
+
+  .drop-zone.loaded {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  .drop-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .dz-label {
+    font-size: 0.46rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.55rem;
+  }
+
+  .drop-zone.loaded .dz-label { color: var(--accent); }
+
+  .dz-name {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: var(--text-mid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .drop-zone.loaded .dz-name { color: var(--text); }
+
+  .dz-meta {
+    margin-top: 0.35rem;
+    font-size: 0.42rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  /* WAVEFORM */
+  .waveform-wrap {
+    margin-top: 0.75rem;
+    height: 36px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .drop-zone.loaded .waveform-wrap { display: block; }
+
+  canvas.waveform {
+    width: 100%;
+    height: 36px;
+    display: block;
+  }
+
+  /* DIVIDER */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .divider span {
+    font-size: 0.42rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* OPTIONS */
+  .options {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .option-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .option-label {
+    font-size: 0.46rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    flex-shrink: 0;
+  }
+
+  .option-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mode-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.44rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.65rem;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .mode-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .mode-btn:hover:not(.active) {
+    border-color: var(--border-hi);
+    color: var(--text);
+  }
+
+  .slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .slider-wrap input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 2px;
+    background: var(--border-hi);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+
+  .slider-wrap input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+
+  .slider-val {
+    font-size: 0.44rem;
+    letter-spacing: 0.1em;
+    color: var(--text-mid);
+    width: 3rem;
+    text-align: right;
+  }
+
+  .xfade-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+    margin-top: -0.2rem;
+  }
+
+  .xfade-fill {
+    position: absolute;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.4;
+    transition: left 0.1s, right 0.1s;
+  }
+
+  /* MERGE BUTTON */
+  .merge-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.56rem;
+    font-weight: 600;
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    width: 100%;
+  }
+
+  .merge-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .merge-btn:disabled {
+    border-color: var(--border);
+    color: var(--text-dim);
+    cursor: not-allowed;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .progress-wrap.visible { display: flex; }
+
+  .progress-bar-bg {
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.15s;
+  }
+
+  .progress-label {
+    font-size: 0.42rem;
+    letter-spacing: 0.22em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  /* OUTPUT */
+  .output-wrap {
+    display: none;
+    border: 1px solid var(--ok);
+    background: rgba(46,168,112,0.04);
+    padding: 1.2rem 1.4rem;
+    gap: 1rem;
+    flex-direction: column;
+  }
+
+  .output-wrap.visible { display: flex; }
+
+  .output-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .output-label {
+    font-size: 0.46rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ok);
+  }
+
+  .output-meta {
+    font-size: 0.42rem;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+  }
+
+  audio {
+    width: 100%;
+    height: 32px;
+  }
+
+  .download-btn {
+    background: var(--ok);
+    border: none;
+    color: #000;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.2rem;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.12s;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+  }
+
+  .download-btn:hover { opacity: 0.85; }
+
+  /* FOOTER */
+  footer {
+    margin-top: 3rem;
+    font-size: 0.42rem;
+    letter-spacing: 0.35em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* ERROR */
+  .error-msg {
+    display: none;
+    font-size: 0.44rem;
+    letter-spacing: 0.18em;
+    color: var(--danger);
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .error-msg.visible { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Zuzanka Merger</h1>
+  <p>połącz różne zuzankowe odgłosy</p>
+</header>
+
+<div class="merger">
+
+  <!-- FILE A -->
+  <div class="drop-zone" id="zone-a">
+    <input type="file" id="file-a" accept="audio/*">
+    <div class="dz-label">Track A</div>
+    <div class="dz-name" id="name-a">drop or click to load audio</div>
+    <div class="dz-meta" id="meta-a"></div>
+    <div class="waveform-wrap"><canvas class="waveform" id="wave-a"></canvas></div>
+  </div>
+
+  <div class="divider"><span>merge options</span></div>
+
+  <!-- OPTIONS -->
+  <div class="options">
+    <div class="option-row">
+      <span class="option-label">Mode</span>
+      <div class="option-controls">
+        <button class="mode-btn active" id="mode-seq" title="Play A then B">Sequential</button>
+        <button class="mode-btn" id="mode-ov" title="Mix A and B together">Overlay</button>
+      </div>
+    </div>
+
+    <div class="option-row" id="row-xfade">
+      <span class="option-label">Crossfade</span>
+      <div class="slider-wrap">
+        <input type="range" id="xfade" min="0" max="8" step="0.1" value="2">
+        <span class="slider-val" id="xfade-val">2.0 s</span>
+      </div>
+    </div>
+    <div class="xfade-bar" id="xfade-bar-wrap">
+      <div class="xfade-fill" id="xfade-fill"></div>
+    </div>
+
+    <div class="option-row">
+      <span class="option-label">Volume A</span>
+      <div class="slider-wrap">
+        <input type="range" id="gain-a" min="0" max="2" step="0.01" value="1">
+        <span class="slider-val" id="gain-a-val">100%</span>
+      </div>
+    </div>
+
+    <div class="option-row">
+      <span class="option-label">Volume B</span>
+      <div class="slider-wrap">
+        <input type="range" id="gain-b" min="0" max="2" step="0.01" value="1">
+        <span class="slider-val" id="gain-b-val">100%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILE B -->
+  <div class="drop-zone" id="zone-b">
+    <input type="file" id="file-b" accept="audio/*">
+    <div class="dz-label">Track B</div>
+    <div class="dz-name" id="name-b">drop or click to load audio</div>
+    <div class="dz-meta" id="meta-b"></div>
+    <div class="waveform-wrap"><canvas class="waveform" id="wave-b"></canvas></div>
+  </div>
+
+  <!-- MERGE -->
+  <button class="merge-btn" id="merge-btn" disabled>Merge</button>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">processing…</div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- OUTPUT -->
+  <div class="output-wrap" id="output-wrap">
+    <div class="output-top">
+      <span class="output-label">Ready</span>
+      <span class="output-meta" id="output-meta"></span>
+    </div>
+    <audio id="preview-audio" controls></audio>
+    <a class="download-btn" id="download-btn" download="zuzanka_merge.mp3">↓ Save as MP3</a>
+  </div>
+
+</div>
+
+<footer>z · u · z · a · n · k · a</footer>
+
+<script>
+// Load lamejs MP3 encoder from CDN
+(function(){
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js';
+  s.onload = () => { window._lameReady = true; };
+  s.onerror = () => { window._lameError = true; };
+  document.head.appendChild(s);
+})();
+
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+
+let bufA = null, bufB = null;
+let mode = 'seq';
+
+// FILE LOADING
+function setupZone(zoneId, fileInputId, nameId, metaId, waveId, onLoad) {
+  const zone  = document.getElementById(zoneId);
+  const input = document.getElementById(fileInputId);
+
+  // Prevent click on input from bubbling and triggering zone twice
+  input.addEventListener('click', e => e.stopPropagation());
+
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) loadFile(f, nameId, metaId, waveId, zoneId, onLoad);
+  });
+  zone.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    if (input.files[0]) loadFile(input.files[0], nameId, metaId, waveId, zoneId, onLoad);
+  });
+}
+
+function fmtDur(s) {
+  const m = Math.floor(s / 60);
+  return m + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+}
+
+function fmtSize(b) {
+  if (b < 1024 * 1024) return (b / 1024).toFixed(0) + ' KB';
+  return (b / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function loadFile(file, nameId, metaId, waveId, zoneId, onLoad) {
+  hideError();
+  const zone = document.getElementById(zoneId);
+  document.getElementById(nameId).textContent = file.name;
+
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      // slice(0) to get a copy — decodeAudioData detaches the buffer
+      const buf = await AC.decodeAudioData(e.target.result.slice(0));
+      document.getElementById(metaId).textContent =
+        fmtDur(buf.duration) + '  ·  ' + buf.numberOfChannels + 'ch  ·  ' +
+        buf.sampleRate + ' Hz  ·  ' + fmtSize(file.size);
+      zone.classList.add('loaded');
+      drawWave(buf, waveId);
+      onLoad(buf);
+      checkReady();
+    } catch (err) {
+      showError('Could not decode ' + file.name + ' — ' + err.message);
+    }
+  };
+  reader.onerror = () => showError('Could not read file.');
+  reader.readAsArrayBuffer(file);
+}
+
+function drawWave(buf, canvasId) {
+  const canvas = document.getElementById(canvasId);
+  const W = canvas.parentElement.clientWidth || 500;
+  const H = 36;
+  canvas.width  = W * window.devicePixelRatio;
+  canvas.height = H * window.devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  const data = buf.getChannelData(0);
+  const step = Math.ceil(data.length / W);
+  const mid  = H / 2;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(200,169,110,0.55)';
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i < W; i++) {
+    let min = 1, max = -1;
+    for (let j = 0; j < step; j++) {
+      const v = data[i * step + j] || 0;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    ctx.beginPath();
+    ctx.moveTo(i, mid + min * mid * 0.9);
+    ctx.lineTo(i, mid + max * mid * 0.9);
+    ctx.stroke();
+  }
+}
+
+setupZone('zone-a', 'file-a', 'name-a', 'meta-a', 'wave-a', buf => { bufA = buf; });
+setupZone('zone-b', 'file-b', 'name-b', 'meta-b', 'wave-b', buf => { bufB = buf; });
+
+// MODE
+document.getElementById('mode-seq').addEventListener('click', () => {
+  mode = 'seq';
+  document.getElementById('mode-seq').classList.add('active');
+  document.getElementById('mode-ov').classList.remove('active');
+  document.getElementById('row-xfade').style.display = '';
+  document.getElementById('xfade-bar-wrap').style.display = '';
+});
+document.getElementById('mode-ov').addEventListener('click', () => {
+  mode = 'ov';
+  document.getElementById('mode-ov').classList.add('active');
+  document.getElementById('mode-seq').classList.remove('active');
+  document.getElementById('row-xfade').style.display = 'none';
+  document.getElementById('xfade-bar-wrap').style.display = 'none';
+});
+
+// SLIDERS
+const xfadeEl   = document.getElementById('xfade');
+const xfadeVal  = document.getElementById('xfade-val');
+const xfadeFill = document.getElementById('xfade-fill');
+
+function updateXfadeVis() {
+  const pct  = (xfadeEl.value / xfadeEl.max) * 100;
+  const half = pct / 2;
+  xfadeFill.style.left  = (50 - half) + '%';
+  xfadeFill.style.right = (50 - half) + '%';
+  xfadeVal.textContent  = parseFloat(xfadeEl.value).toFixed(1) + ' s';
+}
+xfadeEl.addEventListener('input', updateXfadeVis);
+updateXfadeVis();
+
+document.getElementById('gain-a').addEventListener('input', function() {
+  document.getElementById('gain-a-val').textContent = Math.round(this.value * 100) + '%';
+});
+document.getElementById('gain-b').addEventListener('input', function() {
+  document.getElementById('gain-b-val').textContent = Math.round(this.value * 100) + '%';
+});
+
+// READY CHECK
+function checkReady() {
+  document.getElementById('merge-btn').disabled = !(bufA && bufB);
+}
+
+// PROGRESS
+function setProgress(pct, label) {
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = label;
+}
+function showProgress(v) {
+  document.getElementById('progress-wrap').classList.toggle('visible', v);
+}
+
+// ERROR
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+function hideError() {
+  document.getElementById('error-msg').classList.remove('visible');
+}
+
+// MERGE
+document.getElementById('merge-btn').addEventListener('click', async () => {
+  hideError();
+  document.getElementById('output-wrap').classList.remove('visible');
+
+  // Resume AudioContext if suspended (browser autoplay policy)
+  if (AC.state === 'suspended') await AC.resume();
+
+  showProgress(true);
+  setProgress(5, 'rendering audio…');
+  await new Promise(r => setTimeout(r, 30));
+
+  try {
+    const gainA  = parseFloat(document.getElementById('gain-a').value);
+    const gainB  = parseFloat(document.getElementById('gain-b').value);
+    const xfade  = parseFloat(document.getElementById('xfade').value);
+    const sr     = Math.max(bufA.sampleRate, bufB.sampleRate);
+    const nCh    = Math.max(bufA.numberOfChannels, bufB.numberOfChannels);
+
+    setProgress(15, 'mixing channels…');
+    await new Promise(r => setTimeout(r, 10));
+
+    let merged;
+    if (mode === 'seq') {
+      merged = mergeSequential(bufA, bufB, sr, nCh, gainA, gainB, xfade);
+    } else {
+      merged = mergeOverlay(bufA, bufB, sr, nCh, gainA, gainB);
+    }
+
+    setProgress(40, 'encoding mp3…');
+    await new Promise(r => setTimeout(r, 20));
+
+    const mp3Blob = await encodeMP3(merged, sr, nCh);
+
+    setProgress(100, 'done');
+    await new Promise(r => setTimeout(r, 200));
+    showProgress(false);
+
+    // Revoke previous blob URL if any
+    const prevSrc = document.getElementById('preview-audio').src;
+    if (prevSrc && prevSrc.startsWith('blob:')) URL.revokeObjectURL(prevSrc);
+
+    const url = URL.createObjectURL(mp3Blob);
+    document.getElementById('preview-audio').src = url;
+    document.getElementById('download-btn').href = url;
+
+    const durStr  = fmtDur(merged[0].length / sr);
+    const sizeStr = fmtSize(mp3Blob.size);
+    document.getElementById('output-meta').textContent = durStr + '  ·  mp3  ·  ' + sizeStr;
+    document.getElementById('output-wrap').classList.add('visible');
+
+  } catch (err) {
+    showProgress(false);
+    showError('Merge failed: ' + err.message);
+    console.error(err);
+  }
+});
+
+// RESAMPLE (linear interpolation)
+function resample(buf, targetSR, targetCh) {
+  const channels = [];
+  for (let c = 0; c < targetCh; c++) {
+    const src = buf.getChannelData(Math.min(c, buf.numberOfChannels - 1));
+    if (buf.sampleRate === targetSR) {
+      channels.push(new Float32Array(src));
+    } else {
+      const ratio  = buf.sampleRate / targetSR;
+      const outLen = Math.round(buf.duration * targetSR);
+      const out    = new Float32Array(outLen);
+      for (let i = 0; i < outLen; i++) {
+        const pos = i * ratio;
+        const lo  = Math.floor(pos);
+        const hi  = Math.min(lo + 1, src.length - 1);
+        const t   = pos - lo;
+        out[i]    = src[lo] * (1 - t) + src[hi] * t;
+      }
+      channels.push(out);
+    }
+  }
+  return channels;
+}
+
+// SEQUENTIAL MERGE
+function mergeSequential(bA, bB, sr, nCh, gA, gB, xfadeSec) {
+  const chA      = resample(bA, sr, nCh);
+  const chB      = resample(bB, sr, nCh);
+  const lenA     = chA[0].length;
+  const lenB     = chB[0].length;
+  const xSamples = Math.min(Math.round(xfadeSec * sr), lenA, lenB);
+  const totalLen = lenA + lenB - xSamples;
+
+  const out = [];
+  for (let c = 0; c < nCh; c++) {
+    const buf = new Float32Array(totalLen);
+    const a = chA[c], b = chB[c];
+    for (let i = 0; i < lenA - xSamples; i++) buf[i] = a[i] * gA;
+    for (let i = 0; i < xSamples; i++) {
+      const tA = 1 - (i / xSamples);
+      const tB = i / xSamples;
+      buf[lenA - xSamples + i] = a[lenA - xSamples + i] * gA * tA + b[i] * gB * tB;
+    }
+    for (let i = xSamples; i < lenB; i++) buf[lenA - xSamples + i] = b[i] * gB;
+    out.push(buf);
+  }
+  return out;
+}
+
+// OVERLAY MERGE
+function mergeOverlay(bA, bB, sr, nCh, gA, gB) {
+  const chA      = resample(bA, sr, nCh);
+  const chB      = resample(bB, sr, nCh);
+  const totalLen = Math.max(chA[0].length, chB[0].length);
+
+  const out = [];
+  for (let c = 0; c < nCh; c++) {
+    const buf = new Float32Array(totalLen);
+    const a = chA[c], b = chB[c];
+    for (let i = 0; i < totalLen; i++) {
+      buf[i] = (i < a.length ? a[i] * gA : 0) + (i < b.length ? b[i] * gB : 0);
+    }
+    // Soft clip
+    for (let i = 0; i < totalLen; i++) {
+      const v = buf[i];
+      buf[i] = v > 1 ? 1 - Math.exp(-(v - 1)) : v < -1 ? -1 + Math.exp(v + 1) : v;
+    }
+    out.push(buf);
+  }
+  return out;
+}
+
+// MP3 ENCODE via lamejs
+async function encodeMP3(channels, sr, nCh) {
+  // Wait up to 6s for lame to load
+  for (let i = 0; i < 60; i++) {
+    if (window._lameReady && window.lamejs) break;
+    if (window._lameError) throw new Error('MP3 encoder failed to load (check internet connection).');
+    await new Promise(r => setTimeout(r, 100));
+  }
+  if (!window.lamejs) throw new Error('MP3 encoder not available.');
+
+  const bitrate = 192;
+  const enc = (nCh === 1)
+    ? new lamejs.Mp3Encoder(1, sr, bitrate)
+    : new lamejs.Mp3Encoder(2, sr, bitrate);
+
+  const totalSamples = channels[0].length;
+  const chunkSize    = 1152;
+  const mp3Data      = [];
+
+  function f32ToI16(f32) {
+    const i16 = new Int16Array(f32.length);
+    for (let i = 0; i < f32.length; i++) {
+      const v = Math.max(-1, Math.min(1, f32[i]));
+      i16[i] = v < 0 ? Math.round(v * 0x8000) : Math.round(v * 0x7fff);
+    }
+    return i16;
+  }
+
+  const i16L = f32ToI16(channels[0]);
+  const i16R = nCh > 1 ? f32ToI16(channels[1]) : null;
+
+  for (let s = 0; s < totalSamples; s += chunkSize) {
+    const end = Math.min(s + chunkSize, totalSamples);
+    const L   = i16L.subarray(s, end);
+    const buf = i16R ? enc.encodeBuffer(L, i16R.subarray(s, end)) : enc.encodeBuffer(L);
+    if (buf.length > 0) mp3Data.push(new Uint8Array(buf));
+
+    if ((s / chunkSize) % 50 === 0) {
+      const pct = 40 + Math.round((s / totalSamples) * 55);
+      setProgress(pct, 'encoding mp3… ' + Math.round((s / totalSamples) * 100) + '%');
+      await new Promise(r => setTimeout(r, 0));
+    }
+  }
+
+  const tail = enc.flush();
+  if (tail.length > 0) mp3Data.push(new Uint8Array(tail));
+
+  return new Blob(mp3Data, { type: 'audio/mpeg' });
+}
+</script>
+</body>
+</html>
