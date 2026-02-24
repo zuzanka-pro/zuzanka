@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Łysy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  /* ─────────────────────────────────────── RESET & BASE ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f4f0;
+    --warm-gray: #c8c4bc;
+    --mid-gray: #8a8680;
+    --light-gray: #e8e5df;
+    --accent: #c8102e;
+    --prussian: #003153;
+    --prussian-hover: #004070;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'EB Garamond', Georgia, serif;
+    --font-ui: 'EB Garamond', serif;
+    --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* ─────────────────────────────────────── HEADER ─── */
+  header {
+    border-bottom: 1px solid var(--black);
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    position: sticky;
+    top: 0;
+    background: var(--white);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-style: italic;
+    cursor: pointer;
+  }
+
+  .logo span {
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .header-nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .header-nav a, .header-nav button {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--black);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color var(--transition);
+    padding: 0;
+  }
+
+  .header-nav a:hover, .header-nav button:hover { color: var(--accent); }
+
+  .progress-indicator {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--mid-gray);
+    font-family: 'EB Garamond', serif;
+  }
+  .back-btn {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'EB Garamond', serif;
+    color: var(--mid-gray);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color var(--transition);
+  }
+
+  .back-btn:hover { color: var(--black); }
+
+  .room-page-number {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--mid-gray);
+  }
+
+  .room-content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem;
+  }
+
+  .room-headline {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .room-desc {
+    font-size: 0.8rem;
+    color: var(--mid-gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+    font-family: 'EB Garamond', serif;
+  }
+
+  /* ─────────────────────────────────────── RANDOM ŁYSY PAGE ─── */
+  .lysy-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lysy-quote-box {
+    position: relative;
+    padding: 3.5rem 3rem;
+    border: 1px solid var(--light-gray);
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 3rem;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lysy-quote-box.shuffling {
+    animation: lysyShuffle 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes lysyShuffle {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    25%  { opacity: 0; transform: translateY(-20px) scale(0.96); background: rgba(107, 142, 35, 0.08); }
+    50%  { opacity: 0; transform: translateY(20px) scale(0.96); background: rgba(107, 142, 35, 0.12); }
+    75%  { opacity: 0; transform: translateY(-10px) scale(0.98); background: rgba(107, 142, 35, 0.08); }
+    100% { opacity: 1; transform: translateY(0) scale(1); background: rgba(255,255,255,0.015); }
+  }
+
+  .lysy-quote-mark {
+    position: absolute;
+    top: 1.5rem;
+    left: 2rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 6rem;
+    font-weight: 300;
+    color: rgba(0, 49, 83, 0.22);
+    line-height: 1;
+  }
+
+  .lysy-quote-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 400;
+    line-height: 1.7;
+    color: var(--prussian);
+    position: relative;
+    z-index: 1;
+  }
+
+  .lysy-author {
+    text-align: right;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-top: 2rem;
+  }
+
+  .lysy-shuffle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(0, 49, 83, 0.45);
+    padding: 1rem 2.5rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: transparent;
+    color: rgba(0, 49, 83, 0.95);
+    transition: all 0.4s ease;
+  }
+
+  .lysy-shuffle-btn:hover {
+    background: rgba(0, 49, 83, 0.12);
+    border-color: rgb(0, 49, 83);
+    color: rgb(107, 142, 35);
+    letter-spacing: 0.22em;
+  }
+
+  .lysy-shuffle-btn:active {
+    transform: scale(0.97);
+  }
+
+
+  @media (max-width: 768px) {
+    .rooms-grid { grid-template-columns: repeat(2, 1fr); }
+    .coats-grid { grid-template-columns: repeat(2, 1fr); }
+    .match-layout { grid-template-columns: 1fr; }
+    header { padding: 1rem 1.5rem; }
+    .home-hero, .rooms-section, .trivia-section, .admin-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+  /* ─────────────────────────────────────── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--light-gray);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+  }
+  @media (max-width: 768px) {
+    .rooms-grid { grid-template-columns: repeat(2, 1fr); }
+    .coats-grid { grid-template-columns: repeat(2, 1fr); }
+    .match-layout { grid-template-columns: 1fr; }
+    header { padding: 1rem 1.5rem; }
+    .home-hero, .rooms-section, .trivia-section, .admin-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+
+</style>
+</head>
+<body>
+<div id="page-lysy" style="display:block;">
+  <header>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Powrót</button>
+    <span class="room-page-number">Random Łysy — Steven C. Hayes</span>
+  </header>
+
+  <div class="lysy-container">
+    <div class="lysy-quote-box" id="lysy-quote-box">
+      <p class="lysy-quote-text" id="lysy-quote-text">
+        <!-- filled by JS -->
+      </p>
+      <div class="lysy-author">— Steven C. Hayes</div>
+    </div>
+    <button class="lysy-shuffle-btn" onclick="shuffleLysyQuote()">
+      Następny cytat →
+    </button>
+  </div>
+</div>
+<script>
+const lysyQuotes = [
+  "Pain is inevitable, but suffering is optional.",
+  "The goal is to live a life guided by your values, not by your fears.",
+  "You are not your thoughts. You are the context in which they occur.",
+  "Acceptance is not approval. It's simply allowing yourself to experience what is already present.",
+  "What we resist, persists. What we accept, transforms.",
+  "The willingness to have your experience be what it is, is the key to psychological flexibility.",
+  "You can't stop the waves, but you can learn to surf.",
+  "Language is both our greatest tool and our greatest trap.",
+  "Fusion with thoughts creates suffering. Distance from thoughts creates freedom.",
+  "Your mind is not your friend. It's a problem-solving machine that sometimes solves problems you don't have.",
+  "The struggle to control your thoughts and feelings is the problem, not the solution.",
+  "We suffer not because we have pain, but because we have pain about pain.",
+  "Living a valued life means showing up, even when it's hard.",
+  "You don't have to believe your thoughts. You can notice them and still choose your actions.",
+  "Psychological flexibility is the ability to be present, open up, and do what matters.",
+  "Avoidance works in the short term, but creates suffering in the long term.",
+  "Your values are not goals to achieve—they're directions to move in.",
+  "The present moment is the only place where life actually happens.",
+  "What you're willing to have is what you will have.",
+  "Trying to control anxiety often increases it. Accepting it often decreases it.",
+  "We are not broken. We are human beings doing what human beings do—trying to avoid pain.",
+  "The mind says 'protect yourself.' Your values say 'connect, grow, contribute.'",
+  "If you're not willing to have it, you've got it.",
+  "Defusion is not about getting rid of thoughts—it's about changing your relationship with them.",
+  "You can't change the past, but you can change your relationship to it.",
+  "The content of your thoughts matters less than your response to them.",
+  "Living mindfully means showing up to your life as it is, not as you wish it would be.",
+  "When you argue with reality, you lose—but only 100% of the time.",
+  "Values are chosen qualities of being and doing.",
+  "The alternative to a painful life is not a pain-free life, but a meaningful life.",
+  "You have the ability to notice your thoughts without being controlled by them.",
+  "Commitment means doing what you said you would do, long after the mood you said it in has left you.",
+  "The more you try to avoid suffering, the more you suffer.",
+  "Your history is important, but it doesn't have to be your destiny.",
+  "The question is not 'How do I feel better?' but 'How do I live better?'",
+  "Every moment is a fresh opportunity to begin again.",
+  "The struggle to be right is often a struggle to avoid being present.",
+  "Self-compassion is not self-indulgence. It's allowing yourself to be human.",
+  "You don't need to fix yourself. You need to accept yourself and take effective action.",
+  "Thoughts are just thoughts. They're not commands, and they're not facts.",
+  "The opposite of control is not chaos. It's acceptance.",
+  "Being present means dropping the struggle with what is.",
+  "Your mind will tell you stories. You don't have to believe them all.",
+  "Values are what you want your life to be about, in the deepest sense.",
+  "The goal is not to eliminate difficult emotions, but to experience them without being dominated by them.",
+  "Experiential avoidance is the root of much human suffering.",
+  "You can have anxiety and still do what matters to you.",
+  "The trap is believing that you need to feel a certain way before you can act.",
+  "Cognitive fusion means being 'stuck' to your thoughts.",
+  "Acceptance is an active choice, not passive resignation.",
+  "What would you do if you weren't afraid?",
+  "Living by your values is not about feeling good—it's about doing good.",
+  "The mind is a wonderful servant but a terrible master.",
+  "You don't need to wait until you feel ready. You can act now.",
+  "Suffering = Pain × Resistance",
+  "The pathway to a meaningful life goes through difficulty, not around it.",
+  "Being willing to feel what you feel is the price of admission to a vital life.",
+  "Psychological flexibility allows you to persist or change behavior in the service of chosen values.",
+  "What matters is not what you think or feel, but what you do.",
+  "Your inner experiences don't need to change for you to live well.",
+  "The struggle for certainty is a barrier to living.",
+  "You can choose your actions even when you can't choose your thoughts or feelings.",
+  "Mindfulness is intentionally paying attention to the present moment without judgment.",
+  "When we fuse with our self-stories, we lose contact with our actual experience.",
+  "What you practice grows stronger. What you practice mindfulness toward becomes less dominating.",
+  "The key is not to control your thoughts but to stop being controlled by them.",
+  "A rich, full, and meaningful life will involve experiencing the full range of human emotions.",
+  "You are larger than your thoughts. You are the space in which they occur.",
+  "Willingness is doing what works, even if it's uncomfortable.",
+  "Living in the present moment is a radical act in a world obsessed with past and future.",
+  "Values clarification is about discovering what truly matters to you.",
+  "The more present you are, the more choice you have.",
+  "Self-as-context means seeing yourself as the observer of your experience, not the experience itself.",
+  "Committed action means taking steps guided by your values, even in the presence of difficult thoughts and feelings.",
+  "The paradox: accepting that you can't control your thoughts actually gives you more control over your life.",
+  "Language allows us to time travel mentally—but often we get lost in the past or future.",
+  "You don't have to like something to accept it.",
+  "Openness to experience, even difficult experience, is a cornerstone of psychological health.",
+  "Your values are your compass. Your actions are your path.",
+  "Struggling to feel good often prevents us from living well.",
+  "Fusion with judgment creates distance from others and from life itself.",
+  "The goal is not happiness. The goal is vitality.",
+  "You can't control whether waves come, but you can learn to surf.",
+  "Trying to eliminate anxiety is like trying to live without breathing.",
+  "Your worth is not determined by your thoughts or feelings.",
+  "The greatest human freedom is the ability to choose your response to any situation.",
+  "Every moment contains the possibility of choice.",
+  "Being human means having difficult thoughts and feelings. That's not a problem to solve.",
+  "Your values are not about what you want to get. They're about who you want to be.",
+  "Acceptance creates the space for change.",
+  "The struggle to avoid internal experiences often creates the very suffering we're trying to escape.",
+  "Notice the thought. Thank your mind. Choose your action.",
+  "Life is not a problem to be solved, but an experience to be had.",
+  "Defusion techniques help you see thoughts as just words, not literal truths.",
+  "Committed action is not about perfection. It's about direction.",
+  "Your mind evolved to keep you safe, not to make you happy.",
+  "Values are freely chosen, while goals are worked toward.",
+  "The willingness to be uncomfortable is the price of a meaningful life.",
+  "You can't think your way out of a problem that you thought your way into.",
+  "Psychological rigidity is the inability to adapt when the situation calls for it.",
+  "Acceptance doesn't mean giving up. It means letting go of the struggle.",
+  "Your thoughts are private events, not public facts.",
+];
+
+let currentLysyIndex = -1;
+
+function initLysy() {
+  shuffleLysyQuote();
+}
+
+function shuffleLysyQuote() {
+  const box = document.getElementById('lysy-quote-box');
+  const text = document.getElementById('lysy-quote-text');
+  
+  // Get new random quote
+  let newIndex;
+  do {
+    newIndex = Math.floor(Math.random() * lysyQuotes.length);
+  } while (newIndex === currentLysyIndex && lysyQuotes.length > 1);
+  
+  currentLysyIndex = newIndex;
+  
+  // If first load (no animation yet), show immediately
+  if (currentLysyIndex === 0 || !text.textContent) {
+    text.textContent = lysyQuotes[currentLysyIndex];
+    return;
+  }
+  
+  // Trigger animation
+  box.classList.add('shuffling');
+  
+  // Update text during animation (at midpoint when opacity is 0)
+  setTimeout(() => {
+    text.textContent = lysyQuotes[currentLysyIndex];
+  }, 600);
+  
+  // Remove animation class after completion
+  setTimeout(() => {
+    box.classList.remove('shuffling');
+  }, 1200);
+}
+
+document.addEventListener('DOMContentLoaded', initLysy);
+</script>
+</body>
+</html>
