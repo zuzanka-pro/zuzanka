@@ -1,0 +1,4228 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZUZANKA NON-ESCAPE ROOM</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  /* ─────────────────────────────────────── RESET & BASE ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f4f0;
+    --warm-gray: #c8c4bc;
+    --mid-gray: #8a8680;
+    --light-gray: #e8e5df;
+    --accent: #c8102e;
+    --prussian: #003153;
+    --prussian-hover: #004070;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'EB Garamond', Georgia, serif;
+    --font-ui: 'EB Garamond', serif;
+    --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─────────────────────────────────────── PAGES ─── */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: block; animation: fadeIn 0.6s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─────────────────────────────────────── HEADER ─── */
+  header {
+    border-bottom: 1px solid var(--black);
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    position: sticky;
+    top: 0;
+    background: var(--white);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-style: italic;
+    cursor: pointer;
+  }
+
+  .logo span {
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .header-nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .header-nav a, .header-nav button {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--black);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color var(--transition);
+    padding: 0;
+  }
+
+  .header-nav a:hover, .header-nav button:hover { color: var(--accent); }
+
+  .progress-indicator {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--mid-gray);
+    font-family: 'EB Garamond', serif;
+  }
+
+  /* ─────────────────────────────────────── HOME PAGE ─── */
+  .home-hero {
+    padding: 5rem 2.5rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .home-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  .home-hero h1 em {
+    font-style: italic;
+    color: var(--mid-gray);
+  }
+
+  .home-hero .subtitle {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 3rem;
+    max-width: 500px;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--black);
+    margin: 2rem 0;
+  }
+
+  .divider-thin {
+    width: 100%;
+    height: 1px;
+    background: var(--light-gray);
+    margin: 1.5rem 0;
+  }
+
+  /* ─────────────────────────────────────── ROOMS GRID ─── */
+  .rooms-section {
+    padding: 0 2.5rem 5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--light-gray);
+  }
+
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--black);
+    border: 1px solid var(--black);
+    margin-bottom: 4rem;
+  }
+
+  .room-card {
+    background: var(--white);
+    padding: 1.8rem 1.5rem;
+    cursor: pointer;
+    transition: background var(--transition);
+    position: relative;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .room-card:hover { background: var(--black); color: var(--white); }
+
+  .room-card.locked {
+    cursor: not-allowed;
+    background: var(--light-gray);
+  }
+
+  .room-card.locked:hover { background: var(--light-gray); color: var(--black); }
+
+  .room-card.completed { background: var(--prussian); color: var(--white); }
+  .room-card.completed:hover { background: var(--prussian-hover); }
+
+  .room-card.unavailable {
+    background: var(--light-gray);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .room-number {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.15;
+  }
+
+  .room-card.completed .room-number,
+  .room-card:hover .room-number { opacity: 0.3; }
+
+  .room-info .room-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .room-status {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    font-family: 'EB Garamond', serif;
+  }
+
+  .room-card.completed .room-status { color: var(--warm-gray); }
+  .room-card:hover .room-status { color: var(--warm-gray); }
+
+  .room-card.unavailable .room-status { color: var(--mid-gray); }
+
+  /* ─────────────────────────────────────── SUPER TRIVIA BTN ─── */
+  .trivia-section {
+    padding: 0 2.5rem 5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .btn-trivia {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    border: 1px solid var(--black);
+    padding: 1.5rem 2.5rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: none;
+    color: var(--black);
+    transition: all var(--transition);
+  }
+
+  .btn-trivia:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .btn-trivia .arrow {
+    font-size: 1.2rem;
+    transition: transform var(--transition);
+  }
+
+  .btn-trivia:hover .arrow { transform: translateX(6px); }
+
+  /* ─────────────────────────────────────── FILASEK ADMIN ─── */
+  .admin-toggle {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'EB Garamond', serif;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: color var(--transition);
+  }
+
+  .admin-toggle:hover { color: var(--black); }
+
+  .admin-panel {
+    display: none;
+    margin-top: 1.5rem;
+    border: 1px solid var(--light-gray);
+    padding: 2rem;
+    background: var(--white);
+  }
+
+  .admin-panel.visible { display: block; animation: fadeIn 0.4s ease; }
+
+  .admin-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    color: var(--mid-gray);
+  }
+
+  .admin-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .admin-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+  }
+
+  /* ─────────────────────────────────────── ROOM PAGE ─── */
+  .room-page-header {
+    border-bottom: 1px solid var(--light-gray);
+    padding: 1.2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .back-btn {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'EB Garamond', serif;
+    color: var(--mid-gray);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color var(--transition);
+  }
+
+  .back-btn:hover { color: var(--black); }
+
+  .room-page-number {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--mid-gray);
+  }
+
+  .room-content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem;
+  }
+
+  .room-headline {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .room-desc {
+    font-size: 0.8rem;
+    color: var(--mid-gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+    font-family: 'EB Garamond', serif;
+  }
+
+  /* ─────────────────────────────────────── INPUTS ─── */
+  .field-group { margin-bottom: 1.5rem; }
+
+  .field-label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 0.6rem;
+  }
+
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--black);
+    padding: 0.7rem 0;
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    background: transparent;
+    outline: none;
+    color: var(--black);
+    transition: border-color var(--transition);
+    letter-spacing: 0.01em;
+  }
+
+  input[type="text"]:focus, input[type="password"]:focus {
+    border-color: var(--accent);
+  }
+
+  input[type="text"]::placeholder { color: var(--warm-gray); }
+
+  /* ─────────────────────────────────────── BUTTONS ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 2rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: 1px solid var(--black);
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--black);
+  }
+
+  .btn-outline:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  /* ─────────────────────────────────────── MESSAGES ─── */
+  .msg {
+    padding: 1rem 1.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    margin-top: 1.5rem;
+    border-left: 2px solid transparent;
+    display: none;
+  }
+
+  .msg.visible { display: block; animation: fadeIn 0.4s ease; }
+  .msg.error { border-color: var(--accent); background: rgba(200,16,46,0.05); color: var(--accent); }
+  .msg.success { border-color: var(--black); background: var(--light-gray); }
+
+  /* ─────────────────────────────────────── SUCCESS OVERLAY ─── */
+  /* PASSWORD MODAL */
+  .pw-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .pw-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .pw-box {
+    text-align: center;
+    padding: 3rem 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .pw-question {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--white);
+    margin-bottom: 2rem;
+    line-height: 1.4;
+  }
+  .pw-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 400;
+    text-align: center;
+    padding: 0.5rem 0;
+    outline: none;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.6rem;
+    transition: border-color 0.25s;
+    box-sizing: border-box;
+  }
+  .pw-input:focus { border-color: rgba(255,255,255,0.7); }
+  .pw-input.wrong { border-color: rgba(200,50,50,0.8); animation: pwShake 0.35s ease; }
+  @keyframes pwShake {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)}
+  }
+  .pw-hint {
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 2rem;
+    min-height: 1em;
+    transition: color 0.3s;
+  }
+  .pw-hint.show { color: rgba(255,255,255,0.55); }
+  .pw-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .pw-btn {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: none;
+    cursor: pointer;
+    padding: 0.55rem 1.6rem;
+    transition: all 0.25s ease;
+  }
+  .pw-btn.confirm { border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
+  .pw-btn.confirm:hover { border-color: rgba(255,255,255,0.8); color: var(--white); }
+  .pw-btn.cancel  { border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.25); }
+  .pw-btn.cancel:hover  { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
+
+  .success-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+
+  .success-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .success-overlay h2 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .success-overlay p {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+    margin-bottom: 2.5rem;
+  }
+
+  /* ─────────────────────────────────────── ROOM 2 — SORTING ─── */
+  .sort-list {
+    list-style: none;
+    margin: 2rem 0;
+    border-top: 1px solid var(--light-gray);
+  }
+
+  .sort-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--light-gray);
+    cursor: grab;
+    user-select: none;
+    transition: background var(--transition);
+    background: var(--white);
+    position: relative;
+  }
+
+  .sort-item:active { cursor: grabbing; }
+  .sort-item.dragging { opacity: 0.4; }
+  .sort-item.drag-over { border-top: 2px solid var(--accent); }
+
+  .sort-handle {
+    color: var(--warm-gray);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    width: 20px;
+    text-align: center;
+  }
+
+  .sort-rank {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--light-gray);
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .sort-city {
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─────────────────────────────────────── ROOM 3 — COAT OF ARMS ─── */
+  .coats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .coat-card {
+    border: 1px solid var(--light-gray);
+    padding: 1.2rem 0.8rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--white);
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .coat-card:hover { border-color: var(--black); background: var(--light-gray); }
+  .coat-card.selected { border-color: var(--prussian); background: rgba(0,49,83,0.06); box-shadow: inset 0 0 0 2px var(--prussian); }
+  .coat-card.correct { border-color: #2a7a2a; background: rgba(42,122,42,0.06); }
+  .coat-card.incorrect { border-color: var(--accent); background: rgba(200,16,46,0.05); }
+
+  .cities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .city-chip {
+    display: inline-block;
+    border: 1px solid var(--light-gray);
+    padding: 0.4rem 1rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--white);
+  }
+
+  .city-chip:hover { border-color: var(--black); }
+  .city-chip.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+  .city-chip.matched { background: var(--light-gray); color: var(--mid-gray); cursor: default; pointer-events: none; }
+
+  .matching-instructions {
+    font-size: 0.7rem;
+    color: var(--mid-gray);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .match-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  /* ─────────────────────────────────────── ROOM 6 QUIZ ─── */
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .quiz-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    border: 1px solid var(--light-gray);
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--white);
+  }
+
+  .quiz-option:hover { border-color: var(--black); }
+  .quiz-option.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+
+  .quiz-letter {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 24px;
+  }
+
+  .quiz-text { font-size: 0.82rem; line-height: 1.5; padding-top: 0.1rem; }
+
+  /* ─────────────────────────────────────── ROOM 7 CIPHER ─── */
+  .cipher-display {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    line-height: 2.2;
+    color: var(--mid-gray);
+    border: 1px solid var(--light-gray);
+    padding: 2rem;
+    margin: 2rem 0;
+    background: var(--light-gray);
+    letter-spacing: 0.05em;
+    word-break: break-all;
+    word-spacing: 0.5em;
+  }
+
+  /* ─────────────────────────────────────── ROOM 8 DATE ─── */
+  .date-display {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    color: var(--light-gray);
+    line-height: 1;
+    margin: 2rem 0;
+    letter-spacing: -0.02em;
+  }
+
+  /* ─────────────────────────────────────── ROOMS 9 & 10 ─── */
+  .unavailable-msg {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--warm-gray);
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  /* ─────────────────────────────────────── SUPER TRIVIA PAGE ─── */
+  .trivia-hero {
+    padding: 4rem 2.5rem 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .trivia-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .trivia-hero h1 em { font-style: italic; color: var(--mid-gray); }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .score-track {
+    flex: 1;
+    height: 2px;
+    background: var(--light-gray);
+    position: relative;
+  }
+
+  .score-fill {
+    height: 100%;
+    background: var(--black);
+    transition: width 0.5s ease;
+  }
+
+  .score-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    white-space: nowrap;
+  }
+
+  .trivia-card {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2.5rem 5rem;
+  }
+
+  .trivia-question {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    line-height: 1.3;
+    margin-bottom: 2rem;
+  }
+
+  .trivia-flag {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .trivia-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .trivia-opt {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    border: 1px solid var(--light-gray);
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-size: 0.82rem;
+  }
+
+  .trivia-opt:hover { border-color: var(--black); }
+  .trivia-opt.correct { border-color: #2a7a2a; background: rgba(42,122,42,0.06); }
+  .trivia-opt.incorrect { border-color: var(--accent); background: rgba(200,16,46,0.05); }
+  .trivia-opt.selected-correct { border-color: #2a7a2a; background: rgba(42,122,42,0.1); }
+
+  .opt-letter {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    width: 24px;
+    flex-shrink: 0;
+  }
+
+  .trivia-result {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    margin-top: 0.5rem;
+    min-height: 1.5rem;
+  }
+
+  .trivia-result.good { color: #2a7a2a; }
+  .trivia-result.bad { color: var(--accent); }
+
+  .trivia-unlock {
+    border: 1px solid var(--black);
+    padding: 2.5rem;
+    text-align: center;
+    background: var(--black);
+    color: var(--white);
+    display: none;
+  }
+
+  .trivia-unlock.visible { display: block; animation: fadeIn 0.6s ease; }
+
+  .trivia-code {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    margin: 1rem 0;
+  }
+
+  .trivia-code-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+  }
+
+  /* ─────────────────────────────────────── NOTICE BOX ─── */
+  .notice {
+    border: 1px solid var(--light-gray);
+    padding: 2rem;
+    margin: 2rem 0;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    background: var(--light-gray);
+  }
+
+  .notice p + p { margin-top: 1rem; }
+
+  /* ─────────────────────────────────────── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--light-gray);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+  }
+
+  /* ─────────────────────────────────────── GAME OVER OVERLAY ─── */
+  .gameover-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .gameover-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.018) 2px,
+      rgba(255,255,255,0.018) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .gameover-overlay::after {
+    content: '';
+    position: absolute;
+    inset: -100%;
+    background: linear-gradient(
+      transparent 0%,
+      rgba(200, 16, 46, 0.04) 50%,
+      transparent 100%
+    );
+    animation: scanline 3s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  @keyframes scanline {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+  }
+
+  .gameover-overlay.visible {
+    pointer-events: all;
+    animation: goFlash 2.6s ease forwards;
+  }
+
+  @keyframes goFlash {
+    0%   { opacity: 0; background: #000; }
+    4%   { opacity: 1; background: var(--accent); }
+    7%   { opacity: 1; background: #000; }
+    10%  { opacity: 0; background: #000; }
+    13%  { opacity: 1; background: var(--accent); }
+    16%  { opacity: 1; background: #000; }
+    19%  { opacity: 0; }
+    22%  { opacity: 1; }
+    24%  { opacity: 0; }
+    27%  { opacity: 1; background: #000; }
+    100% { opacity: 1; background: #000; }
+  }
+
+  .gameover-inner {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 3rem;
+    max-width: 620px;
+    animation: goContent 2.6s ease forwards;
+  }
+
+  @keyframes goContent {
+    0%, 55% { opacity: 0; transform: translateY(12px) skewX(-1deg); }
+    60%     { opacity: 1; transform: translateY(0) skewX(0); }
+    100%    { opacity: 1; transform: translateY(0) skewX(0); }
+  }
+
+  .gameover-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 9vw, 6rem);
+    font-weight: 700;
+    font-style: italic;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 0.6rem;
+    animation: goTitle 3.5s ease infinite;
+  }
+
+  @keyframes goTitle {
+    0%, 88%, 100% { text-shadow: none; color: #fff; }
+    90%  { text-shadow: 3px 0 0 var(--accent), -3px 0 0 #00ffff; color: #fff; }
+    92%  { text-shadow: none; color: var(--accent); }
+    94%  { text-shadow: -2px 0 0 #00ffff, 2px 0 0 var(--accent); color: #fff; }
+  }
+
+  .gameover-sub {
+    font-family: 'EB Garamond', serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3.5rem;
+    animation: goSubPulse 1.8s ease infinite;
+  }
+
+  @keyframes goSubPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.45; }
+  }
+
+  .gameover-divider {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+    margin: 0 auto 3.5rem;
+    animation: goDivider 2s ease infinite alternate;
+  }
+
+  @keyframes goDivider {
+    from { height: 60px; opacity: 0.6; }
+    to   { height: 90px; opacity: 1; }
+  }
+
+  .gameover-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 1rem 2.8rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    transition: all 0.35s ease;
+  }
+
+  .gameover-btn:hover {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+    letter-spacing: 0.28em;
+    box-shadow: 0 0 30px rgba(200,16,46,0.5);
+  }
+
+  /* ─────────────────────────────────────── LITERATURE TRIVIA TABS ─── */
+  .lit-tab {
+    flex: 1;
+    padding: 1rem 2rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--mid-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .lit-tab.active {
+    color: var(--white);
+    border-bottom-color: var(--accent);
+  }
+
+  .lit-tab:hover:not(.active) {
+    color: var(--warm-gray);
+  }
+
+  .lit-tab-content {
+    display: none;
+  }
+
+  .lit-tab-content.active {
+    display: block;
+  }
+
+  .score-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    border: 1px solid var(--light-gray);
+    background: rgba(255,255,255,0.02);
+    transition: all 0.3s ease;
+  }
+
+  .score-entry:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--warm-gray);
+  }
+
+  .score-rank {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 50px;
+  }
+
+  .score-details {
+    flex: 1;
+    padding: 0 1.5rem;
+  }
+
+  .score-value {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.3rem;
+  }
+
+  .score-date {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+  }
+
+  /* ─────────────────────────────────────── RANDOM ŁYSY PAGE ─── */
+  .lysy-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lysy-quote-box {
+    position: relative;
+    padding: 3.5rem 3rem;
+    border: 1px solid var(--light-gray);
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 3rem;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lysy-quote-box.shuffling {
+    animation: lysyShuffle 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes lysyShuffle {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    25%  { opacity: 0; transform: translateY(-20px) scale(0.96); background: rgba(107, 142, 35, 0.08); }
+    50%  { opacity: 0; transform: translateY(20px) scale(0.96); background: rgba(107, 142, 35, 0.12); }
+    75%  { opacity: 0; transform: translateY(-10px) scale(0.98); background: rgba(107, 142, 35, 0.08); }
+    100% { opacity: 1; transform: translateY(0) scale(1); background: rgba(255,255,255,0.015); }
+  }
+
+  .lysy-quote-mark {
+    position: absolute;
+    top: 1.5rem;
+    left: 2rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 6rem;
+    font-weight: 300;
+    color: rgba(0, 49, 83, 0.22);
+    line-height: 1;
+  }
+
+  .lysy-quote-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 400;
+    line-height: 1.7;
+    color: var(--prussian);
+    position: relative;
+    z-index: 1;
+  }
+
+  .lysy-author {
+    text-align: right;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-top: 2rem;
+  }
+
+  .lysy-shuffle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(0, 49, 83, 0.45);
+    padding: 1rem 2.5rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: transparent;
+    color: rgba(0, 49, 83, 0.95);
+    transition: all 0.4s ease;
+  }
+
+  .lysy-shuffle-btn:hover {
+    background: rgba(0, 49, 83, 0.12);
+    border-color: rgb(0, 49, 83);
+    color: rgb(107, 142, 35);
+    letter-spacing: 0.22em;
+  }
+
+  .lysy-shuffle-btn:active {
+    transform: scale(0.97);
+  }
+
+
+  @media (max-width: 768px) {
+    .rooms-grid { grid-template-columns: repeat(2, 1fr); }
+    .coats-grid { grid-template-columns: repeat(2, 1fr); }
+    .match-layout { grid-template-columns: 1fr; }
+    header { padding: 1rem 1.5rem; }
+    .home-hero, .rooms-section, .trivia-section, .admin-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ HOME PAGE -->
+<div id="page-home" class="page active">
+  <header>
+    <div class="logo"><span>ZNNER</span> — Zuzanka Non-Escape Room</div>
+    <nav class="header-nav">
+      <span class="progress-indicator" id="progress-text">0 / 10 ukończono</span>
+    </nav>
+  </header>
+
+  <section class="home-hero">
+    <h1>Zuzanka<br><em>Non‑Escape</em><br>Room</h1>
+    <div class="divider"></div>
+    <p style="font-size:0.82rem; max-width:520px; color:var(--mid-gray); line-height:1.9">
+      Dziesięć pokoi. Dokąd tu uciec?<br>
+      Wykonaj każde zadanie, aby przejść do kolejnego poziomu.
+    </p>
+  </section>
+
+  <section class="rooms-section">
+    <div class="rooms-grid" id="rooms-grid">
+      <!-- Generated by JS -->
+    </div>
+  </section>
+
+  <section class="trivia-section">
+    <button class="btn-trivia" onclick="showPage('page-trivia')">
+      Super Trivia
+      <span class="arrow">→</span>
+    </button>
+  </section>
+
+  <section class="trivia-section" style="margin-top:8rem">
+    <button class="btn-trivia" onclick="showPage('page-trivia-lit')">
+      English
+      <span class="arrow">→</span>
+    </button>
+    <button class="btn-trivia" onclick="showPage('page-lysy')" style="margin-top:1.5rem">
+      Random Łysy
+      <span class="arrow">→</span>
+    </button>
+    <button class="btn-trivia" onclick="showPage('page-techno')" style="margin-top:1.5rem">
+      Techno Zuzanka
+      <span class="arrow">→</span>
+    </button>
+  </section>
+
+  <div style="text-align:center; padding:1.5rem 2.5rem 0.5rem">
+    <a href="https://youtu.be/nFwep7nNLdQ?si=hjSlEs-Z5eRuwHdL" target="_blank" rel="noopener" style="font-family:'EB Garamond',serif; font-size:0.65rem; letter-spacing:0.1em; color:var(--warm-gray); text-decoration:none; border-bottom:1px solid transparent; transition:all 0.3s ease; opacity:0.4" onmouseover="this.style.opacity='1';this.style.borderBottomColor='var(--warm-gray)'" onmouseout="this.style.opacity='0.4';this.style.borderBottomColor='transparent'">nie chcesz tego klikać</a>
+  </div>
+  <footer>
+    <span>© 2026 Zuzanka Non-Escape Room</span>
+    <span style="position:relative">
+      <button class="admin-toggle" onclick="toggleAdmin()" style="color:var(--warm-gray)">⬡ Filasek Admin</button>
+      <div class="admin-panel" id="admin-panel" style="position:absolute; bottom:2.2rem; right:0; min-width:340px; z-index:200">
+        <div class="admin-title">Panel administracyjny</div>
+        <div class="admin-row">
+          <label class="admin-label" for="admin-pass">Hasło:</label>
+          <input type="password" id="admin-pass" placeholder="••••••" style="width:160px">
+          <button class="btn btn-outline" onclick="adminLogin()" style="padding:0.4rem 0.9rem; font-size:0.65rem">Zaloguj</button>
+          <span id="admin-msg" style="font-size:0.65rem; color:var(--accent); display:none"></span>
+        </div>
+        <div id="admin-controls" style="display:none; margin-top:1.5rem">
+          <div style="font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:1rem">Pomiń pokój:</div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap" id="admin-btns"></div>
+        </div>
+      </div>
+    </span>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ ROOM PAGES -->
+
+<!-- Room 1 -->
+<div id="page-room-1" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój I — Pytanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 001 / Pytanie otwarte</p>
+    <h2 class="room-headline">Gdzie poczęty został osobnik znany jako Filasek?</h2>
+    <div class="divider-thin"></div>
+    <div class="field-group" style="margin-top:2rem">
+      <label class="field-label" for="r1-answer">Twoja odpowiedź</label>
+      <input type="text" id="r1-answer" placeholder="Wpisz odpowiedź…" onkeydown="if(event.key==='Enter')checkRoom1()">
+    </div>
+    <button class="btn" onclick="checkRoom1()">Zatwierdź →</button>
+    <div class="msg" id="r1-msg"></div>
+  </div>
+</div>
+
+<!-- Room 2 -->
+<div id="page-room-2" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój II — Sortowanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 002 / Ułóż w kolejności</p>
+    <h2 class="room-headline">Uszereguj miasta litewskie od największego do najmniejszego.</h2>
+    <div class="divider-thin"></div>
+    <p style="font-size:0.75rem; color:var(--mid-gray); margin:1.5rem 0">Przeciągnij i upuść, aby posortować.</p>
+    <ul class="sort-list" id="sort-list-r2">
+      <!-- filled by JS -->
+    </ul>
+    <button class="btn" onclick="checkRoom2()">Zatwierdź kolejność →</button>
+    <div class="msg" id="r2-msg"></div>
+  </div>
+</div>
+
+<!-- Room 3 -->
+<div id="page-room-3" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój III — Wdzięczność</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 003 / Pokój wdzięczności</p>
+    <h2 class="room-headline">Wymień trzy rzeczy, za które jesteś dzisiaj wdzięczna.</h2>
+    <div class="divider-thin"></div>
+
+    <div id="r3-form" style="margin-top:2rem">
+      <div class="field-group">
+        <label class="field-label">I.</label>
+        <input type="text" id="r3-a1" placeholder="Pierwsza rzecz…">
+      </div>
+      <div class="field-group">
+        <label class="field-label">II.</label>
+        <input type="text" id="r3-a2" placeholder="Druga rzecz…">
+      </div>
+      <div class="field-group">
+        <label class="field-label">III.</label>
+        <input type="text" id="r3-a3" placeholder="Trzecia rzecz…" onkeydown="if(event.key==='Enter')submitRoom3()">
+      </div>
+      <div style="margin-top:2rem">
+        <button class="btn" onclick="submitRoom3()">Zatwierdź →</button>
+      </div>
+      <div class="msg" id="r3-msg"></div>
+    </div>
+
+    <!-- Confirmation panel, hidden until answers submitted -->
+    <div id="r3-confirm" style="display:none; margin-top:2rem; animation: fadeIn 0.5s ease">
+      <div style="border:1px solid var(--light-gray); padding:2rem; background:var(--light-gray); margin-bottom:2rem">
+        <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.3rem; line-height:1.8; margin-bottom:1.2rem">
+          Hmm, czy jesteś pewna, tej?
+        </p>
+        <div id="r3-summary" style="font-size:0.9rem; line-height:2; color:var(--mid-gray)"></div>
+      </div>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap">
+        <button class="btn" onclick="confirmRoom3()">Tak, jestem pewna →</button>
+        <button class="btn btn-outline" onclick="editRoom3()">Zmień odpowiedzi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Room 4 -->
+<div id="page-room-4" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój IV — Pytanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 004 / Wiedza filmowa</p>
+    <h2 class="room-headline">Jak ma imię postać grana przez Jacka Braciaka w serialu <em>Glina</em>?</h2>
+    <div class="divider-thin"></div>
+    <div class="field-group" style="margin-top:2rem">
+      <label class="field-label">Imię postaci</label>
+      <input type="text" id="r4-answer" placeholder="Wpisz imię…" onkeydown="if(event.key==='Enter')checkRoom4()">
+    </div>
+    <button class="btn" onclick="checkRoom4()">Zatwierdź →</button>
+    <div class="msg" id="r4-msg"></div>
+  </div>
+</div>
+
+<!-- Room 5 -->
+<div id="page-room-5" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój V — Wyzwanie</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 005 / Misja zewnętrzna</p>
+    <h2 class="room-headline">Zdobądź dziesięć punktów w Super Trivii.</h2>
+    <div class="divider-thin"></div>
+    <div class="notice">
+      <p>Zdobądź dziesięć punktów w <strong>SUPER TRIVII</strong>, żeby przejść dalej, malina.</p>
+      <p style="font-size:0.72rem; color:var(--mid-gray)">Przycisk Super Trivia znajduje się na stronie głównej ↓</p>
+    </div>
+    <div class="field-group" style="margin-top:2rem">
+      <label class="field-label">Kod odblokowania</label>
+      <input type="text" id="r5-answer" placeholder="Wpisz kod…" onkeydown="if(event.key==='Enter')checkRoom5()">
+    </div>
+    <button class="btn" onclick="checkRoom5()">Zatwierdź →</button>
+    <div class="msg" id="r5-msg"></div>
+  </div>
+</div>
+
+<!-- Room 6 -->
+<div id="page-room-6" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój VI — Quiz ACT</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 006 / Psychologia poznawcza</p>
+    <h2 class="room-headline">Które stwierdzenie <em>najlepiej</em> opisuje fuzję poznawczą w terapii ACT?</h2>
+    <div class="divider-thin"></div>
+    <div class="quiz-options">
+      <div class="quiz-option" id="r6-A" onclick="selectR6('A')">
+        <span class="quiz-letter">A</span>
+        <span class="quiz-text">Trwałe uszkodzenie funkcji poznawczych w mózgu</span>
+      </div>
+      <div class="quiz-option" id="r6-B" onclick="selectR6('B')">
+        <span class="quiz-letter">B</span>
+        <span class="quiz-text">Celowe, rozważne analizowanie własnych przekonań</span>
+      </div>
+      <div class="quiz-option" id="r6-C" onclick="selectR6('C')">
+        <span class="quiz-letter">C</span>
+        <span class="quiz-text">Stopienie się z myślami tak, że są traktowane jak dosłowna prawda i polecenia do działania</span>
+      </div>
+      <div class="quiz-option" id="r6-D" onclick="selectR6('D')">
+        <span class="quiz-letter">D</span>
+        <span class="quiz-text">Zdolność do szybkiego uczenia się nowych informacji</span>
+      </div>
+    </div>
+    <button class="btn" onclick="checkRoom6()">Zatwierdź odpowiedź →</button>
+    <div class="msg" id="r6-msg"></div>
+  </div>
+</div>
+
+<!-- Room 7 -->
+<div id="page-room-7" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój VII — Szyfr</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 007 / Kryptografia</p>
+    <h2 class="room-headline">Odkoduj wiadomość.</h2>
+    <div class="divider-thin"></div>
+    <p style="font-size:0.75rem; color:var(--mid-gray); margin:1rem 0">Podpowiedź: <strong>BEKON</strong></p>
+    <div class="cipher-display">
+      babbb baabb babbb aaaaa abbaa abaab aaaaa abaaa aabaa baaab baaba abbaa aaaaa abaaa abbba abaaa abaab abbaa abaaa aabaa abaaa baaab babbb aaaaa
+    </div>
+    <div class="field-group">
+      <label class="field-label">Odkodowana wiadomość</label>
+      <input type="text" id="r7-answer" placeholder="Wpisz odkodowany tekst…" onkeydown="if(event.key==='Enter')checkRoom7()">
+    </div>
+    <button class="btn" onclick="checkRoom7()">Zatwierdź →</button>
+    <div class="msg" id="r7-msg"></div>
+  </div>
+</div>
+
+<!-- Room 8 - ZULITEWSKI -->
+<div id="page-room-8" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój VIII — Zulitewski</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 008 / Nauka litewskiego</p>
+    <h2 class="room-headline">Osiągnij poziom 10, aby ukończyć pokój.</h2>
+    <div class="divider-thin"></div>
+    
+    <div id="zuli-game">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin:2rem 0">
+        <div style="font-family:var(--font-display); font-size:1.8rem; color:var(--accent)">
+          Poziom <span id="zuli-level">1</span> / 10
+        </div>
+        <div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray)">
+          XP: <span id="zuli-xp">0</span> / <span id="zuli-xp-needed">100</span>
+        </div>
+      </div>
+      
+      <div style="background:var(--light-gray); height:8px; border-radius:4px; margin-bottom:3rem; overflow:hidden">
+        <div id="zuli-progress-bar" style="height:100%; background:var(--accent); width:0%; transition:width 0.5s ease"></div>
+      </div>
+
+      <div id="zuli-exercise-area">
+        <!-- Filled by JS -->
+      </div>
+
+      <div id="zuli-result" style="margin-top:2rem; font-size:0.9rem; text-align:center; min-height:2rem"></div>
+      
+      <button id="zuli-admin-btn" onclick="toggleZuliAdmin()" style="position:fixed; bottom:1.5rem; right:1.5rem; width:32px; height:32px; border:1px solid rgba(0,0,0,0.2); border-radius:6px; background:rgba(255,255,255,0.95); font-size:0.8rem; font-weight:600; color:rgba(0,0,0,0.5); cursor:pointer; font-family:monospace; transition:all 0.3s ease; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,0.1)" onmouseover="this.style.color='rgba(0,0,0,0.8)'; this.style.borderColor='rgba(0,0,0,0.4)'; this.style.background='rgba(255,255,255,1)'" onmouseout="this.style.color='rgba(0,0,0,0.5)'; this.style.borderColor='rgba(0,0,0,0.2)'; this.style.background='rgba(255,255,255,0.95)'">F</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.zuli-word-card {
+  border: 1px solid var(--light-gray);
+  padding: 2rem;
+  margin: 1.5rem 0;
+  background: rgba(0,0,0,0.01);
+  transition: all 0.3s ease;
+}
+
+.zuli-word-card:hover {
+  background: rgba(0,0,0,0.02);
+  border-color: var(--warm-gray);
+}
+
+.zuli-lt {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 0.5rem;
+}
+
+.zuli-pl {
+  font-size: 1.1rem;
+  color: var(--mid-gray);
+  margin-bottom: 0.3rem;
+}
+
+.zuli-category {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.zuli-option {
+  display: block;
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  margin: 0.8rem 0;
+  border: 1px solid var(--light-gray);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.zuli-option:hover {
+  background: rgba(0,0,0,0.02);
+  border-color: var(--warm-gray);
+}
+
+.zuli-option.correct {
+  background: rgba(107, 142, 35, 0.1);
+  border-color: rgb(107, 142, 35);
+  color: rgb(107, 142, 35);
+}
+
+.zuli-option.incorrect {
+  background: rgba(200, 16, 46, 0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.zuli-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  margin: 1rem 0;
+  transition: all 0.3s ease;
+}
+
+.zuli-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.zuli-match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.zuli-match-item {
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.zuli-match-item:hover {
+  background: rgba(0,0,0,0.02);
+}
+
+.zuli-match-item.selected {
+  background: rgba(0, 49, 83, 0.1);
+  border-color: var(--prussian);
+}
+
+.zuli-match-item.matched {
+  background: rgba(107, 142, 35, 0.1);
+  border-color: rgb(107, 142, 35);
+  cursor: default;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .zuli-match-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+</style>
+
+<script>
+// ═══════════════════════════════════════ ZULITEWSKI GAME
+const zuliVocab = {
+  torun: [
+    { lt: 'Torunė', pl: 'Toruń', category: 'Toruń' },
+    { lt: 'senamiestis', pl: 'stare miasto', category: 'Toruń' },
+    { lt: 'pilis', pl: 'zamek', category: 'Toruń' },
+    { lt: 'upė', pl: 'rzeka', category: 'Toruń' },
+    { lt: 'Vysla', pl: 'Wisła', category: 'Toruń' },
+    { lt: 'gotika', pl: 'gotyk', category: 'Toruń' },
+    { lt: 'bokštas', pl: 'wieża', category: 'Toruń' },
+    { lt: 'miestas', pl: 'miasto', category: 'Toruń' },
+    { lt: 'tiltas', pl: 'most', category: 'Toruń' },
+    { lt: 'universitetas', pl: 'uniwersytet', category: 'Toruń' },
+    { lt: 'mūrinė siena', pl: 'murowany mur', category: 'Toruń' },
+    { lt: 'vidurinioji architektūra', pl: 'architektura średniowieczna', category: 'Toruń' },
+    { lt: 'paveldo paminklas', pl: 'zabytek', category: 'Toruń' },
+    { lt: 'astronomas', pl: 'astronom', category: 'Toruń' },
+    { lt: 'gimtinė', pl: 'miejsce urodzenia', category: 'Toruń' },
+  ],
+  poznan: [
+    { lt: 'Poznanė', pl: 'Poznań', category: 'Poznań' },
+    { lt: 'turgaus aikštė', pl: 'rynek', category: 'Poznań' },
+    { lt: 'rotušė', pl: 'ratusz', category: 'Poznań' },
+    { lt: 'ožiai', pl: 'koziołki', category: 'Poznań' },
+    { lt: 'katedra', pl: 'katedra', category: 'Poznań' },
+    { lt: 'sala', pl: 'wyspa', category: 'Poznań' },
+    { lt: 'sostinė', pl: 'stolica', category: 'Poznań' },
+    { lt: 'festivalis', pl: 'festiwal', category: 'Poznań' },
+    { lt: 'kelias', pl: 'droga', category: 'Poznań' },
+    { lt: 'parkas', pl: 'park', category: 'Poznań' },
+    { lt: 'prekybos centras', pl: 'centrum handlowe', category: 'Poznań' },
+    { lt: 'DidžiosiosLenkijos', pl: 'Wielkopolski', category: 'Poznań' },
+    { lt: 'pirmoji sostinė', pl: 'pierwsza stolica', category: 'Poznań' },
+    { lt: 'legendinė tradicija', pl: 'legendarna tradycja', category: 'Poznań' },
+    { lt: 'viduramžių įtvirtinimai', pl: 'umocnienia średniowieczne', category: 'Poznań' },
+  ],
+  safety: [
+    { lt: 'saugumas', pl: 'bezpieczeństwo', category: 'Bezpieczeństwo' },
+    { lt: 'saugus', pl: 'bezpieczny', category: 'Bezpieczeństwo' },
+    { lt: 'apsauga', pl: 'ochrona', category: 'Bezpieczeństwo' },
+    { lt: 'pagalba', pl: 'pomoc', category: 'Bezpieczeństwo' },
+    { lt: 'pavojus', pl: 'niebezpieczeństwo', category: 'Bezpieczeństwo' },
+    { lt: 'ramus', pl: 'spokojny', category: 'Bezpieczeństwo' },
+    { lt: 'pasitikėjimas', pl: 'zaufanie', category: 'Bezpieczeństwo' },
+    { lt: 'stiprus', pl: 'silny', category: 'Bezpieczeństwo' },
+    { lt: 'drąsus', pl: 'odważny', category: 'Bezpieczeństwo' },
+    { lt: 'gynėjas', pl: 'obrońca', category: 'Bezpieczeństwo' },
+    { lt: 'prieglobstis', pl: 'schronienie', category: 'Bezpieczeństwo' },
+    { lt: 'tvirtovė', pl: 'twierdza', category: 'Bezpieczeństwo' },
+    { lt: 'patikimumas', pl: 'niezawodność', category: 'Bezpieczeństwo' },
+    { lt: 'ištikimybė', pl: 'wierność', category: 'Bezpieczeństwo' },
+    { lt: 'ramybė', pl: 'spokój', category: 'Bezpieczeństwo' },
+    { lt: 'išsaugojimas', pl: 'zachowanie', category: 'Bezpieczeństwo' },
+    { lt: 'užtikrinimas', pl: 'zapewnienie', category: 'Bezpieczeństwo' },
+    { lt: 'slaptažodis', pl: 'hasło', category: 'Bezpieczeństwo' },
+    { lt: 'šifravimas', pl: 'szyfrowanie', category: 'Bezpieczeństwo' },
+    { lt: 'kibernetinis saugumas', pl: 'cyberbezpieczeństwo', category: 'Bezpieczeństwo' },
+    { lt: 'ugniasienė', pl: 'zapora ogniowa', category: 'Bezpieczeństwo' },
+    { lt: 'duomenų apsauga', pl: 'ochrona danych', category: 'Bezpieczeństwo' },
+    { lt: 'privatumas', pl: 'prywatność', category: 'Bezpieczeństwo' },
+    { lt: 'tapatybės vagystė', pl: 'kradzież tożsamości', category: 'Bezpieczeństwo' },
+    { lt: 'sukčiavimas', pl: 'oszustwo', category: 'Bezpieczeństwo' },
+    { lt: 'kenkėjiška programa', pl: 'szkodliwe oprogramowanie', category: 'Bezpieczeństwo' },
+    { lt: 'virusas', pl: 'wirus', category: 'Bezpieczeństwo' },
+    { lt: 'antivirusinė programa', pl: 'program antywirusowy', category: 'Bezpieczeństwo' },
+    { lt: 'autentifikavimas', pl: 'uwierzytelnianie', category: 'Bezpieczeństwo' },
+    { lt: 'dviejų veiksnių autentifikavimas', pl: 'uwierzytelnianie dwuskładnikowe', category: 'Bezpieczeństwo' },
+    { lt: 'įsilaužimas', pl: 'włamanie', category: 'Bezpieczeństwo' },
+    { lt: 'kibernetinė ataka', pl: 'cyberatak', category: 'Bezpieczeństwo' },
+    { lt: 'duomenų nutekėjimas', pl: 'wyciek danych', category: 'Bezpieczeństwo' },
+    { lt: 'atsarginė kopija', pl: 'kopia zapasowa', category: 'Bezpieczeństwo' },
+    { lt: 'saugi jungtis', pl: 'bezpieczne połączenie', category: 'Bezpieczeństwo' },
+    { lt: 'virtuali privati tinklas', pl: 'wirtualna sieć prywatna', category: 'Bezpieczeństwo' },
+    { lt: 'fišingas', pl: 'phishing', category: 'Bezpieczeństwo' },
+    { lt: 'socialinė inžinerija', pl: 'inżynieria społeczna', category: 'Bezpieczeństwo' },
+    { lt: 'saugumo pažeidžiamumas', pl: 'podatność bezpieczeństwa', category: 'Bezpieczeństwo' },
+    { lt: 'atnaujinimas', pl: 'aktualizacja', category: 'Bezpieczeństwo' },
+    { lt: 'skaitmeninis saugumas', pl: 'bezpieczeństwo cyfrowe', category: 'Bezpieczeństwo' },
+    { lt: 'šifrinis raktas', pl: 'klucz szyfrujący', category: 'Bezpieczeństwo' },
+    { lt: 'asmens duomenų apsauga', pl: 'ochrona danych osobowych', category: 'Bezpieczeństwo' },
+    { lt: 'grėsmė', pl: 'zagrożenie', category: 'Bezpieczeństwo' },
+    { lt: 'rizikos valdymas', pl: 'zarządzanie ryzykiem', category: 'Bezpieczeństwo' },
+  ],
+  poetry: [
+    { lt: 'poezija', pl: 'poezja', category: 'Poezja' },
+    { lt: 'eilėraštis', pl: 'wiersz', category: 'Poezja' },
+    { lt: 'poetas', pl: 'poeta', category: 'Poezja' },
+    { lt: 'žodis', pl: 'słowo', category: 'Poezja' },
+    { lt: 'grožis', pl: 'piękno', category: 'Poezja' },
+    { lt: 'rima', pl: 'rym', category: 'Poezja' },
+    { lt: 'ritmas', pl: 'rytm', category: 'Poezja' },
+    { lt: 'metafora', pl: 'metafora', category: 'Poezja' },
+    { lt: 'jausmas', pl: 'uczucie', category: 'Poezja' },
+    { lt: 'kūryba', pl: 'twórczość', category: 'Poezja' },
+    { lt: 'eilutė', pl: 'wers', category: 'Poezja' },
+    { lt: 'posmas', pl: 'strofa', category: 'Poezja' },
+    { lt: 'įkvėpimas', pl: 'natchnienie', category: 'Poezja' },
+    { lt: 'vaizduotė', pl: 'wyobraźnia', category: 'Poezja' },
+    { lt: 'lirika', pl: 'liryka', category: 'Poezja' },
+    { lt: 'eilėdara', pl: 'wersyfikacja', category: 'Poezja' },
+    { lt: 'melodingumas', pl: 'melodyjność', category: 'Poezja' },
+    { lt: 'sielos gelmės', pl: 'głębia duszy', category: 'Poezja' },
+  ],
+  love: [
+    { lt: 'meilė', pl: 'miłość', category: 'Miłość' },
+    { lt: 'myliu', pl: 'kocham', category: 'Miłość' },
+    { lt: 'širdis', pl: 'serce', category: 'Miłość' },
+    { lt: 'mylimas', pl: 'ukochany', category: 'Miłość' },
+    { lt: 'bučinys', pl: 'pocałunek', category: 'Miłość' },
+    { lt: 'glėbys', pl: 'uścisk', category: 'Miłość' },
+    { lt: 'šypsena', pl: 'uśmiech', category: 'Miłość' },
+    { lt: 'kartu', pl: 'razem', category: 'Miłość' },
+    { lt: 'amžinai', pl: 'na zawsze', category: 'Miłość' },
+    { lt: 'siela', pl: 'dusza', category: 'Miłość' },
+    { lt: 'atsidavimas', pl: 'oddanie', category: 'Miłość' },
+    { lt: 'švelnumas', pl: 'czułość', category: 'Miłość' },
+    { lt: 'troškimas', pl: 'tęsknota', category: 'Miłość' },
+    { lt: 'geismas', pl: 'pożądanie', category: 'Miłość' },
+    { lt: 'aistra', pl: 'namiętność', category: 'Miłość' },
+    { lt: 'ištikimybė', pl: 'wierność', category: 'Miłość' },
+    { lt: 'artumas', pl: 'bliskość', category: 'Miłość' },
+    { lt: 'susijungimas', pl: 'zjednoczenie', category: 'Miłość' },
+    { lt: 'meilės prisiekimas', pl: 'przysięga miłości', category: 'Miłość' },
+  ],
+};
+
+const zuliAllWords = [
+  ...zuliVocab.torun,
+  ...zuliVocab.poznan,
+  ...zuliVocab.safety,
+  ...zuliVocab.poetry,
+  ...zuliVocab.love
+];
+
+let zuliLevel = 1;
+let zuliXP = 0;
+let zuliCurrentExercise = null;
+let zuliLocked = false;
+let zuliUsedWords = new Set(); // Track used words to prevent repetition
+
+function initZulitewski() {
+  zuliLevel = parseInt(localStorage.getItem('zuli-level') || '1');
+  zuliXP = parseInt(localStorage.getItem('zuli-xp') || '0');
+  zuliUsedWords.clear(); // Reset used words on init
+  updateZuliUI();
+  generateZuliExercise();
+}
+
+function updateZuliUI() {
+  document.getElementById('zuli-level').textContent = zuliLevel;
+  document.getElementById('zuli-xp').textContent = zuliXP;
+  const xpNeeded = zuliLevel * 100;
+  document.getElementById('zuli-xp-needed').textContent = xpNeeded;
+  const progress = (zuliXP / xpNeeded) * 100;
+  document.getElementById('zuli-progress-bar').style.width = progress + '%';
+}
+
+function getRandomUnusedWord() {
+  // If all words have been used, reset the set
+  if (zuliUsedWords.size >= zuliAllWords.length - 1) {
+    zuliUsedWords.clear();
+  }
+  
+  let word;
+  let attempts = 0;
+  do {
+    word = zuliAllWords[Math.floor(Math.random() * zuliAllWords.length)];
+    attempts++;
+  } while (zuliUsedWords.has(word.lt) && attempts < 50);
+  
+  zuliUsedWords.add(word.lt);
+  return word;
+}
+
+function generateZuliExercise() {
+  if (zuliLevel >= 10) {
+    document.getElementById('zuli-exercise-area').innerHTML = `
+      <div style="text-align:center; padding:3rem 0">
+        <h3 style="font-family:var(--font-display); font-size:2rem; margin-bottom:1rem">Gratulacje!</h3>
+        <p style="color:var(--mid-gray); margin-bottom:2rem">Osiągnąłeś poziom 10. Pokój ukończony.</p>
+      </div>
+    `;
+    markComplete(8);
+    return;
+  }
+
+  const exerciseTypes = ['translate', 'choice', 'match', 'type'];
+  const type = exerciseTypes[Math.floor(Math.random() * exerciseTypes.length)];
+  
+  zuliLocked = false;
+  document.getElementById('zuli-result').innerHTML = '';
+  
+  if (type === 'translate') generateTranslateExercise();
+  else if (type === 'choice') generateChoiceExercise();
+  else if (type === 'match') generateMatchExercise();
+  else if (type === 'type') generateTypeExercise();
+}
+
+function generateTranslateExercise() {
+  const word = getRandomUnusedWord();
+  zuliCurrentExercise = { type: 'translate', answer: word.pl };
+  
+  document.getElementById('zuli-exercise-area').innerHTML = `
+    <div class="zuli-word-card">
+      <div class="zuli-category">${word.category}</div>
+      <div class="zuli-lt">${word.lt}</div>
+      <div class="zuli-pl">Co to znaczy po polsku?</div>
+    </div>
+    <input type="text" class="zuli-input" id="zuli-answer" placeholder="Wpisz tłumaczenie..." onkeydown="if(event.key==='Enter')checkZuliAnswer()">
+    <button class="btn" onclick="checkZuliAnswer()" style="margin-top:1rem">Sprawdź →</button>
+  `;
+  setTimeout(() => document.getElementById('zuli-answer').focus(), 100);
+  if (zuliAdminMode) updateZuliAdminPanel();
+}
+
+function generateChoiceExercise() {
+  const correct = getRandomUnusedWord();
+  const others = zuliAllWords.filter(w => w.pl !== correct.pl).sort(() => Math.random() - 0.5).slice(0, 3);
+  const options = [correct, ...others].sort(() => Math.random() - 0.5);
+  
+  zuliCurrentExercise = { type: 'choice', answer: correct.pl };
+  
+  document.getElementById('zuli-exercise-area').innerHTML = `
+    <div style="text-align:center; margin:2rem 0">
+      <div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:1rem">${correct.category}</div>
+      <div style="font-family:var(--font-display); font-size:2.5rem; font-weight:600; margin-bottom:2rem">${correct.lt}</div>
+      <p style="color:var(--mid-gray)">Wybierz poprawne tłumaczenie:</p>
+    </div>
+    ${options.map(w => `<button class="zuli-option" onclick="selectZuliOption(this, '${w.pl}')">${w.pl}</button>`).join('')}
+  `;
+  if (zuliAdminMode) updateZuliAdminPanel();
+}
+
+function generateMatchExercise() {
+  const words = zuliAllWords.sort(() => Math.random() - 0.5).slice(0, 4);
+  zuliCurrentExercise = { type: 'match', pairs: words, selected: null, matched: [] };
+  
+  const ltWords = words.map(w => ({ word: w.lt, key: w.lt })).sort(() => Math.random() - 0.5);
+  const plWords = words.map(w => ({ word: w.pl, key: w.lt })).sort(() => Math.random() - 0.5);
+  
+  document.getElementById('zuli-exercise-area').innerHTML = `
+    <div style="text-align:center; margin-bottom:2rem">
+      <p style="color:var(--mid-gray)">Dopasuj litewskie słowa do polskich tłumaczeń:</p>
+    </div>
+    <div class="zuli-match-grid">
+      <div>
+        ${ltWords.map((w, i) => `<div class="zuli-match-item" data-key="${w.key}" data-side="lt" onclick="selectMatch(this)">${w.word}</div>`).join('')}
+      </div>
+      <div>
+        ${plWords.map((w, i) => `<div class="zuli-match-item" data-key="${w.key}" data-side="pl" onclick="selectMatch(this)">${w.word}</div>`).join('')}
+      </div>
+    </div>
+  `;
+  if (zuliAdminMode) updateZuliAdminPanel();
+}
+
+function generateTypeExercise() {
+  const word = getRandomUnusedWord();
+  zuliCurrentExercise = { type: 'type', answer: word.lt.toLowerCase() };
+  
+  document.getElementById('zuli-exercise-area').innerHTML = `
+    <div style="text-align:center; margin:2rem 0">
+      <div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:1rem">${word.category}</div>
+      <div style="font-size:1.8rem; color:var(--black); margin-bottom:2rem">${word.pl}</div>
+      <p style="color:var(--mid-gray); margin-bottom:1.5rem">Jak to powiedzieć po litewsku?</p>
+    </div>
+    <input type="text" class="zuli-input" id="zuli-answer" placeholder="Wpisz słowo po litewsku..." onkeydown="if(event.key==='Enter')checkZuliAnswer()">
+    <button class="btn" onclick="checkZuliAnswer()" style="margin-top:1rem">Sprawdź →</button>
+  `;
+  setTimeout(() => document.getElementById('zuli-answer').focus(), 100);
+  if (zuliAdminMode) updateZuliAdminPanel();
+}
+
+function selectZuliOption(el, answer) {
+  if (zuliLocked) return;
+  zuliLocked = true;
+  
+  const correct = answer === zuliCurrentExercise.answer;
+  el.classList.add(correct ? 'correct' : 'incorrect');
+  
+  if (correct) {
+    showZuliResult('✓ Poprawnie!', true);
+    awardZuliXP(20);
+  } else {
+    document.querySelectorAll('.zuli-option').forEach(opt => {
+      if (opt.textContent === zuliCurrentExercise.answer) opt.classList.add('correct');
+    });
+    showZuliResult('✗ Niepoprawnie. Spróbuj ponownie.', false);
+    setTimeout(() => generateZuliExercise(), 2000);
+  }
+}
+
+function checkZuliAnswer() {
+  if (zuliLocked) return;
+  zuliLocked = true;
+  
+  const input = document.getElementById('zuli-answer');
+  const answer = input.value.trim().toLowerCase();
+  const correct = answer === zuliCurrentExercise.answer.toLowerCase();
+  
+  if (correct) {
+    input.style.borderColor = 'rgb(107, 142, 35)';
+    showZuliResult('✓ Poprawnie!', true);
+    awardZuliXP(25);
+  } else {
+    input.style.borderColor = 'var(--accent)';
+    showZuliResult(`✗ Niepoprawnie. Poprawna odpowiedź: ${zuliCurrentExercise.answer}`, false);
+    setTimeout(() => generateZuliExercise(), 2500);
+  }
+}
+
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  
+  const side = el.dataset.side;
+  const key = el.dataset.key;
+  
+  if (!zuliCurrentExercise.selected) {
+    zuliCurrentExercise.selected = { el, side, key };
+    el.classList.add('selected');
+  } else {
+    const first = zuliCurrentExercise.selected;
+    
+    if (first.side === side) {
+      first.el.classList.remove('selected');
+      zuliCurrentExercise.selected = { el, side, key };
+      el.classList.add('selected');
+    } else {
+      if (first.key === key) {
+        first.el.classList.remove('selected');
+        first.el.classList.add('matched');
+        el.classList.add('matched');
+        zuliCurrentExercise.matched.push(key);
+        zuliCurrentExercise.selected = null;
+        
+        if (zuliCurrentExercise.matched.length === zuliCurrentExercise.pairs.length) {
+          showZuliResult('✓ Wszystkie pary dopasowane!', true);
+          awardZuliXP(30);
+        }
+      } else {
+        first.el.classList.remove('selected');
+        zuliCurrentExercise.selected = null;
+      }
+    }
+  }
+}
+
+function showZuliResult(msg, success) {
+  const result = document.getElementById('zuli-result');
+  result.textContent = msg;
+  result.style.color = success ? 'rgb(107, 142, 35)' : 'var(--accent)';
+}
+
+function awardZuliXP(amount) {
+  zuliXP += amount;
+  const xpNeeded = zuliLevel * 100;
+  
+  if (zuliXP >= xpNeeded) {
+    zuliXP = zuliXP - xpNeeded;
+    zuliLevel++;
+    localStorage.setItem('zuli-level', zuliLevel);
+    
+    // Trigger challenge at level 9
+    if (zuliLevel === 9) {
+      setTimeout(() => showZuliChallenge(), 800);
+      return; // Don't generate next exercise yet
+    }
+  }
+  
+  localStorage.setItem('zuli-xp', zuliXP);
+  updateZuliUI();
+  
+  setTimeout(() => generateZuliExercise(), 1500);
+}
+
+// ═══════════════════════════════════════ LEVEL 9 CHALLENGE
+let zuliChallengeTimer = null;
+let zuliChallengeTimeLeft = 10;
+
+function showZuliChallenge() {
+  const overlay = document.getElementById('zuli-challenge-overlay');
+  const input = document.getElementById('zuli-challenge-input');
+  const flash = document.getElementById('zuli-challenge-flash');
+  
+  // Flash effect
+  flash.style.opacity = '1';
+  setTimeout(() => { flash.style.opacity = '0'; }, 150);
+  setTimeout(() => { flash.style.opacity = '1'; }, 300);
+  setTimeout(() => { flash.style.opacity = '0'; }, 450);
+  
+  overlay.style.display = 'block';
+  zuliChallengeTimeLeft = 10;
+  
+  // Start war siren sound
+  playWarSiren();
+  
+  setTimeout(() => {
+    input.focus();
+    input.value = '';
+  }, 600);
+  
+  // Start countdown
+  zuliChallengeTimer = setInterval(() => {
+    zuliChallengeTimeLeft--;
+    document.getElementById('zuli-challenge-timer').textContent = zuliChallengeTimeLeft;
+    
+    if (zuliChallengeTimeLeft <= 0) {
+      clearInterval(zuliChallengeTimer);
+      zuliChallengeFailed();
+    }
+  }, 1000);
+  
+  // Handle input
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') {
+      checkZuliChallenge();
+    }
+  };
+}
+
+function checkZuliChallenge() {
+  const input = document.getElementById('zuli-challenge-input');
+  const answer = input.value.trim().toUpperCase();
+  const hint = document.getElementById('zuli-challenge-hint');
+  
+  if (answer === 'MENTAL REVOLUTION') {
+    clearInterval(zuliChallengeTimer);
+    stopWarSiren();
+    hint.style.color = 'rgb(107, 142, 35)';
+    hint.textContent = '✓ Correct. Proceeding...';
+    
+    setTimeout(() => {
+      document.getElementById('zuli-challenge-overlay').style.display = 'none';
+      localStorage.setItem('zuli-xp', zuliXP);
+      updateZuliUI();
+      generateZuliExercise();
+    }, 1500);
+  } else {
+    hint.style.color = 'var(--accent)';
+    hint.textContent = '✗ Incorrect. Try again.';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function zuliChallengeFailed() {
+  const hint = document.getElementById('zuli-challenge-hint');
+  hint.style.color = 'var(--accent)';
+  hint.style.fontSize = '1rem';
+  hint.textContent = '✗ Time expired. Progress lost.';
+  
+  stopWarSiren();
+  
+  // Flash red
+  const flash = document.getElementById('zuli-challenge-flash');
+  flash.style.opacity = '0.3';
+  setTimeout(() => { flash.style.opacity = '0'; }, 200);
+  setTimeout(() => { flash.style.opacity = '0.3'; }, 400);
+  setTimeout(() => { flash.style.opacity = '0'; }, 600);
+  
+  setTimeout(() => {
+    // Reset progress
+    zuliLevel = 1;
+    zuliXP = 0;
+    localStorage.setItem('zuli-level', 1);
+    localStorage.setItem('zuli-xp', 0);
+    
+    // Hide overlay and restart
+    document.getElementById('zuli-challenge-overlay').style.display = 'none';
+    updateZuliUI();
+    generateZuliExercise();
+  }, 2500);
+}
+
+// ═══════════════════════════════════════ WAR SIREN AUDIO
+let audioContext = null;
+let sirenOscillator = null;
+let sirenGain = null;
+let sirenInterval = null;
+
+function playWarSiren() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  
+  // Stop any existing siren
+  stopWarSiren();
+  
+  // Create oscillator for siren
+  sirenOscillator = audioContext.createOscillator();
+  sirenGain = audioContext.createGain();
+  
+  sirenOscillator.type = 'sine';
+  sirenOscillator.frequency.value = 200; // Start at low frequency
+  
+  sirenGain.gain.value = 0.5; // Volume
+  
+  sirenOscillator.connect(sirenGain);
+  sirenGain.connect(audioContext.destination);
+  
+  sirenOscillator.start();
+  
+  // Slow oscillation for civil defense siren (200Hz to 600Hz over 3 seconds cycle)
+  let direction = 1;
+  let currentFreq = 200;
+  const freqStep = 8; // Slower frequency change
+  const minFreq = 200;
+  const maxFreq = 600;
+  
+  sirenInterval = setInterval(() => {
+    currentFreq += direction * freqStep;
+    
+    if (currentFreq >= maxFreq) {
+      direction = -1;
+    } else if (currentFreq <= minFreq) {
+      direction = 1;
+    }
+    
+    if (sirenOscillator) {
+      sirenOscillator.frequency.value = currentFreq;
+    }
+  }, 50);
+}
+
+function stopWarSiren() {
+  if (sirenInterval) {
+    clearInterval(sirenInterval);
+    sirenInterval = null;
+  }
+  
+  if (sirenOscillator) {
+    sirenOscillator.stop();
+    sirenOscillator.disconnect();
+    sirenOscillator = null;
+  }
+  
+  if (sirenGain) {
+    sirenGain.disconnect();
+    sirenGain = null;
+  }
+}
+
+
+// ═══════════════════════════════════════ ADMIN FUNCTIONS
+let zuliAdminMode = false;
+let zuliAdminPanel = null;
+
+async function sha256(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
+function toggleZuliAdmin() {
+  if (!zuliAdminMode) {
+    const pw = prompt('Admin password:');
+    if (!pw) {
+      // User clicked cancel or entered nothing - trigger OSZUST
+      showOszustPopup();
+      return;
+    }
+    
+    sha256(pw).then(hash => {
+      if (hash === '1b2f638e5794e4dc339011084a4501e5c7e94172459e8d0b82a46c1fd3262679') {
+        zuliAdminMode = true;
+        showZuliAdminPanel();
+      } else {
+        // Wrong password - trigger OSZUST
+        showOszustPopup();
+      }
+    });
+  } else {
+    zuliAdminMode = false;
+    if (zuliAdminPanel) {
+      zuliAdminPanel.remove();
+      zuliAdminPanel = null;
+    }
+  }
+}
+
+function showZuliAdminPanel() {
+  if (zuliAdminPanel) return;
+  
+  zuliAdminPanel = document.createElement('div');
+  zuliAdminPanel.style.cssText = 'position:fixed; bottom:5rem; right:1.5rem; background:rgba(0,0,0,0.92); color:#fff; padding:1rem 1.2rem; border-radius:6px; font-size:0.75rem; z-index:9999; font-family:monospace; box-shadow:0 4px 16px rgba(0,0,0,0.4); min-width:200px';
+  
+  updateZuliAdminPanel();
+  document.body.appendChild(zuliAdminPanel);
+}
+
+function updateZuliAdminPanel() {
+  if (!zuliAdminPanel || !zuliCurrentExercise) return;
+  
+  let answer = '';
+  if (zuliCurrentExercise.type === 'translate' || zuliCurrentExercise.type === 'type') {
+    answer = zuliCurrentExercise.answer;
+  } else if (zuliCurrentExercise.type === 'choice') {
+    answer = zuliCurrentExercise.answer;
+  } else if (zuliCurrentExercise.type === 'match') {
+    answer = zuliCurrentExercise.pairs.map(p => `${p.lt} = ${p.pl}`).join('<br>');
+  }
+  
+  zuliAdminPanel.innerHTML = `
+    <div style="margin-bottom:0.5rem; font-weight:bold; color:#4ade80">ADMIN MODE</div>
+    <div style="margin-bottom:0.5rem">Type: ${zuliCurrentExercise.type}</div>
+    <div style="margin-bottom:0.5rem">Answer: ${answer}</div>
+    <button onclick="zuliAdminSkip()" style="margin-top:0.5rem; padding:0.3rem 0.6rem; background:#4ade80; border:none; cursor:pointer; font-size:0.7rem; font-family:monospace">Skip →</button>
+  `;
+}
+
+function zuliAdminSkip() {
+  if (!zuliAdminMode) return;
+  
+  zuliLocked = false;
+  showZuliResult('✓ Admin skip', true);
+  awardZuliXP(25);
+}
+
+// ═══════════════════════════════════════ OSZUST POPUP
+function showOszustPopup() {
+  const overlay = document.getElementById('oszust-overlay');
+  const flash = document.getElementById('oszust-flash');
+  const countdown = document.getElementById('oszust-countdown');
+  
+  // Immediate red flashes
+  flash.style.opacity = '0.5';
+  setTimeout(() => { flash.style.opacity = '0'; }, 100);
+  setTimeout(() => { flash.style.opacity = '0.5'; }, 200);
+  setTimeout(() => { flash.style.opacity = '0'; }, 300);
+  setTimeout(() => { flash.style.opacity = '0.7'; }, 400);
+  setTimeout(() => { flash.style.opacity = '0'; }, 500);
+  
+  overlay.style.display = 'block';
+  
+  // Wipe ALL progress immediately
+  localStorage.clear();
+  completed = [];
+  zuliLevel = 1;
+  zuliXP = 0;
+  
+  // Countdown from 3
+  let count = 3;
+  countdown.textContent = count;
+  
+  const countdownInterval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      countdown.textContent = count;
+      // Flash on each count
+      flash.style.opacity = '0.4';
+      setTimeout(() => { flash.style.opacity = '0'; }, 150);
+    } else {
+      clearInterval(countdownInterval);
+      overlay.style.display = 'none';
+      
+      // Return to home page
+      showPage('page-home');
+      renderGrid();
+    }
+  }, 1000);
+}
+</script>
+
+<!-- LEVEL 9 CHALLENGE OVERLAY -->
+<div id="zuli-challenge-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:10000; animation:zuliChallengeReveal 0.8s ease forwards">
+  <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem">
+    <div id="zuli-challenge-flash" style="position:absolute; inset:0; background:var(--accent); opacity:0"></div>
+    
+    <div style="position:relative; z-index:1">
+      <div style="font-family:var(--font-display); font-size:clamp(2.5rem, 8vw, 5rem); font-weight:700; font-style:italic; color:var(--accent); margin-bottom:2rem; letter-spacing:-0.02em; line-height:1.1; animation:zuliChallengeGlitch 3s ease infinite">
+        THE ONLY SOLUTION IS A
+      </div>
+      
+      <div style="width:2px; height:80px; background:linear-gradient(to bottom, transparent, var(--accent), transparent); margin:0 auto 2rem; animation:zuliChallengeLine 1.5s ease infinite alternate"></div>
+      
+      <div style="margin-bottom:2rem">
+        <input type="text" id="zuli-challenge-input" placeholder="..." style="width:100%; max-width:500px; padding:1.5rem 2rem; font-family:var(--font-body); font-size:1.3rem; text-align:center; border:2px solid var(--accent); background:rgba(0,0,0,0.5); color:var(--white); letter-spacing:0.3em; text-transform:uppercase" autocomplete="off">
+      </div>
+      
+      <div style="font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:1rem">
+        Time remaining: <span id="zuli-challenge-timer" style="color:var(--accent); font-weight:600">10</span>s
+      </div>
+      
+      <div id="zuli-challenge-hint" style="font-size:0.75rem; color:rgba(200,16,46,0.7); min-height:1.5rem; margin-top:1rem"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes zuliChallengeReveal {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes zuliChallengeGlitch {
+  0%, 88%, 100% { text-shadow: none; }
+  90%  { text-shadow: 4px 0 0 rgba(200,16,46,0.8), -4px 0 0 rgba(0,255,255,0.8); }
+  92%  { text-shadow: none; }
+  94%  { text-shadow: -3px 0 0 rgba(0,255,255,0.8), 3px 0 0 rgba(200,16,46,0.8); }
+}
+
+@keyframes zuliChallengeLine {
+  from { height: 60px; opacity: 0.4; }
+  to   { height: 100px; opacity: 1; }
+}
+</style>
+
+<!-- OSZUST FRAUD POPUP -->
+<div id="oszust-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:20000">
+  <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem">
+    <div id="oszust-flash" style="position:absolute; inset:0; background:var(--accent); opacity:0"></div>
+    
+    <div style="position:relative; z-index:1">
+      <div style="font-family:var(--font-display); font-size:clamp(4rem, 15vw, 10rem); font-weight:900; font-style:italic; color:var(--accent); margin-bottom:2rem; letter-spacing:-0.04em; line-height:0.9; text-transform:uppercase; animation:oszustGlitch 0.3s ease infinite">
+        OSZUST
+      </div>
+      
+      <div style="width:200px; height:4px; background:var(--accent); margin:0 auto 2rem"></div>
+      
+      <div style="font-size:1.2rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--white); margin-bottom:1rem; font-weight:600">
+        NIEAUTORYZOWANY DOSTĘP
+      </div>
+      
+      <div style="font-size:0.9rem; color:var(--mid-gray); margin-bottom:2rem">
+        Wszystkie postępy zostały usunięte.
+      </div>
+      
+      <div id="oszust-countdown" style="font-family:var(--font-display); font-size:4rem; color:var(--accent); font-weight:700; margin:2rem 0">3</div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes oszustGlitch {
+  0%, 33%, 66%, 100% { 
+    text-shadow: 5px 0 0 rgba(200,16,46,1), -5px 0 0 rgba(0,255,255,1);
+    transform: translate(0, 0) scale(1);
+  }
+  16%, 50%, 83% { 
+    text-shadow: -5px 0 0 rgba(200,16,46,1), 5px 0 0 rgba(0,255,255,1);
+    transform: translate(2px, -2px) scale(1.02);
+  }
+}
+</style>
+
+
+<!-- Room 9 -->
+<div id="page-room-9" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój IX</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 009 / Niedostępny</p>
+    <h2 class="room-headline">Wkrótce.</h2>
+    <div class="divider-thin"></div>
+    <p class="unavailable-msg">Ten pokój nie jest jeszcze dostępny.<br>Zostanie otwarty później.</p>
+  </div>
+</div>
+
+<!-- Room 10 -->
+<div id="page-room-10" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Pokój X</span>
+  </header>
+  <div class="room-content">
+    <p class="room-desc">Obiekt 010 / Niedostępny</p>
+    <h2 class="room-headline">Wkrótce.</h2>
+    <div class="divider-thin"></div>
+    <p class="unavailable-msg">Ten pokój nie jest jeszcze dostępny.<br>Zostanie otwarty później.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ SUPER TRIVIA PAGE -->
+<div id="page-trivia" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Super Trivia — Estonia · Łotwa · Czechy · Język litewski</span>
+  </header>
+
+  <div class="trivia-hero">
+    <h1>Super<br><em>Trivia</em></h1>
+    <div class="score-bar">
+      <div class="score-track">
+        <div class="score-fill" id="trivia-score-fill" style="width:0%"></div>
+      </div>
+      <span class="score-text" id="trivia-score-text">0 / 10 poprawnych</span>
+    </div>
+  </div>
+
+  <div class="trivia-card">
+    <div id="trivia-question-area">
+      <!-- filled by JS -->
+    </div>
+    <div class="trivia-unlock" id="trivia-unlock">
+      <div class="trivia-code-label">Kod odblokowania Pokoju 5</div>
+      <div class="trivia-code">aknazuz ałainapsw</div>
+      <p style="font-size:0.7rem; color:var(--warm-gray); margin-top:1rem">Skopiuj ten kod i wpisz go w Pokoju 5.</p>
+      <button onclick="restartTrivia()" style="margin-top:2rem; display:inline-flex; align-items:center; gap:1rem; border:1px solid rgba(255,255,255,0.25); padding:0.8rem 2rem; font-family:'EB Garamond',serif; font-size:0.78rem; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; background:transparent; color:var(--white); transition:all 0.3s ease" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">Zagraj ponownie →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ ENGLISH LITERATURE TRIVIA -->
+<div id="page-trivia-lit" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">English Literature</span>
+  </header>
+
+  <!-- Tab Navigation -->
+  <div style="display:flex; gap:0; justify-content:center; margin:2rem auto 0; max-width:600px; border-bottom:1px solid var(--light-gray)">
+    <button id="lit-tab-questions" class="lit-tab active" onclick="switchLitTab('questions')">Questions</button>
+    <button id="lit-tab-scores" class="lit-tab" onclick="switchLitTab('scores')">High Scores</button>
+  </div>
+
+  <!-- Questions Tab -->
+  <div id="lit-tab-content-questions" class="lit-tab-content active">
+    <div class="trivia-hero">
+      <h1>English<br><em>Literature</em></h1>
+      <div class="score-bar">
+        <div class="score-track">
+          <div class="score-fill" id="lit-score-fill" style="width:0%"></div>
+        </div>
+        <span class="score-text" id="lit-score-text">0 / 100 poprawnych</span>
+      </div>
+    </div>
+
+    <div class="trivia-card">
+      <div id="lit-question-area">
+        <!-- filled by JS -->
+      </div>
+      <div class="trivia-unlock" id="lit-unlock">
+        <div class="trivia-code-label">Gratulacje!</div>
+        <div style="font-size:1.8rem; font-family:'Cormorant Garamond',serif; font-style:italic; margin:1.5rem 0; color:var(--white)">
+          Ukończyłaś 100 pytań o literaturze anglojęzycznej.
+        </div>
+        <p style="font-size:0.75rem; color:var(--warm-gray); margin-bottom:2rem">Twój wynik został zapisany.</p>
+        <button onclick="restartLitTrivia()" style="display:inline-flex; align-items:center; gap:1rem; border:1px solid rgba(255,255,255,0.25); padding:0.8rem 2rem; font-family:'EB Garamond',serif; font-size:0.78rem; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; background:transparent; color:var(--white); transition:all 0.3s ease" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">Zagraj ponownie →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- High Scores Tab -->
+  <div id="lit-tab-content-scores" class="lit-tab-content">
+    <div style="max-width:700px; margin:3rem auto; padding:0 2rem">
+      <h2 style="font-family:'Cormorant Garamond',serif; font-size:2.5rem; font-weight:600; margin-bottom:2rem; text-align:center">High Scores</h2>
+      <div id="lit-scores-list" style="display:flex; flex-direction:column; gap:1rem">
+        <!-- filled by JS -->
+      </div>
+      <div style="text-align:center; margin-top:3rem">
+        <button onclick="clearLitScores()" style="border:1px solid rgba(255,255,255,0.2); padding:0.6rem 1.5rem; font-family:'EB Garamond',serif; font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; background:transparent; color:rgba(255,255,255,0.5); transition:all 0.3s ease" onmouseover="this.style.color='var(--accent)'; this.style.borderColor='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.5)'; this.style.borderColor='rgba(255,255,255,0.2)'">Wyczyść wyniki</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Literature Game Over Overlay -->
+<div class="gameover-overlay" id="lit-gameover">
+  <div class="gameover-inner">
+    <h2 class="gameover-title">Holy fucking shite, mate.</h2>
+    <div class="gameover-divider"></div>
+    <p class="gameover-sub">You better check yo' self before you wreck yo' self.</p>
+    <button class="gameover-btn" onclick="litGameOverReturn()">Powrót →</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ RANDOM ŁYSY PAGE -->
+<div id="page-lysy" class="page">
+  <header>
+    <button class="back-btn" onclick="showPage('page-home')">← Powrót</button>
+    <span class="room-page-number">Random Łysy — Steven C. Hayes</span>
+  </header>
+
+  <div class="lysy-container">
+    <div class="lysy-quote-box" id="lysy-quote-box">
+      <p class="lysy-quote-text" id="lysy-quote-text">
+        <!-- filled by JS -->
+      </p>
+      <div class="lysy-author">— Steven C. Hayes</div>
+    </div>
+    <button class="lysy-shuffle-btn" onclick="shuffleLysyQuote()">
+      Następny cytat →
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ SUCCESS OVERLAY -->
+<!-- PASSWORD MODAL -->
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-box">
+    <div class="pw-question">Gdzie najlepiej jechać po Kindla?</div>
+    <input class="pw-input" id="pw-input" type="text" autocomplete="off" spellcheck="false" placeholder="odpowiedź…" onkeydown="if(event.key==='Enter')pwConfirm();else pwClearWrong(this)">
+    <div class="pw-hint" id="pw-hint">Do …</div>
+    <div class="pw-actions">
+      <button class="pw-btn confirm" onclick="pwConfirm()">Wejdź →</button>
+      <button class="pw-btn cancel"  onclick="pwCancel()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+<div class="success-overlay" id="success-overlay">  <div style="text-align:center; padding:2rem">
+    <p>Pokój ukończony</p>
+    <h2 id="success-title">Brawo!</h2>
+    <p id="success-sub" style="margin-bottom:2.5rem"></p>
+    <button class="btn" style="margin:0 auto" onclick="closeSuccess()">Powrót do galerii →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ GAME OVER OVERLAY -->
+<div class="gameover-overlay" id="trivia-gameover">
+  <div class="gameover-inner">
+    <h2 class="gameover-title">Źle, źle, źle.</h2>
+    <div class="gameover-divider"></div>
+    <p class="gameover-sub">Skup się.</p>
+    <button class="gameover-btn" onclick="triviaGameOverReturn()">Powrót →</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════ STATE
+let completed = JSON.parse(localStorage.getItem('znner-completed') || '[]');
+let r6Selected = null;
+let triviaCorrect = 0;
+let triviaUsedQuestions = new Set();
+let triviaAnswered = false;
+
+const roomData = [
+  { id: 1, title: 'Pytanie o Filaska', type: 'question' },
+  { id: 2, title: 'Miasta Litwy', type: 'sort' },
+  { id: 3, title: 'Herby litewskie', type: 'match' },
+  { id: 4, title: 'Pytanie o serial', type: 'question' },
+  { id: 5, title: 'Misja Super Trivia', type: 'trivia' },
+  { id: 6, title: 'Quiz ACT', type: 'quiz' },
+  { id: 7, title: 'Szyfr Bacona', type: 'cipher' },
+  { id: 8, title: 'Oczekiwanie', type: 'info' },
+  { id: 9, title: 'Niedostępny', type: 'unavailable' },
+  { id: 10, title: 'Niedostępny', type: 'unavailable' },
+];
+
+// ═══════════════════════════════════════ NAVIGATION
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'page-home') renderGrid();
+  if (id === 'page-trivia') initTrivia();
+  if (id === 'page-trivia-lit') initLitTrivia();
+  if (id === 'page-lysy') initLysy();
+}
+
+// ─── PASSWORD GATE ───────────────────────────────────────────────
+let _pwPending = null; // room number waiting for password
+
+function showRoom(n) {
+  if (n === 8) { showPage('page-room-8'); initZulitewski(); return; }
+  const minUnlocked = n === 1 ? true : completed.includes(n - 1) || n === 9 || n === 10;
+  if (!minUnlocked) return;
+  // Ask for password before entering any room
+  _pwPending = n;
+  const overlay = document.getElementById('pw-overlay');
+  const input = document.getElementById('pw-input');
+  const hint = document.getElementById('pw-hint');
+  input.value = '';
+  input.classList.remove('wrong');
+  hint.classList.remove('show');
+  overlay.classList.add('visible');
+  setTimeout(() => input.focus(), 50);
+}
+
+function _enterRoom(n) {
+  if (n === 2) initRoom2();
+  if (n === 3) resetRoom3();
+  showPage('page-room-' + n);
+}
+
+function pwConfirm() {
+  const input = document.getElementById('pw-input');
+  const hint = document.getElementById('pw-hint');
+  const answer = input.value.trim().toLowerCase().replace(/\s+/g, ' ');
+  if (answer === 'do cch') {
+    document.getElementById('pw-overlay').classList.remove('visible');
+    const n = _pwPending; _pwPending = null;
+    _enterRoom(n);
+  } else {
+    input.classList.add('wrong');
+    hint.classList.add('show');
+    setTimeout(() => input.classList.remove('wrong'), 400);
+    input.value = '';
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+function pwCancel() {
+  document.getElementById('pw-overlay').classList.remove('visible');
+  _pwPending = null;
+}
+
+function pwClearWrong(el) {
+  el.classList.remove('wrong');
+}
+
+// ═══════════════════════════════════════ GRID RENDER
+function renderGrid() {
+  const grid = document.getElementById('rooms-grid');
+  grid.innerHTML = '';
+  roomData.forEach(r => {
+    const isCompleted = completed.includes(r.id);
+    const isUnlocked = r.id === 1 || completed.includes(r.id - 1);
+    const isUnavailable = r.id === 9 || r.id === 10;
+    const div = document.createElement('div');
+    div.className = 'room-card' + (isCompleted ? ' completed' : '') + (!isUnlocked && !isUnavailable ? ' locked' : '') + (isUnavailable ? ' unavailable' : '');
+    div.innerHTML = `
+      <div class="room-number">${String(r.id).padStart(2, '0')}</div>
+      <div class="room-info">
+        <div class="room-status">${isCompleted ? '✓' : isUnavailable ? '—' : isUnlocked ? '→' : '—'}</div>
+      </div>`;
+    if (isUnlocked || isUnavailable) div.onclick = () => showRoom(r.id);
+    grid.appendChild(div);
+  });
+  document.getElementById('progress-text').textContent = `${completed.length} / 10 ukończono`;
+}
+
+function markComplete(n) {
+  if (!completed.includes(n)) {
+    completed.push(n);
+    localStorage.setItem('znner-completed', JSON.stringify(completed));
+  }
+  showSuccess(n);
+}
+
+function showSuccess(n) {
+  const titles = ['Odpowiedź przyjęta.', 'Kolejność potwierdzona.', 'Wdzięczność wyrażona.', 'Imię rozpoznane.', 'Kod zaakceptowany.', 'Odpowiedź poprawna.', 'Szyfr złamany.', '', '', ''];
+  document.getElementById('success-title').textContent = titles[n - 1] || 'Doskonale.';
+  document.getElementById('success-sub').textContent = n < 8 ? `Pokój ${n + 1} został odblokowany.` : '';
+  document.getElementById('success-overlay').classList.add('visible');
+}
+
+function closeSuccess() {
+  document.getElementById('success-overlay').classList.remove('visible');
+  showPage('page-home');
+}
+
+// ═══════════════════════════════════════ ROOM 1
+function checkRoom1() {
+  const val = document.getElementById('r1-answer').value.trim().toLowerCase();
+  const ans = ['w szczawnicy', 'szczawnica'];
+  const msg = document.getElementById('r1-msg');
+  if (ans.includes(val)) {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Poprawnie! Wczytywanie następnego pokoju…';
+    setTimeout(() => markComplete(1), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawna odpowiedź. Spróbuj ponownie.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 2
+const citiesOrder = ['Wilno', 'Kowno', 'Kłajpeda', 'Szawle', 'Poniewież'];
+let room2Items = [...citiesOrder].sort(() => Math.random() - 0.5);
+let dragSrc = null;
+
+function initRoom2() {
+  const list = document.getElementById('sort-list-r2');
+  list.innerHTML = '';
+  room2Items.forEach((city, i) => {
+    const li = document.createElement('li');
+    li.className = 'sort-item';
+    li.draggable = true;
+    li.dataset.city = city;
+    li.innerHTML = `<span class="sort-handle">⠿</span><span class="sort-rank">${i + 1}</span><span class="sort-city">${city}</span>`;
+    li.addEventListener('dragstart', e => { dragSrc = li; li.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    li.addEventListener('dragend', () => { li.classList.remove('dragging'); updateRanks(); });
+    li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drag-over'); });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      if (dragSrc !== li) {
+        const allItems = [...list.querySelectorAll('.sort-item')];
+        const from = allItems.indexOf(dragSrc);
+        const to = allItems.indexOf(li);
+        if (from < to) list.insertBefore(dragSrc, li.nextSibling);
+        else list.insertBefore(dragSrc, li);
+        updateRanks();
+      }
+    });
+    list.appendChild(li);
+  });
+}
+
+function updateRanks() {
+  document.querySelectorAll('#sort-list-r2 .sort-rank').forEach((el, i) => el.textContent = i + 1);
+}
+
+function checkRoom2() {
+  const items = [...document.querySelectorAll('#sort-list-r2 .sort-item')];
+  const current = items.map(i => i.dataset.city);
+  const msg = document.getElementById('r2-msg');
+  if (JSON.stringify(current) === JSON.stringify(citiesOrder)) {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Kolejność bezbłędna! Przechodzisz dalej…';
+    setTimeout(() => markComplete(2), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawna kolejność. Spróbuj ponownie.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 3
+function resetRoom3() {
+  document.getElementById('r3-a1').value = '';
+  document.getElementById('r3-a2').value = '';
+  document.getElementById('r3-a3').value = '';
+  document.getElementById('r3-form').style.display = 'block';
+  document.getElementById('r3-confirm').style.display = 'none';
+  const msg = document.getElementById('r3-msg');
+  msg.className = 'msg';
+}
+
+function submitRoom3() {
+  const a1 = document.getElementById('r3-a1').value.trim();
+  const a2 = document.getElementById('r3-a2').value.trim();
+  const a3 = document.getElementById('r3-a3').value.trim();
+  const msg = document.getElementById('r3-msg');
+
+  if (!a1 || !a2 || !a3) {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Wypełnij wszystkie trzy pola.';
+    return;
+  }
+  msg.className = 'msg';
+
+  // Show confirmation panel
+  document.getElementById('r3-form').style.display = 'none';
+  const summary = document.getElementById('r3-summary');
+  summary.innerHTML = `
+    <span style="display:block">I.&nbsp;&nbsp;&nbsp;${a1}</span>
+    <span style="display:block">II.&nbsp;&nbsp;${a2}</span>
+    <span style="display:block">III.&nbsp;${a3}</span>
+  `;
+  document.getElementById('r3-confirm').style.display = 'block';
+}
+
+function confirmRoom3() {
+  markComplete(3);
+}
+
+function editRoom3() {
+  document.getElementById('r3-confirm').style.display = 'none';
+  document.getElementById('r3-form').style.display = 'block';
+}
+
+
+// ═══════════════════════════════════════ ROOM 4
+function checkRoom4() {
+  const val = document.getElementById('r4-answer').value.trim().toLowerCase();
+  const msg = document.getElementById('r4-msg');
+  if (val === 'bonifacy') {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Imię poprawne!';
+    setTimeout(() => markComplete(4), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawna odpowiedź.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 5
+function checkRoom5() {
+  const val = document.getElementById('r5-answer').value.trim();
+  const msg = document.getElementById('r5-msg');
+  if (val === 'aknazuz ałainapsw') {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Kod zaakceptowany!';
+    setTimeout(() => markComplete(5), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawny kod. Wróć do Super Trivii.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 6
+function selectR6(letter) {
+  ['A','B','C','D'].forEach(l => document.getElementById('r6-' + l).classList.remove('selected'));
+  document.getElementById('r6-' + letter).classList.add('selected');
+  r6Selected = letter;
+}
+
+function checkRoom6() {
+  const msg = document.getElementById('r6-msg');
+  if (!r6Selected) { msg.className = 'msg error visible'; msg.textContent = 'Wybierz odpowiedź.'; return; }
+  if (r6Selected === 'C') {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Odpowiedź C — poprawna!';
+    setTimeout(() => markComplete(6), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawna odpowiedź. Spróbuj ponownie.';
+  }
+}
+
+// ═══════════════════════════════════════ ROOM 7
+function checkRoom7() {
+  const val = document.getElementById('r7-answer').value.trim().toLowerCase().replace(/\s/g,'');
+  const msg = document.getElementById('r7-msg');
+  // Accept the exact answer from the spec plus common variants
+  const accepted = [
+    'zuzankaiestnaipiknieisza',
+    'zuzankajestnaipikniejsza',
+    'zuzankajestnaipiknieisza',
+    'zuzankaiestnaipikniejsza',
+    'zuzankaiestnaipiekniejsza',
+    'zuzankajestnaipiekniejsza',
+  ];
+  if (accepted.includes(val)) {
+    msg.className = 'msg success visible';
+    msg.textContent = 'Szyfr złamany!';
+    setTimeout(() => markComplete(7), 800);
+  } else {
+    msg.className = 'msg error visible';
+    msg.textContent = 'Niepoprawny tekst. Sprawdź szyfr Bacona.';
+  }
+}
+
+// ═══════════════════════════════════════ ADMIN
+function toggleAdmin() {
+  const panel = document.getElementById('admin-panel');
+  panel.classList.toggle('visible');
+}
+
+function adminLogin() {
+  const pass = document.getElementById('admin-pass').value;
+  const msg = document.getElementById('admin-msg');
+  const controls = document.getElementById('admin-controls');
+  if (pass === 'anicca') {
+    msg.style.display = 'none';
+    controls.style.display = 'block';
+    renderAdminBtns();
+  } else {
+    msg.style.display = 'inline';
+    msg.textContent = 'Błędne hasło.';
+    controls.style.display = 'none';
+  }
+}
+
+function renderAdminBtns() {
+  const c = document.getElementById('admin-btns');
+  c.innerHTML = '';
+  for (let i = 1; i <= 8; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-outline';
+    btn.style.cssText = 'padding:0.4rem 0.8rem;font-size:0.6rem;letter-spacing:0.1em';
+    btn.textContent = `Pokój ${i}`;
+    btn.onclick = () => { markCompleteAdmin(i); renderAdminBtns(); };
+    c.appendChild(btn);
+  }
+}
+
+function markCompleteAdmin(n) {
+  if (!completed.includes(n)) {
+    completed.push(n);
+    localStorage.setItem('znner-completed', JSON.stringify(completed));
+  }
+  renderGrid();
+}
+
+// ═══════════════════════════════════════ SUPER TRIVIA
+const triviaQuestions = [
+  // ── ESTONIA ──────────────────────────────────────────────
+  { country: 'Estonia', q: 'Jakie miasto jest stolicą Estonii?', opts: ['Tallin', 'Tartu', 'Ryga', 'Helsinki'], ans: 0 },
+  { country: 'Estonia', q: 'W którym roku Estonia odzyskała niepodległość od Związku Radzieckiego?', opts: ['1991', '1989', '1993', '1988'], ans: 0 },
+  { country: 'Estonia', q: 'Jaki akwen leży bezpośrednio na północ od Estonii?', opts: ['Zatoka Fińska', 'Morze Bałtyckie', 'Zatoka Ryska', 'Morze Barentsa'], ans: 0 },
+  { country: 'Estonia', q: 'Która popularna aplikacja do wideorozmów powstała w Estonii?', opts: ['Skype', 'Zoom', 'WhatsApp', 'Viber'], ans: 0 },
+  { country: 'Estonia', q: 'Jaką walutą posługuje się Estonia od 2011 roku?', opts: ['Euro', 'Korona estońska', 'Łat łotewski', 'Rubel'], ans: 0 },
+  { country: 'Estonia', q: 'Która estońska wyspa jest największa?', opts: ['Sarema (Saaremaa)', 'Hiuma (Hiiumaa)', 'Muhu', 'Vormsi'], ans: 0 },
+  { country: 'Estonia', q: 'Jak nazywa się ogólnoestońskie święto pieśni i tańca, odbywające się co pięć lat?', opts: ['Laulupidu', 'Midsommar', 'Jaanipäev', 'Užgavėnės'], ans: 0 },
+  { country: 'Estonia', q: 'Do jakiej rodziny językowej należy język estoński?', opts: ['Ugrofińskiej', 'Bałtyckiej', 'Słowiańskiej', 'Germańskiej'], ans: 0 },
+  { country: 'Estonia', q: 'Z którym krajem Estonia graniczy od wschodu?', opts: ['Rosją', 'Finlandią', 'Białorusią', 'Litwą'], ans: 0 },
+  { country: 'Estonia', q: 'Ile Estonia ma oficjalnie zarejestrowanych wysp?', opts: ['Ponad 2200', 'Około 200', 'Mniej niż 50', 'Około 900'], ans: 0 },
+  { country: 'Estonia', q: 'Które miasto jest drugie pod względem liczby ludności w Estonii?', opts: ['Tartu', 'Narwa', 'Pärnu', 'Viljandi'], ans: 0 },
+  { country: 'Estonia', q: 'Do której organizacji militarnej Estonia przystąpiła w 2004 roku?', opts: ['NATO', 'Organizacji Układu o Bezpieczeństwie Zbiorowym', 'Partnerstwa dla Pokoju', 'Nordyckiej Unii Obronnej'], ans: 0 },
+  { country: 'Estonia', q: 'Jak własną nazwę swojego kraju zapisują Estończycy?', opts: ['Eesti', 'Estland', 'Estija', 'Eestimaa'], ans: 0 },
+  { country: 'Estonia', q: 'Estoński kompozytor Arvo Pärt jest twórcą własnej techniki kompozytorskiej. Jak ona się nazywa?', opts: ['Tintinnabuli', 'Minimalizm spektralny', 'Serializm', 'Mikrotonalność'], ans: 0 },
+  { country: 'Estonia', q: 'Jak nazywa się estoński program cyfrowego rezydenta, umożliwiający cudzoziemcom prowadzenie firmy online?', opts: ['e-Residency', 'DigiCitizen', 'Baltic ID', 'CivicNet'], ans: 0 },
+  { country: 'Estonia', q: 'Ile mieszkańców liczy Estonia?', opts: ['Około 1,4 miliona', 'Około 3 miliony', 'Około 600 tysięcy', 'Około 5 milionów'], ans: 0 },
+
+  // ── ŁOTWA ────────────────────────────────────────────────
+  { country: 'Łotwa', q: 'Jakie miasto jest stolicą Łotwy?', opts: ['Ryga', 'Tallin', 'Wilno', 'Kowno'], ans: 0 },
+  { country: 'Łotwa', q: 'Ryga jest największym miastem spośród stolic krajów bałtyckich. Ile liczy mieszkańców?', opts: ['Około 600 tysięcy', 'Około 1,5 miliona', 'Około 300 tysięcy', 'Około 900 tysięcy'], ans: 0 },
+  { country: 'Łotwa', q: 'W którym roku Łotwa przystąpiła do Unii Europejskiej?', opts: ['2004', '1999', '2007', '2011'], ans: 0 },
+  { country: 'Łotwa', q: 'Jaką walutą posługuje się Łotwa od 2014 roku?', opts: ['Euro', 'Łat łotewski', 'Rubel', 'Korona'], ans: 0 },
+  { country: 'Łotwa', q: 'Z którym krajem Łotwa nie graniczy?', opts: ['Polską', 'Estonią', 'Litwą', 'Białorusią'], ans: 0 },
+  { country: 'Łotwa', q: 'Które miasto jest drugie pod względem liczby ludności na Łotwie?', opts: ['Dyneburg (Daugavpils)', 'Jelgawa', 'Jurmała', 'Windawa (Ventspils)'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak nazywa się łotewski ogólnokrajowy festiwal pieśni i tańca?', opts: ['Dziesmu un deju svētki', 'Midsommar', 'Jaanipäev', 'Užgavėnės'], ans: 0 },
+  { country: 'Łotwa', q: 'Która rzeka przepływa przez centrum Rygi i wpada do Zatoki Ryskiej?', opts: ['Dźwina (Daugava)', 'Gauja', 'Lielupe', 'Wenta'], ans: 0 },
+  { country: 'Łotwa', q: 'W Lipawej (Liepāja) na Łotwie urodził się znany koszykarz NBA. Kto to?', opts: ['Kristaps Porziņģis', 'Āris Briedis', 'Dāvis Bertāns', 'Jānis Timma'], ans: 0 },
+  { country: 'Łotwa', q: 'W którym roku Łotwa ogłosiła niepodległość od Związku Radzieckiego?', opts: ['1991', '1989', '1993', '1990'], ans: 0 },
+  { country: 'Łotwa', q: 'Jakie barwy ma flaga Łotwy?', opts: ['Karminowa (ciemnoczerwona) i biała', 'Czerwona, biała i niebieska', 'Zielona i czerwona', 'Czerwona i czarna'], ans: 0 },
+  { country: 'Łotwa', q: 'Do jakiej grupy językowej należy język łotewski?', opts: ['Języków bałtyckich', 'Języków słowiańskich', 'Języków ugrofińskich', 'Języków germańskich'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak nazywa się łotewski tradycyjny instrument strunowy, zbliżony do cytry?', opts: ['Kokle', 'Kannel', 'Kantele', 'Gusli'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak znaczna część zabudowy centrum Rygi pochodzi ze stylu secesyjnego (Jugendstil)?', opts: ['Około jednej trzeciej', 'Niemal cała', 'Niewielka mniejszość', 'Dokładnie połowa'], ans: 0 },
+  { country: 'Łotwa', q: 'Jak nazywa się najdłuższa rzeka przepływająca wyłącznie przez terytorium Łotwy?', opts: ['Gauja', 'Dźwina', 'Lielupe', 'Wenta'], ans: 0 },
+  { country: 'Łotwa', q: 'Ile mieszkańców liczy Łotwa?', opts: ['Około 1,8 miliona', 'Około 3 miliony', 'Około 800 tysięcy', 'Około 4 miliony'], ans: 0 },
+
+  // ── CZECHY ───────────────────────────────────────────────
+  { country: 'Czechy', q: 'Jakie miasto jest stolicą Czech?', opts: ['Praga', 'Brno', 'Ostrawa', 'Pilzno'], ans: 0 },
+  { country: 'Czechy', q: 'Z którym krajem Czechy nie graniczą?', opts: ['Węgrami', 'Niemcami', 'Austrią', 'Słowacją'], ans: 0 },
+  { country: 'Czechy', q: 'Jaką walutą posługują się Czechy?', opts: ['Koroną czeską', 'Euro', 'Forintem', 'Złotym'], ans: 0 },
+  { country: 'Czechy', q: 'Który browar z Pilzna, założony w 1842 roku, jest ojczyzną stylu pilzner?', opts: ['Pilsner Urquell', 'Budvar', 'Heineken', 'Stella Artois'], ans: 0 },
+  { country: 'Czechy', q: 'W którym roku Czechosłowacja pokojowo podzieliła się na Czechy i Słowację?', opts: ['1993', '1991', '1989', '1995'], ans: 0 },
+  { country: 'Czechy', q: 'Który czeski kompozytor napisał cykl symfoniczny „Má vlast" (Moja ojczyzna)?', opts: ['Bedřich Smetana', 'Antonín Dvořák', 'Leoš Janáček', 'Bohuslav Martinů'], ans: 0 },
+  { country: 'Czechy', q: 'Która rzeka przepływa przez centrum Pragi?', opts: ['Wełtawa (Vltava)', 'Łaba', 'Morawa', 'Odra'], ans: 0 },
+  { country: 'Czechy', q: 'W którym roku Czechy przystąpiły do Unii Europejskiej?', opts: ['2004', '1999', '2007', '2011'], ans: 0 },
+  { country: 'Czechy', q: 'Za panowania którego władcy zbudowano Most Karola w Pradze (budowa od 1357 roku)?', opts: ['Karola IV', 'Karola I', 'Wacława IV', 'Rudolfa II'], ans: 0 },
+  { country: 'Czechy', q: 'Który praski pisarz jest autorem powieści „Proces" i „Zamek"?', opts: ['Franz Kafka', 'Milan Kundera', 'Karel Čapek', 'Jaroslav Hašek'], ans: 0 },
+  { country: 'Czechy', q: 'Który czeski dramaturg wprowadził słowo „robot" w sztuce R.U.R. z 1920 roku?', opts: ['Karel Čapek', 'Franz Kafka', 'Milan Kundera', 'Václav Havel'], ans: 0 },
+  { country: 'Czechy', q: 'Jak nazywa się kompleks zamkowy górujący nad Pragą — jeden z największych na świecie?', opts: ['Hradczany (Pražský hrad)', 'Wyszehrad', 'Karlštejn', 'Křivoklát'], ans: 0 },
+  { country: 'Czechy', q: 'Które miasto jest drugie pod względem liczby ludności w Czechach?', opts: ['Brno', 'Ostrawa', 'Pilzno', 'Ołomuniec'], ans: 0 },
+  { country: 'Czechy', q: 'Jak nazywa się pokojowe obalenie komunizmu w Czechosłowacji w listopadzie 1989 roku?', opts: ['Aksamitna rewolucja', 'Praska wiosna', 'Solidarność', 'Jesień Ludów'], ans: 0 },
+  { country: 'Czechy', q: 'Ile mieszkańców liczy Czechy?', opts: ['Około 10,9 miliona', 'Około 5 milionów', 'Około 15 milionów', 'Około 8 milionów'], ans: 0 },
+  { country: 'Czechy', q: 'Który czeski prezydent był wcześniej dramaturgiem i dysydentem — symbolem przemian 1989 roku?', opts: ['Václav Havel', 'Václav Klaus', 'Miloš Zeman', 'Edvard Beneš'], ans: 0 },
+
+  // ── JĘZYK LITEWSKI ───────────────────────────────────────
+  { country: 'Język litewski', q: 'Do jakiej rodziny językowej należy język litewski?', opts: ['Języków bałtyckich', 'Języków słowiańskich', 'Języków ugrofińskich', 'Języków germańskich'], ans: 0 },
+  { country: 'Język litewski', q: 'Język litewski jest uważany za jeden z najbardziej archaicznych języków indoeuropejskich. Dlaczego jest to niezwykłe?', opts: ['Zachował wiele cech prasłowiańszczyzny niemożliwych do znalezienia gdzie indziej', 'Zachował cechy praindoeuropejskie utracone przez większość innych języków', 'Nie zmienił się od czasów starożytnych Greków', 'Posiada największą liczbę przypadków spośród języków europejskich'], ans: 1 },
+  { country: 'Język litewski', q: 'Ile przypadków gramatycznych posiada współczesny język litewski?', opts: ['7', '4', '6', '9'], ans: 0 },
+  { country: 'Język litewski', q: 'Który słynny językoznawca opisał litewski jako „najważniejszy ze wszystkich żyjących języków indoeuropejskich dla historyka i językoznawcy"?', opts: ['Antoine Meillet', 'Ferdinand de Saussure', 'Noam Chomsky', 'Wilhelm von Humboldt'], ans: 0 },
+  { country: 'Język litewski', q: 'Jak nazywa się alfabet używany w języku litewskim?', opts: ['Alfabet łaciński z diakrytykami', 'Cyrylica', 'Alfabet głagolicki', 'Runy bałtyckie'], ans: 0 },
+  { country: 'Język litewski', q: 'Ile liter liczy współczesny alfabet litewski?', opts: ['32', '26', '28', '35'], ans: 0 },
+  { country: 'Język litewski', q: 'Które z poniższych słów litewskich jest spokrewnione z łacińskim „pater" i oznacza „ojciec"?', opts: ['Tėvas', 'Dievas', 'Brolis', 'Sūnus'], ans: 0 },
+  { country: 'Język litewski', q: 'Litewski wyróżnia się zachowaniem prasłowiańskiego akcentu muzycznego. Ile tonów prozodycznych posiada?', opts: ['Dwa: opadający i rosnący', 'Jeden ton neutralny', 'Trzy: wysoki, środkowy i niski', 'Cztery, jak w chińskim'], ans: 0 },
+  { country: 'Język litewski', q: 'Jak mówi się „dziękuję" po litewsku?', opts: ['Ačiū', 'Labas', 'Prašom', 'Atsiprašau'], ans: 0 },
+  { country: 'Język litewski', q: 'Litewskie słowo „ugnis" (ogień) jest bliskie łacińskiemu „ignis". Które z poniższych języków posiada bezpośrednio pokrewne słowo?', opts: ['Sanskryt: agni', 'Rosyjski: огонь', 'Grecki: πῦρ', 'Angielski: fire'], ans: 0 },
+  { country: 'Język litewski', q: 'Kiedy litewski po raz pierwszy pojawił się w formie pisanej?', opts: ['W XVI wieku — Katechizm Martynasa Mažvydasa z 1547 roku', 'W X wieku na runicznych tablicach', 'W XIII wieku w kronikach krzyżackich', 'W XVIII wieku dzięki oświeceniu'], ans: 0 },
+  { country: 'Język litewski', q: 'Litewski i który jeszcze język tworzą razem żywą gałąź języków bałtyckich?', opts: ['Łotewski', 'Estoński', 'Pruski', 'Jaćwiński'], ans: 0 },
+  { country: 'Język litewski', q: 'Jak brzmi litewskie powitanie „dzień dobry" (dosłownie: „dobry dzień")?', opts: ['Laba diena', 'Labas rytas', 'Labas vakaras', 'Labas'], ans: 0 },
+  { country: 'Język litewski', q: 'Pruski — język bałtycki bliski litewskiemu — wygasł około 1700 roku. Który naród go używał?', opts: ['Bałtyjscy Prusowie (nie Niemcy)', 'Niemieccy Krzyżacy', 'Polscy Mazurzy', 'Szwedzcy osadnicy nad Bałtykiem'], ans: 0 },
+  { country: 'Język litewski', q: 'Litewskie słowo „duktė" (córka) jest spokrewnione z greckim „thygater" i angielskim „daughter". Z czego to wynika?', opts: ['Wszystkie wywodzą się z wspólnego języka praindoeuropejskiego', 'Litwin zapożyczył to słowo z greki', 'To przypadkowe podobieństwo fonetyczne', 'Język litewski jest bezpośrednią kontynuacją greki'], ans: 0 },
+  { country: 'Język litewski', q: 'Które z poniższych określeń najtrafniej opisuje status litewskiego wśród językoznawców?', opts: ['„Żywe muzeum języka praindoeuropejskiego"', '„Najstarszy żyjący język świata"', '„Język izolowany bez pokrewnych"', '„Dialekt białoruskiego"'], ans: 0 },
+];
+
+let currentTriviaQ = null;
+let triviaLocked = false;
+let triviaSessionMistakes = 0;
+
+function initTrivia() {
+  triviaCorrect = parseInt(sessionStorage.getItem('trivia-correct') || '0');
+  triviaUsedQuestions = new Set(JSON.parse(sessionStorage.getItem('trivia-used') || '[]'));
+  triviaSessionMistakes = parseInt(sessionStorage.getItem('trivia-mistakes') || '0');
+  // Reset unlock panel visibility when re-entering page
+  document.getElementById('trivia-unlock').classList.remove('visible');
+  updateTriviaScore();
+  if (triviaCorrect >= 10) { showTriviaUnlock(); return; }
+  nextTriviaQuestion();
+}
+
+function restartTrivia() {
+  triviaCorrect = 0;
+  triviaSessionMistakes = 0;
+  triviaUsedQuestions.clear();
+  sessionStorage.setItem('trivia-correct', 0);
+  sessionStorage.setItem('trivia-mistakes', 0);
+  sessionStorage.setItem('trivia-used', '[]');
+  document.getElementById('trivia-unlock').classList.remove('visible');
+  updateTriviaScore();
+  nextTriviaQuestion();
+}
+
+function updateTriviaScore() {
+  const pct = (triviaCorrect / 10) * 100;
+  document.getElementById('trivia-score-fill').style.width = pct + '%';
+  const mistakeLabel = triviaSessionMistakes === 1 ? ' · ostatni błąd!' : '';
+  document.getElementById('trivia-score-text').textContent = `${triviaCorrect} / 10 poprawnych${mistakeLabel}`;
+}
+
+function nextTriviaQuestion() {
+  let available = triviaQuestions.filter((_, i) => !triviaUsedQuestions.has(i));
+  if (available.length === 0) {
+    triviaUsedQuestions.clear();
+    sessionStorage.setItem('trivia-used', '[]');
+    available = [...triviaQuestions];
+  }
+  const idx = Math.floor(Math.random() * available.length);
+  const originalIdx = triviaQuestions.indexOf(available[idx]);
+  currentTriviaQ = { ...available[idx], originalIdx };
+  triviaLocked = false;
+  renderTriviaQ(available[idx]);
+}
+
+function renderTriviaQ(q) {
+  const shuffled = q.opts.map((o, i) => ({ text: o, correct: i === q.ans })).sort(() => Math.random() - 0.5);
+  const letters = ['A', 'B', 'C', 'D'];
+  const area = document.getElementById('trivia-question-area');
+  area.innerHTML = `
+    <div class="trivia-flag">— ${q.country} —</div>
+    <div class="trivia-question">${q.q}</div>
+    <div class="trivia-options" id="trivia-opts">
+      ${shuffled.map((o, i) => `
+        <div class="trivia-opt" data-correct="${o.correct}" onclick="answerTrivia(this)">
+          <span class="opt-letter">${letters[i]}</span>
+          <span>${o.text}</span>
+        </div>`).join('')}
+    </div>
+    <div class="trivia-result" id="trivia-result"></div>
+  `;
+}
+
+function answerTrivia(el) {
+  if (triviaLocked) return;
+  triviaLocked = true;
+  const correct = el.dataset.correct === 'true';
+  const result = document.getElementById('trivia-result');
+
+  if (correct) {
+    el.classList.add('correct');
+    result.className = 'trivia-result good';
+    result.textContent = '✓ Poprawnie!';
+    triviaUsedQuestions.add(currentTriviaQ.originalIdx);
+    sessionStorage.setItem('trivia-used', JSON.stringify([...triviaUsedQuestions]));
+    triviaCorrect++;
+    sessionStorage.setItem('trivia-correct', triviaCorrect);
+    updateTriviaScore();
+    if (triviaCorrect >= 10) { setTimeout(showTriviaUnlock, 1000); return; }
+    setTimeout(nextTriviaQuestion, 1400);
+  } else {
+    el.classList.add('incorrect');
+    document.querySelectorAll('.trivia-opt').forEach(o => {
+      if (o.dataset.correct === 'true') o.classList.add('selected-correct');
+    });
+    triviaSessionMistakes++;
+    sessionStorage.setItem('trivia-mistakes', triviaSessionMistakes);
+
+    if (triviaSessionMistakes === 1) {
+      result.className = 'trivia-result bad';
+      result.textContent = '✗ Błąd — masz jeszcze jedną szansę w tej sesji.';
+      updateTriviaScore();
+      setTimeout(nextTriviaQuestion, 2400);
+    } else {
+      result.className = 'trivia-result bad';
+      result.textContent = '✗ Drugi błąd. Koniec sesji.';
+      triviaCorrect = 0;
+      triviaSessionMistakes = 0;
+      triviaUsedQuestions.clear();
+      sessionStorage.setItem('trivia-correct', 0);
+      sessionStorage.setItem('trivia-mistakes', 0);
+      sessionStorage.setItem('trivia-used', '[]');
+      updateTriviaScore();
+      setTimeout(showTriviaGameOver, 1200);
+    }
+  }
+}
+
+function showTriviaGameOver() {
+  document.getElementById('trivia-gameover').classList.add('visible');
+}
+
+function triviaGameOverReturn() {
+  document.getElementById('trivia-gameover').classList.remove('visible');
+  showPage('page-home');
+}
+
+function showTriviaUnlock() {
+  document.getElementById('trivia-question-area').innerHTML = '<div style="font-size:0.75rem;color:var(--mid-gray);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem">Cel osiągnięty — 10 poprawnych odpowiedzi</div>';
+  document.getElementById('trivia-unlock').classList.add('visible');
+}
+
+
+
+// ═══════════════════════════════════════ ENGLISH LITERATURE TRIVIA
+const litQuestions = [
+  { q: 'Which Shakespearean tragedy opens with three witches on a heath?', opts: ['Macbeth', 'Hamlet', 'King Lear', 'Othello'], ans: 0 },
+  { q: 'Who wrote "To the Lighthouse" and "Mrs Dalloway"?', opts: ['Virginia Woolf', 'E.M. Forster', 'Evelyn Waugh', 'Iris Murdoch'], ans: 0 },
+  { q: 'In "Paradise Lost", what is the name of Satan\'s palace in Hell?', opts: ['Pandemonium', 'Gehenna', 'Tartarus', 'Erebus'], ans: 0 },
+  { q: 'Which modernist poem begins "April is the cruellest month"?', opts: ['The Waste Land', 'Four Quartets', 'The Love Song of J. Alfred Prufrock', 'Ash Wednesday'], ans: 0 },
+  { q: 'Who is the primary narrator of "Wuthering Heights"?', opts: ['Nelly Dean', 'Lockwood', 'Catherine Earnshaw', 'Heathcliff'], ans: 0 },
+  { q: 'Which James Joyce novel is set over a single day in Dublin, June 16, 1904?', opts: ['Ulysses', 'Finnegans Wake', 'A Portrait of the Artist as a Young Man', 'Dubliners'], ans: 0 },
+  { q: 'In "Moby-Dick", what is the name of Captain Ahab\'s ship?', opts: ['Pequod', 'Rachel', 'Delight', 'Jeroboam'], ans: 0 },
+  { q: 'Which poet wrote "Do not go gentle into that good night"?', opts: ['Dylan Thomas', 'W.H. Auden', 'Philip Larkin', 'Ted Hughes'], ans: 0 },
+  { q: '"Call me Ishmael" is the opening line of which novel?', opts: ['Moby-Dick', 'Bartleby, the Scrivener', 'Billy Budd', 'Typee'], ans: 0 },
+  { q: 'Who wrote "The Canterbury Tales"?', opts: ['Geoffrey Chaucer', 'John Gower', 'William Langland', 'Thomas Malory'], ans: 0 },
+  { q: 'In which Shakespeare play does the line "The lady doth protest too much" appear?', opts: ['Hamlet', 'Macbeth', 'Othello', 'Much Ado About Nothing'], ans: 0 },
+  { q: 'Which Jane Austen novel features Fanny Price?', opts: ['Mansfield Park', 'Northanger Abbey', 'Persuasion', 'Emma'], ans: 0 },
+  { q: 'Who wrote "Midnight\'s Children"?', opts: ['Salman Rushdie', 'V.S. Naipaul', 'Arundhati Roy', 'Vikram Seth'], ans: 0 },
+  { q: 'What is the name of the estate in "Rebecca" by Daphne du Maurier?', opts: ['Manderley', 'Thornfield', 'Pemberley', 'Wuthering Heights'], ans: 0 },
+  { q: 'Which poet wrote "Kubla Khan"?', opts: ['Samuel Taylor Coleridge', 'William Wordsworth', 'Lord Byron', 'Percy Shelley'], ans: 0 },
+  { q: 'In "1984", what is the name of the totalitarian leader?', opts: ['Big Brother', 'O\'Brien', 'Goldstein', 'Winston Smith'], ans: 0 },
+  { q: 'Who wrote "Waiting for Godot"?', opts: ['Samuel Beckett', 'Harold Pinter', 'Tom Stoppard', 'Eugène Ionesco'], ans: 0 },
+  { q: 'Which novel by Thomas Hardy features the character Tess Durbeyfield?', opts: ['Tess of the d\'Urbervilles', 'The Mayor of Casterbridge', 'Jude the Obscure', 'Far from the Madding Crowd'], ans: 0 },
+  { q: 'Who is the author of "Catch-22"?', opts: ['Joseph Heller', 'Kurt Vonnegut', 'Ken Kesey', 'Norman Mailer'], ans: 0 },
+  { q: 'Which poet is known for "The Raven"?', opts: ['Edgar Allan Poe', 'Walt Whitman', 'Emily Dickinson', 'Robert Frost'], ans: 0 },
+  { q: 'In "The Great Gatsby", what is the narrator\'s name?', opts: ['Nick Carraway', 'Tom Buchanan', 'Jordan Baker', 'Meyer Wolfsheim'], ans: 0 },
+  { q: 'Which Brontë sister wrote "The Tenant of Wildfell Hall"?', opts: ['Anne Brontë', 'Charlotte Brontë', 'Emily Brontë', 'Patrick Brontë'], ans: 0 },
+  { q: 'Who wrote "A Passage to India"?', opts: ['E.M. Forster', 'Rudyard Kipling', 'Somerset Maugham', 'George Orwell'], ans: 0 },
+  { q: 'Which novel begins "It was a bright cold day in April, and the clocks were striking thirteen"?', opts: ['1984', 'Animal Farm', 'Brave New World', 'Fahrenheit 451'], ans: 0 },
+  { q: 'Who wrote "Beloved"?', opts: ['Toni Morrison', 'Alice Walker', 'Maya Angelou', 'Zora Neale Hurston'], ans: 0 },
+  { q: 'Which Dickens novel features the Jarndyce and Jarndyce lawsuit?', opts: ['Bleak House', 'Little Dorrit', 'Great Expectations', 'Our Mutual Friend'], ans: 0 },
+  { q: 'Who is the author of "Heart of Darkness"?', opts: ['Joseph Conrad', 'Rudyard Kipling', 'H. Rider Haggard', 'Somerset Maugham'], ans: 0 },
+  { q: 'Which poet wrote "Howl"?', opts: ['Allen Ginsberg', 'Jack Kerouac', 'Lawrence Ferlinghetti', 'Gregory Corso'], ans: 0 },
+  { q: 'In "Pride and Prejudice", what is Mr. Darcy\'s first name?', opts: ['Fitzwilliam', 'George', 'Charles', 'Edward'], ans: 0 },
+  { q: 'Who wrote "The Color Purple"?', opts: ['Alice Walker', 'Toni Morrison', 'Maya Angelou', 'Zora Neale Hurston'], ans: 0 },
+  { q: 'Which novel features the character Holden Caulfield?', opts: ['The Catcher in the Rye', 'Franny and Zooey', 'Nine Stories', 'Raise High the Roof Beam, Carpenters'], ans: 0 },
+  { q: 'Who wrote "Frankenstein"?', opts: ['Mary Shelley', 'Percy Shelley', 'Lord Byron', 'John Polidori'], ans: 0 },
+  { q: 'Which Shakespeare play features the character Prospero?', opts: ['The Tempest', 'A Midsummer Night\'s Dream', 'The Winter\'s Tale', 'Cymbeline'], ans: 0 },
+  { q: 'Who is the author of "Slaughterhouse-Five"?', opts: ['Kurt Vonnegut', 'Joseph Heller', 'Ken Kesey', 'Norman Mailer'], ans: 0 },
+  { q: 'Which poet wrote "Ode to a Nightingale"?', opts: ['John Keats', 'Percy Shelley', 'Lord Byron', 'William Wordsworth'], ans: 0 },
+  { q: 'In "Jane Eyre", what is the name of Mr. Rochester\'s first wife?', opts: ['Bertha Mason', 'Grace Poole', 'Blanche Ingram', 'Diana Rivers'], ans: 0 },
+  { q: 'Who wrote "Invisible Man"?', opts: ['Ralph Ellison', 'James Baldwin', 'Richard Wright', 'Langston Hughes'], ans: 0 },
+  { q: 'Which novel features the character Atticus Finch?', opts: ['To Kill a Mockingbird', 'Go Set a Watchman', 'In Cold Blood', 'The Heart Is a Lonely Hunter'], ans: 0 },
+  { q: 'Who wrote "Gulliver\'s Travels"?', opts: ['Jonathan Swift', 'Daniel Defoe', 'Laurence Sterne', 'Henry Fielding'], ans: 0 },
+  { q: 'Which poet wrote "The Waste Land"?', opts: ['T.S. Eliot', 'Ezra Pound', 'W.B. Yeats', 'Wallace Stevens'], ans: 0 },
+  { q: 'In "The Lord of the Flies", what is the name of the protagonist?', opts: ['Ralph', 'Jack', 'Piggy', 'Simon'], ans: 0 },
+  { q: 'Who wrote "Their Eyes Were Watching God"?', opts: ['Zora Neale Hurston', 'Toni Morrison', 'Alice Walker', 'Maya Angelou'], ans: 0 },
+  { q: 'Which novel begins "Happy families are all alike"?', opts: ['Anna Karenina', 'War and Peace', 'The Brothers Karamazov', 'Crime and Punishment'], ans: 0 },
+  { q: 'Who wrote "A Clockwork Orange"?', opts: ['Anthony Burgess', 'Aldous Huxley', 'George Orwell', 'Ray Bradbury'], ans: 0 },
+  { q: 'Which Shakespeare play features the line "All the world\'s a stage"?', opts: ['As You Like It', 'Twelfth Night', 'Much Ado About Nothing', 'The Merchant of Venice'], ans: 0 },
+  { q: 'Who wrote "The Handmaid\'s Tale"?', opts: ['Margaret Atwood', 'Doris Lessing', 'Ursula K. Le Guin', 'Octavia Butler'], ans: 0 },
+  { q: 'In "Brave New World", what is the drug called that keeps citizens compliant?', opts: ['Soma', 'Hypnopaedia', 'Feelies', 'Malthusian Belt'], ans: 0 },
+  { q: 'Who wrote "On the Road"?', opts: ['Jack Kerouac', 'Allen Ginsberg', 'William S. Burroughs', 'Neal Cassady'], ans: 0 },
+  { q: 'Which poet wrote "The Love Song of J. Alfred Prufrock"?', opts: ['T.S. Eliot', 'Ezra Pound', 'Wallace Stevens', 'W.H. Auden'], ans: 0 },
+  { q: 'Who is the author of "Middlemarch"?', opts: ['George Eliot', 'Charlotte Brontë', 'Elizabeth Gaskell', 'Thomas Hardy'], ans: 0 },
+  { q: 'Which novel features the character Hester Prynne?', opts: ['The Scarlet Letter', 'The House of the Seven Gables', 'The Blithedale Romance', 'The Marble Faun'], ans: 0 },
+  { q: 'Who wrote "Lord Jim"?', opts: ['Joseph Conrad', 'Rudyard Kipling', 'Somerset Maugham', 'E.M. Forster'], ans: 0 },
+  { q: 'Which Shakespeare sonnet begins "Shall I compare thee to a summer\'s day"?', opts: ['Sonnet 18', 'Sonnet 116', 'Sonnet 130', 'Sonnet 73'], ans: 0 },
+  { q: 'Who wrote "The House of Mirth"?', opts: ['Edith Wharton', 'Henry James', 'Willa Cather', 'Kate Chopin'], ans: 0 },
+  { q: 'In "Dracula", who is the solicitor who travels to Transylvania?', opts: ['Jonathan Harker', 'Arthur Holmwood', 'Quincey Morris', 'John Seward'], ans: 0 },
+  { q: 'Who wrote "Things Fall Apart"?', opts: ['Chinua Achebe', 'Wole Soyinka', 'Ngugi wa Thiong\'o', 'Amos Tutuola'], ans: 0 },
+  { q: 'Which poet wrote "The Second Coming"?', opts: ['W.B. Yeats', 'T.S. Eliot', 'Ezra Pound', 'W.H. Auden'], ans: 0 },
+  { q: 'Who is the author of "The Sound and the Fury"?', opts: ['William Faulkner', 'Ernest Hemingway', 'F. Scott Fitzgerald', 'John Steinbeck'], ans: 0 },
+  { q: 'Which novel features the character Jay Gatsby?', opts: ['The Great Gatsby', 'Tender Is the Night', 'This Side of Paradise', 'The Beautiful and Damned'], ans: 0 },
+  { q: 'Who wrote "A Room of One\'s Own"?', opts: ['Virginia Woolf', 'Vita Sackville-West', 'Katherine Mansfield', 'Rebecca West'], ans: 0 },
+  { q: 'In "Emma", what is the surname of the protagonist?', opts: ['Woodhouse', 'Knightley', 'Weston', 'Fairfax'], ans: 0 },
+  { q: 'Who wrote "The Old Man and the Sea"?', opts: ['Ernest Hemingway', 'William Faulkner', 'John Steinbeck', 'F. Scott Fitzgerald'], ans: 0 },
+  { q: 'Which poet wrote "Ozymandias"?', opts: ['Percy Bysshe Shelley', 'John Keats', 'Lord Byron', 'William Wordsworth'], ans: 0 },
+  { q: 'Who is the author of "One Hundred Years of Solitude"?', opts: ['Gabriel García Márquez', 'Jorge Luis Borges', 'Isabel Allende', 'Julio Cortázar'], ans: 0 },
+  { q: 'Which novel features the character Lily Bart?', opts: ['The House of Mirth', 'The Age of Innocence', 'Ethan Frome', 'The Custom of the Country'], ans: 0 },
+  { q: 'Who wrote "The Picture of Dorian Gray"?', opts: ['Oscar Wilde', 'Robert Louis Stevenson', 'Bram Stoker', 'H.G. Wells'], ans: 0 },
+  { q: 'In "The Odyssey", how many years does Odysseus take to return home?', opts: ['20 years', '10 years', '15 years', '25 years'], ans: 0 },
+  { q: 'Who wrote "The Grapes of Wrath"?', opts: ['John Steinbeck', 'Ernest Hemingway', 'William Faulkner', 'Sinclair Lewis'], ans: 0 },
+  { q: 'Which poet wrote "Because I could not stop for Death"?', opts: ['Emily Dickinson', 'Walt Whitman', 'Edgar Allan Poe', 'Henry Wadsworth Longfellow'], ans: 0 },
+  { q: 'Who is the author of "The Remains of the Day"?', opts: ['Kazuo Ishiguro', 'Ian McEwan', 'Julian Barnes', 'Graham Swift'], ans: 0 },
+  { q: 'Which novel features the character Elizabeth Bennet?', opts: ['Pride and Prejudice', 'Sense and Sensibility', 'Emma', 'Persuasion'], ans: 0 },
+  { q: 'Who wrote "Native Son"?', opts: ['Richard Wright', 'James Baldwin', 'Ralph Ellison', 'Langston Hughes'], ans: 0 },
+  { q: 'Which Shakespeare play features the characters Rosencrantz and Guildenstern?', opts: ['Hamlet', 'Othello', 'King Lear', 'Macbeth'], ans: 0 },
+  { q: 'Who wrote "The Age of Innocence"?', opts: ['Edith Wharton', 'Henry James', 'Willa Cather', 'Ellen Glasgow'], ans: 0 },
+  { q: 'In "Othello", who is Othello\'s ensign who manipulates him?', opts: ['Iago', 'Cassio', 'Roderigo', 'Brabantio'], ans: 0 },
+  { q: 'Who wrote "Wide Sargasso Sea"?', opts: ['Jean Rhys', 'Doris Lessing', 'Iris Murdoch', 'Muriel Spark'], ans: 0 },
+  { q: 'Which poet wrote "Stopping by Woods on a Snowy Evening"?', opts: ['Robert Frost', 'Carl Sandburg', 'Wallace Stevens', 'William Carlos Williams'], ans: 0 },
+  { q: 'Who is the author of "A Tale of Two Cities"?', opts: ['Charles Dickens', 'William Thackeray', 'George Eliot', 'Anthony Trollope'], ans: 0 },
+  { q: 'Which novel features the character Clarissa Dalloway?', opts: ['Mrs Dalloway', 'To the Lighthouse', 'The Waves', 'Orlando'], ans: 0 },
+  { q: 'Who wrote "The Importance of Being Earnest"?', opts: ['Oscar Wilde', 'George Bernard Shaw', 'Noël Coward', 'J.M. Barrie'], ans: 0 },
+  { q: 'In "Hamlet", what is the name of Hamlet\'s girlfriend?', opts: ['Ophelia', 'Gertrude', 'Rosalind', 'Portia'], ans: 0 },
+  { q: 'Who wrote "A Farewell to Arms"?', opts: ['Ernest Hemingway', 'F. Scott Fitzgerald', 'William Faulkner', 'John Dos Passos'], ans: 0 },
+  { q: 'Which poet wrote "Leaves of Grass"?', opts: ['Walt Whitman', 'Emily Dickinson', 'Henry Wadsworth Longfellow', 'Edgar Allan Poe'], ans: 0 },
+  { q: 'Who is the author of "The Bell Jar"?', opts: ['Sylvia Plath', 'Anne Sexton', 'Adrienne Rich', 'Denise Levertov'], ans: 0 },
+  { q: 'Which novel features the character Atticus Finch\'s daughter Scout?', opts: ['To Kill a Mockingbird', 'Go Set a Watchman', 'The Heart Is a Lonely Hunter', 'A Member of the Wedding'], ans: 0 },
+  { q: 'Who wrote "Brideshead Revisited"?', opts: ['Evelyn Waugh', 'Graham Greene', 'Anthony Powell', 'Aldous Huxley'], ans: 0 },
+  { q: 'In "King Lear", how many daughters does Lear have?', opts: ['Three', 'Two', 'Four', 'One'], ans: 0 },
+  { q: 'Who wrote "The Sun Also Rises"?', opts: ['Ernest Hemingway', 'F. Scott Fitzgerald', 'William Faulkner', 'John Steinbeck'], ans: 0 },
+  { q: 'Which poet wrote "When I Have Fears That I May Cease to Be"?', opts: ['John Keats', 'Percy Shelley', 'Lord Byron', 'Samuel Taylor Coleridge'], ans: 0 },
+  { q: 'Who is the author of "The Road"?', opts: ['Cormac McCarthy', 'Don DeLillo', 'Thomas Pynchon', 'Philip Roth'], ans: 0 },
+  { q: 'Which novel features the character Ishmael as narrator?', opts: ['Moby-Dick', 'Billy Budd', 'Typee', 'Bartleby, the Scrivener'], ans: 0 },
+  { q: 'Who wrote "Atonement"?', opts: ['Ian McEwan', 'Kazuo Ishiguro', 'Julian Barnes', 'Martin Amis'], ans: 0 },
+  { q: 'In "The Merchant of Venice", what is the name of the Jewish moneylender?', opts: ['Shylock', 'Antonio', 'Bassanio', 'Lorenzo'], ans: 0 },
+  { q: 'Who wrote "The Poisonwood Bible"?', opts: ['Barbara Kingsolver', 'Toni Morrison', 'Alice Walker', 'Maya Angelou'], ans: 0 },
+  { q: 'Which poet wrote "Annabel Lee"?', opts: ['Edgar Allan Poe', 'Walt Whitman', 'Emily Dickinson', 'Henry Wadsworth Longfellow'], ans: 0 },
+  { q: 'Who is the author of "All the King\'s Men"?', opts: ['Robert Penn Warren', 'William Faulkner', 'John Steinbeck', 'Sinclair Lewis'], ans: 0 },
+  { q: 'Which novel features the character Leopold Bloom?', opts: ['Ulysses', 'Finnegans Wake', 'A Portrait of the Artist as a Young Man', 'Dubliners'], ans: 0 },
+  { q: 'Who wrote "The Awakening"?', opts: ['Kate Chopin', 'Edith Wharton', 'Willa Cather', 'Ellen Glasgow'], ans: 0 },
+];
+
+let litCorrect = 0;
+let litUsedQuestions = new Set();
+let litSessionMistakes = 0;
+let litLocked = false;
+let currentLitQ = null;
+
+function initLitTrivia() {
+  litCorrect = parseInt(sessionStorage.getItem('lit-correct') || '0');
+  litUsedQuestions = new Set(JSON.parse(sessionStorage.getItem('lit-used') || '[]'));
+  litSessionMistakes = parseInt(sessionStorage.getItem('lit-mistakes') || '0');
+  document.getElementById('lit-unlock').classList.remove('visible');
+  updateLitScore();
+  if (litCorrect >= 100) { showLitUnlock(); return; }
+  nextLitQuestion();
+}
+
+function restartLitTrivia() {
+  litCorrect = 0;
+  litSessionMistakes = 0;
+  litUsedQuestions.clear();
+  sessionStorage.setItem('lit-correct', 0);
+  sessionStorage.setItem('lit-mistakes', 0);
+  sessionStorage.setItem('lit-used', '[]');
+  document.getElementById('lit-unlock').classList.remove('visible');
+  updateLitScore();
+  nextLitQuestion();
+}
+
+function updateLitScore() {
+  const pct = (litCorrect / 100) * 100;
+  document.getElementById('lit-score-fill').style.width = pct + '%';
+  const mistakeLabel = litSessionMistakes === 1 ? ' · ostatni błąd!' : '';
+  document.getElementById('lit-score-text').textContent = `${litCorrect} / 100 poprawnych${mistakeLabel}`;
+}
+
+function nextLitQuestion() {
+  let available = litQuestions.filter((_, i) => !litUsedQuestions.has(i));
+  if (available.length === 0) {
+    litUsedQuestions.clear();
+    sessionStorage.setItem('lit-used', '[]');
+    available = [...litQuestions];
+  }
+  const idx = Math.floor(Math.random() * available.length);
+  const originalIdx = litQuestions.indexOf(available[idx]);
+  currentLitQ = { ...available[idx], originalIdx };
+  litLocked = false;
+  renderLitQuestion(available[idx]);
+}
+
+function renderLitQuestion(q) {
+  const shuffled = q.opts.map((o, i) => ({ text: o, correct: i === q.ans })).sort(() => Math.random() - 0.5);
+  const letters = ['A', 'B', 'C', 'D'];
+  const area = document.getElementById('lit-question-area');
+  area.innerHTML = `
+    <div class="trivia-question">${q.q}</div>
+    <div class="trivia-options" id="lit-opts">
+      ${shuffled.map((o, i) => `
+        <div class="trivia-opt" data-correct="${o.correct}" onclick="answerLitTrivia(this)">
+          <span class="opt-letter">${letters[i]}</span>
+          <span>${o.text}</span>
+        </div>`).join('')}
+    </div>
+    <div class="trivia-result" id="lit-result"></div>
+  `;
+}
+
+function answerLitTrivia(el) {
+  if (litLocked) return;
+  litLocked = true;
+  const correct = el.dataset.correct === 'true';
+  const result = document.getElementById('lit-result');
+
+  if (correct) {
+    el.classList.add('correct');
+    result.className = 'trivia-result good';
+    result.textContent = '✓ Poprawnie!';
+    litUsedQuestions.add(currentLitQ.originalIdx);
+    sessionStorage.setItem('lit-used', JSON.stringify([...litUsedQuestions]));
+    litCorrect++;
+    sessionStorage.setItem('lit-correct', litCorrect);
+    updateLitScore();
+    if (litCorrect >= 100) { setTimeout(showLitUnlock, 1000); return; }
+    setTimeout(nextLitQuestion, 1400);
+  } else {
+    el.classList.add('incorrect');
+    document.querySelectorAll('.trivia-opt').forEach(o => {
+      if (o.dataset.correct === 'true') o.classList.add('selected-correct');
+    });
+    litSessionMistakes++;
+    sessionStorage.setItem('lit-mistakes', litSessionMistakes);
+
+    if (litSessionMistakes === 1) {
+      result.className = 'trivia-result bad';
+      result.textContent = '✗ Błąd — masz jeszcze jedną szansę w tej sesji.';
+      updateLitScore();
+      setTimeout(nextLitQuestion, 2400);
+    } else {
+      result.className = 'trivia-result bad';
+      result.textContent = '✗ Drugi błąd. Koniec sesji.';
+      const finalScore = litCorrect;
+      if (finalScore > 0) saveLitScore(finalScore);
+      litCorrect = 0;
+      litSessionMistakes = 0;
+      litUsedQuestions.clear();
+      sessionStorage.setItem('lit-correct', 0);
+      sessionStorage.setItem('lit-mistakes', 0);
+      sessionStorage.setItem('lit-used', '[]');
+      updateLitScore();
+      setTimeout(showLitGameOver, 1200);
+    }
+  }
+}
+
+function showLitGameOver() {
+  document.getElementById('lit-gameover').classList.add('visible');
+}
+
+function litGameOverReturn() {
+  document.getElementById('lit-gameover').classList.remove('visible');
+  showPage('page-home');
+}
+
+function showLitUnlock() {
+  const finalScore = litCorrect;
+  if (finalScore > 0) saveLitScore(finalScore);
+  document.getElementById('lit-question-area').innerHTML = '<div style="font-size:0.75rem;color:var(--mid-gray);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem">Cel osiągnięty — 100 poprawnych odpowiedzi</div>';
+  document.getElementById('lit-unlock').classList.add('visible');
+}
+
+function switchLitTab(tab) {
+  document.querySelectorAll('.lit-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.lit-tab-content').forEach(c => c.classList.remove('active'));
+  
+  document.getElementById(`lit-tab-${tab}`).classList.add('active');
+  document.getElementById(`lit-tab-content-${tab}`).classList.add('active');
+  
+  if (tab === 'scores') renderLitScores();
+}
+
+function saveLitScore(score) {
+  const scores = JSON.parse(localStorage.getItem('lit-scores') || '[]');
+  const date = new Date().toISOString().split('T')[0];
+  scores.push({ score, date, timestamp: Date.now() });
+  scores.sort((a, b) => b.score - a.score || b.timestamp - a.timestamp);
+  localStorage.setItem('lit-scores', JSON.stringify(scores.slice(0, 50))); // Keep top 50
+}
+
+function renderLitScores() {
+  const scores = JSON.parse(localStorage.getItem('lit-scores') || '[]');
+  const list = document.getElementById('lit-scores-list');
+  
+  if (scores.length === 0) {
+    list.innerHTML = '<p style="text-align:center; color:var(--mid-gray); padding:3rem">Brak wyników. Ukończ quiz, aby zapisać wynik.</p>';
+    return;
+  }
+  
+  list.innerHTML = scores.map((s, i) => {
+    const isComplete = s.score === 100;
+    const statusBadge = isComplete 
+      ? '<span style="display:inline-block; padding:0.2rem 0.6rem; font-size:0.6rem; letter-spacing:0.08em; background:var(--accent); color:var(--white); margin-left:0.5rem">UKOŃCZONO</span>'
+      : '';
+    return `
+      <div class="score-entry">
+        <div class="score-rank">#${i + 1}</div>
+        <div class="score-details">
+          <div class="score-value">${s.score} / 100${statusBadge}</div>
+          <div class="score-date">${formatDate(s.date)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  const months = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function clearLitScores() {
+  if (confirm('Czy na pewno chcesz wyczyścić wszystkie wyniki?')) {
+    localStorage.removeItem('lit-scores');
+    renderLitScores();
+  }
+}
+
+
+
+// ═══════════════════════════════════════ RANDOM ŁYSY (Steven C. Hayes Quotes)
+const lysyQuotes = [
+  "Pain is inevitable, but suffering is optional.",
+  "The goal is to live a life guided by your values, not by your fears.",
+  "You are not your thoughts. You are the context in which they occur.",
+  "Acceptance is not approval. It's simply allowing yourself to experience what is already present.",
+  "What we resist, persists. What we accept, transforms.",
+  "The willingness to have your experience be what it is, is the key to psychological flexibility.",
+  "You can't stop the waves, but you can learn to surf.",
+  "Language is both our greatest tool and our greatest trap.",
+  "Fusion with thoughts creates suffering. Distance from thoughts creates freedom.",
+  "Your mind is not your friend. It's a problem-solving machine that sometimes solves problems you don't have.",
+  "The struggle to control your thoughts and feelings is the problem, not the solution.",
+  "We suffer not because we have pain, but because we have pain about pain.",
+  "Living a valued life means showing up, even when it's hard.",
+  "You don't have to believe your thoughts. You can notice them and still choose your actions.",
+  "Psychological flexibility is the ability to be present, open up, and do what matters.",
+  "Avoidance works in the short term, but creates suffering in the long term.",
+  "Your values are not goals to achieve—they're directions to move in.",
+  "The present moment is the only place where life actually happens.",
+  "What you're willing to have is what you will have.",
+  "Trying to control anxiety often increases it. Accepting it often decreases it.",
+  "We are not broken. We are human beings doing what human beings do—trying to avoid pain.",
+  "The mind says 'protect yourself.' Your values say 'connect, grow, contribute.'",
+  "If you're not willing to have it, you've got it.",
+  "Defusion is not about getting rid of thoughts—it's about changing your relationship with them.",
+  "You can't change the past, but you can change your relationship to it.",
+  "The content of your thoughts matters less than your response to them.",
+  "Living mindfully means showing up to your life as it is, not as you wish it would be.",
+  "When you argue with reality, you lose—but only 100% of the time.",
+  "Values are chosen qualities of being and doing.",
+  "The alternative to a painful life is not a pain-free life, but a meaningful life.",
+  "You have the ability to notice your thoughts without being controlled by them.",
+  "Commitment means doing what you said you would do, long after the mood you said it in has left you.",
+  "The more you try to avoid suffering, the more you suffer.",
+  "Your history is important, but it doesn't have to be your destiny.",
+  "The question is not 'How do I feel better?' but 'How do I live better?'",
+  "Every moment is a fresh opportunity to begin again.",
+  "The struggle to be right is often a struggle to avoid being present.",
+  "Self-compassion is not self-indulgence. It's allowing yourself to be human.",
+  "You don't need to fix yourself. You need to accept yourself and take effective action.",
+  "Thoughts are just thoughts. They're not commands, and they're not facts.",
+  "The opposite of control is not chaos. It's acceptance.",
+  "Being present means dropping the struggle with what is.",
+  "Your mind will tell you stories. You don't have to believe them all.",
+  "Values are what you want your life to be about, in the deepest sense.",
+  "The goal is not to eliminate difficult emotions, but to experience them without being dominated by them.",
+  "Experiential avoidance is the root of much human suffering.",
+  "You can have anxiety and still do what matters to you.",
+  "The trap is believing that you need to feel a certain way before you can act.",
+  "Cognitive fusion means being 'stuck' to your thoughts.",
+  "Acceptance is an active choice, not passive resignation.",
+  "What would you do if you weren't afraid?",
+  "Living by your values is not about feeling good—it's about doing good.",
+  "The mind is a wonderful servant but a terrible master.",
+  "You don't need to wait until you feel ready. You can act now.",
+  "Suffering = Pain × Resistance",
+  "The pathway to a meaningful life goes through difficulty, not around it.",
+  "Being willing to feel what you feel is the price of admission to a vital life.",
+  "Psychological flexibility allows you to persist or change behavior in the service of chosen values.",
+  "What matters is not what you think or feel, but what you do.",
+  "Your inner experiences don't need to change for you to live well.",
+  "The struggle for certainty is a barrier to living.",
+  "You can choose your actions even when you can't choose your thoughts or feelings.",
+  "Mindfulness is intentionally paying attention to the present moment without judgment.",
+  "When we fuse with our self-stories, we lose contact with our actual experience.",
+  "What you practice grows stronger. What you practice mindfulness toward becomes less dominating.",
+  "The key is not to control your thoughts but to stop being controlled by them.",
+  "A rich, full, and meaningful life will involve experiencing the full range of human emotions.",
+  "You are larger than your thoughts. You are the space in which they occur.",
+  "Willingness is doing what works, even if it's uncomfortable.",
+  "Living in the present moment is a radical act in a world obsessed with past and future.",
+  "Values clarification is about discovering what truly matters to you.",
+  "The more present you are, the more choice you have.",
+  "Self-as-context means seeing yourself as the observer of your experience, not the experience itself.",
+  "Committed action means taking steps guided by your values, even in the presence of difficult thoughts and feelings.",
+  "The paradox: accepting that you can't control your thoughts actually gives you more control over your life.",
+  "Language allows us to time travel mentally—but often we get lost in the past or future.",
+  "You don't have to like something to accept it.",
+  "Openness to experience, even difficult experience, is a cornerstone of psychological health.",
+  "Your values are your compass. Your actions are your path.",
+  "Struggling to feel good often prevents us from living well.",
+  "Fusion with judgment creates distance from others and from life itself.",
+  "The goal is not happiness. The goal is vitality.",
+  "You can't control whether waves come, but you can learn to surf.",
+  "Trying to eliminate anxiety is like trying to live without breathing.",
+  "Your worth is not determined by your thoughts or feelings.",
+  "The greatest human freedom is the ability to choose your response to any situation.",
+  "Every moment contains the possibility of choice.",
+  "Being human means having difficult thoughts and feelings. That's not a problem to solve.",
+  "Your values are not about what you want to get. They're about who you want to be.",
+  "Acceptance creates the space for change.",
+  "The struggle to avoid internal experiences often creates the very suffering we're trying to escape.",
+  "Notice the thought. Thank your mind. Choose your action.",
+  "Life is not a problem to be solved, but an experience to be had.",
+  "Defusion techniques help you see thoughts as just words, not literal truths.",
+  "Committed action is not about perfection. It's about direction.",
+  "Your mind evolved to keep you safe, not to make you happy.",
+  "Values are freely chosen, while goals are worked toward.",
+  "The willingness to be uncomfortable is the price of a meaningful life.",
+  "You can't think your way out of a problem that you thought your way into.",
+  "Psychological rigidity is the inability to adapt when the situation calls for it.",
+  "Acceptance doesn't mean giving up. It means letting go of the struggle.",
+  "Your thoughts are private events, not public facts.",
+];
+
+let currentLysyIndex = -1;
+
+function initLysy() {
+  shuffleLysyQuote();
+}
+
+function shuffleLysyQuote() {
+  const box = document.getElementById('lysy-quote-box');
+  const text = document.getElementById('lysy-quote-text');
+  
+  // Get new random quote
+  let newIndex;
+  do {
+    newIndex = Math.floor(Math.random() * lysyQuotes.length);
+  } while (newIndex === currentLysyIndex && lysyQuotes.length > 1);
+  
+  currentLysyIndex = newIndex;
+  
+  // If first load (no animation yet), show immediately
+  if (currentLysyIndex === 0 || !text.textContent) {
+    text.textContent = lysyQuotes[currentLysyIndex];
+    return;
+  }
+  
+  // Trigger animation
+  box.classList.add('shuffling');
+  
+  // Update text during animation (at midpoint when opacity is 0)
+  setTimeout(() => {
+    text.textContent = lysyQuotes[currentLysyIndex];
+  }, 600);
+  
+  // Remove animation class after completion
+  setTimeout(() => {
+    box.classList.remove('shuffling');
+  }, 1200);
+}
+
+
+// ═══════════════════════════════════════ INIT
+renderGrid();
+</script>
+
+
+
+
+
+
+
+<!-- ═══════════════════════════════════════════════════════ TECHNO ZUZANKA PAGE -->
+<div id="page-techno" class="page">
+<style>
+  /* Make techno page truly fullscreen — fixed, covers everything */
+  #page-techno {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: unset !important;
+    background: #0d0d0d;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    z-index: 500;
+  }
+  #page-techno.active {
+    display: flex !important;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .tz-bg-layer { position: absolute; inset: 0; pointer-events: none; }
+  .tz-bg-layer.grad   { z-index: 0; background: #0d0d0d; }
+  .tz-bg-layer.scanlines {
+    z-index: 1;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 3px,
+      rgba(255,255,255,0.018) 3px, rgba(255,255,255,0.018) 4px);
+  }
+  .tz-bg-layer.vignette {
+    z-index: 2;
+    background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 30%, rgba(0,0,0,0.65) 100%);
+  }
+
+  #tz-flash { position: absolute; inset: 0; pointer-events: none; z-index: 60; background: rgba(255,255,255,0); }
+  #tz-flash.tz-pop { animation: tzFlashAnim 0.12s ease-out forwards; }
+  @keyframes tzFlashAnim { 0% { background: rgba(255,255,255,0.14); } 100% { background: rgba(255,255,255,0); } }
+
+  .tz-ripple {
+    position: fixed; border-radius: 50%; border: 1px solid rgba(255,255,255,0.32);
+    pointer-events: none; z-index: 50; transform: translate(-50%,-50%);
+    animation: tzRippleAnim 0.8s cubic-bezier(0.15,0.5,0.5,1) forwards;
+  }
+  @keyframes tzRippleAnim { from{width:8px;height:8px;opacity:0.7} to{width:220px;height:220px;opacity:0} }
+
+  /* BACK ARROW — small, floating top-left */
+  .tz-back-arrow {
+    position: absolute; top: 1.4rem; left: 1.6rem; z-index: 100;
+    background: none; border: none; cursor: pointer; padding: 0.3rem;
+    color: rgba(255,255,255,0.2);
+    font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
+    line-height: 1; letter-spacing: 0;
+    transition: color 0.3s ease, transform 0.25s ease;
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .tz-back-arrow:hover { color: rgba(255,255,255,0.7); transform: translateX(-3px); }
+  .tz-back-arrow-label {
+    font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
+    font-weight: 300; opacity: 0; transition: opacity 0.25s;
+    white-space: nowrap;
+  }
+  .tz-back-arrow:hover .tz-back-arrow-label { opacity: 1; }
+
+  /* TEMPO BAR */
+  .tz-tempo-bar {
+    position: relative; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.9rem; padding: 0.75rem 4rem 0.65rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-wrap: wrap; flex-shrink: 0;
+  }
+  .tz-bpm-btn {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.85rem; font-weight: 400;
+    letter-spacing: 0.1em; background: none;
+    border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.35);
+    cursor: pointer; padding: 0.22rem 0.8rem; transition: all 0.2s ease; line-height: 1;
+  }
+  .tz-bpm-btn:hover { border-color: rgba(255,255,255,0.48); color: rgba(255,255,255,0.82); }
+  .tz-bpm-btn.active { border-color: #cc1111; color: #cc1111; background: rgba(180,0,0,0.05); }
+  .tz-bpm-display {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 600;
+    color: rgba(255,255,255,0.45); min-width: 58px; text-align: center; transition: color 0.15s;
+  }
+  .tz-bpm-display.beat { color: #cc1111; }
+  .tz-bpm-label {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.5rem; font-weight: 300;
+    letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.18);
+  }
+  .tz-tempo-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100px; height: 1px; background: rgba(255,255,255,0.14); outline: none; cursor: pointer;
+  }
+  .tz-tempo-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 8px; height: 8px;
+    border-radius: 50%; background: rgba(255,255,255,0.45); cursor: pointer;
+  }
+  .tz-tempo-slider:hover::-webkit-slider-thumb { background: #cc1111; }
+
+  /* MAIN SCROLLABLE AREA */
+  .tz-stage {
+    position: relative; z-index: 10;
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 1.8rem 1.5rem 1.5rem;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+  .tz-stage::-webkit-scrollbar { width: 3px; }
+  .tz-stage::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  /* LETTER ROWS */
+  .tz-row {
+    display: flex; gap: clamp(0.4rem,2vw,1.3rem);
+    align-items: baseline; justify-content: center;
+    flex-wrap: nowrap; margin-bottom: 0.35rem; flex-shrink: 0;
+  }
+  .tz-rows-sep {
+    width: 85%; max-width: 680px;
+    height: 1px; background: rgba(255,255,255,0.06);
+    margin: 1rem 0; flex-shrink: 0;
+  }
+
+  /* BASE LETTER — all Cormorant Garamond */
+  .tz-letter {
+    font-family: 'Cormorant Garamond', serif;
+    color: rgba(255,255,255,0.12);
+    cursor: pointer; position: relative;
+    user-select: none; line-height: 1;
+    padding: 0.04em 0.1em;
+    transition: color 0.2s ease, transform 0.15s ease;
+  }
+  .tz-letter-name {
+    display: block; position: absolute;
+    bottom: -1.65em; left: 50%; transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif; font-size: 0.4rem; font-weight: 300;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.13); white-space: nowrap;
+    pointer-events: none; transition: color 0.3s;
+  }
+
+  /* Row variants — same font, weight/style/size differ */
+  .tz-row-a .tz-letter { font-size: clamp(4rem,10.5vw,8rem); font-weight: 700; }
+  .tz-row-b .tz-letter { font-size: clamp(2.8rem,7vw,5.5rem); font-weight: 400; font-style: italic; }
+  .tz-row-c .tz-letter { font-size: clamp(2rem,5vw,4rem); font-weight: 300; color: rgba(255,255,255,0.1); }
+  .tz-row-d .tz-letter { font-size: clamp(1.5rem,3.8vw,3rem); font-weight: 600; font-style: italic; color: rgba(255,255,255,0.1); }
+  .tz-row-e .tz-letter { font-size: clamp(1.1rem,2.7vw,2.2rem); font-weight: 300; font-style: italic; color: rgba(255,255,255,0.09); letter-spacing: 0.12em; }
+
+  .tz-letter:hover { color: rgba(255,255,255,0.52); transform: scale(1.05) translateY(-3px); }
+  .tz-letter:hover .tz-letter-name { color: rgba(255,255,255,0.38); }
+
+  .tz-letter.tz-on { color: #cc1111 !important; animation: tzLetterPulse 0.42s ease-in-out infinite alternate; }
+  .tz-letter.tz-on .tz-letter-name { color: rgba(200,30,30,0.7) !important; }
+  @keyframes tzLetterPulse {
+    from { text-shadow: 0 0 8px #cc1111, 0 0 22px rgba(180,0,0,0.6), 0 0 44px rgba(160,0,0,0.3); transform: scale(1.02) translateY(-1px); }
+    to   { text-shadow: 0 0 14px #ee2222, 0 0 44px rgba(200,0,0,0.78), 0 0 85px rgba(160,0,0,0.42); transform: scale(1.09) translateY(-5px); }
+  }
+  .tz-letter.tz-burst { animation: tzLetterBurst 0.52s cubic-bezier(0.22,0.9,0.36,1) forwards !important; }
+  @keyframes tzLetterBurst {
+    0%  { color:#fff; text-shadow:0 0 30px #fff,0 0 65px #cc1111,0 0 130px #880000; transform:scale(1.3) translateY(-10px); }
+    45% { color:#ee3333; text-shadow:0 0 16px #cc1111,0 0 45px rgba(180,0,0,0.75); transform:scale(1.12) translateY(-5px); }
+    100%{ color:#cc1111; text-shadow:0 0 9px #cc1111,0 0 25px rgba(160,0,0,0.6); transform:scale(1.05) translateY(-2px); }
+  }
+  .tz-letter.tz-fade { animation: tzLetterFade 0.65s ease forwards !important; }
+  @keyframes tzLetterFade {
+    from { color:#cc1111; text-shadow:0 0 9px #cc1111,0 0 25px rgba(160,0,0,0.55); }
+    to   { color:rgba(255,255,255,0.12); text-shadow:none; }
+  }
+
+  /* VISUALIZER */
+  .tz-visualizer { display:flex; gap:3px; align-items:flex-end; height:34px; margin:1.5rem 0 1.2rem; flex-shrink:0; }
+  .tz-bar { width:4px; background:rgba(255,255,255,0.1); border-radius:1px 1px 0 0; height:3px; transition:height 0.06s ease,background 0.12s ease; }
+
+  /* TRACK INFO */
+  .tz-track-info {
+    font-family:'Cormorant Garamond',serif; font-size:0.68rem; font-weight:300;
+    letter-spacing:0.22em; text-transform:uppercase;
+    color:rgba(255,255,255,0.18); text-align:center;
+    min-height:1.2em; transition:color 0.4s,text-shadow 0.4s;
+    margin-bottom:1.2rem; flex-shrink:0;
+  }
+  .tz-track-info.tz-live { color:rgba(210,45,45,0.82); text-shadow:0 0 12px rgba(180,0,0,0.35); }
+
+  /* STOP */
+  .tz-stop {
+    font-family:'Cormorant Garamond',serif; font-size:0.68rem; font-weight:300;
+    letter-spacing:0.2em; text-transform:uppercase;
+    background:none; border:1px solid rgba(255,255,255,0.11);
+    color:rgba(255,255,255,0.2); padding:0.5rem 1.8rem;
+    cursor:pointer; transition:all 0.3s ease;
+    opacity:0; pointer-events:none;
+    margin-bottom:2rem; flex-shrink:0;
+  }
+  .tz-stop.visible { opacity:1; pointer-events:all; }
+  .tz-stop:hover { border-color:rgba(200,20,20,0.5); color:#cc1111; box-shadow:0 0 10px rgba(180,0,0,0.1); }
+
+  /* RECORDER */
+  .tz-recorder {
+    width:90%; max-width:600px; flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.07);
+    padding:1.2rem 1.8rem 1.4rem;
+    display:flex; flex-direction:column; align-items:center; gap:0.85rem;
+    background:rgba(255,255,255,0.012);
+    margin-bottom: 1.5rem;
+  }
+  .tz-rec-title {
+    font-family:'Cormorant Garamond',serif; font-size:0.55rem; font-weight:300;
+    letter-spacing:0.28em; text-transform:uppercase; color:rgba(255,255,255,0.18);
+    align-self:flex-start;
+  }
+  .tz-rec-controls { display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap; justify-content:center; }
+  .tz-rec-btn {
+    font-family:'Cormorant Garamond',serif; font-size:0.7rem; font-weight:400;
+    letter-spacing:0.14em; text-transform:uppercase;
+    background:none; cursor:pointer; transition:all 0.25s ease;
+    padding:0.42rem 1.3rem; line-height:1;
+  }
+  .tz-rec-btn.primary { border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.45); }
+  .tz-rec-btn.primary:hover { border-color:rgba(200,20,20,0.6); color:#cc1111; }
+  .tz-rec-btn.primary.recording {
+    border-color:#cc1111; color:#cc1111;
+    animation:tzRecBlink 1s ease-in-out infinite;
+    box-shadow:0 0 8px rgba(180,0,0,0.12);
+  }
+  @keyframes tzRecBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .tz-rec-btn.secondary { border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.28); }
+  .tz-rec-btn.secondary:hover { border-color:rgba(255,255,255,0.38); color:rgba(255,255,255,0.72); }
+  .tz-rec-btn:disabled { opacity:0.2; pointer-events:none; }
+  .tz-rec-time {
+    font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:300;
+    color:rgba(255,255,255,0.22); letter-spacing:0.06em; min-width:48px; text-align:center; transition:color 0.3s;
+  }
+  .tz-rec-time.active { color:#cc1111; }
+  .tz-rec-waveform {
+    width:100%; height:28px;
+    display:flex; align-items:center; gap:2px; justify-content:center; overflow:hidden;
+  }
+  .tz-rec-wbar { width:3px; height:3px; background:rgba(255,255,255,0.1); border-radius:1px; transition:height 0.05s ease; flex-shrink:0; }
+  .tz-rec-downloads { display:flex; flex-direction:column; gap:0.45rem; width:100%; }
+  .tz-rec-link {
+    font-family:'Cormorant Garamond',serif; font-size:0.65rem; font-weight:300;
+    letter-spacing:0.12em; color:rgba(255,255,255,0.38);
+    text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.08);
+    padding-bottom:0.22rem; transition:color 0.2s,border-color 0.2s;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .tz-rec-link:hover { color:rgba(255,255,255,0.78); border-color:rgba(255,255,255,0.28); }
+  .tz-rec-link-arrow { opacity:0.4; }
+  .tz-rec-link:hover .tz-rec-link-arrow { opacity:1; }
+  .tz-rec-status {
+    font-family:'Cormorant Garamond',serif; font-size:0.58rem; font-weight:300;
+    letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.18);
+    text-align:center; min-height:1em;
+  }
+</style>
+
+<div class="tz-bg-layer grad"></div>
+<div class="tz-bg-layer scanlines"></div>
+<div class="tz-bg-layer vignette"></div>
+<div id="tz-flash"></div>
+
+<!-- Floating back arrow -->
+<button class="tz-back-arrow" onclick="stopTechno(); showPage('page-home')" aria-label="Back to main page">
+  ←<span class="tz-back-arrow-label">return</span>
+</button>
+
+<!-- Tempo bar -->
+<div class="tz-tempo-bar">
+  <button class="tz-bpm-btn" onclick="tzChangeBPM(-10)">−10</button>
+  <button class="tz-bpm-btn" onclick="tzChangeBPM(-1)">−</button>
+  <div>
+    <div class="tz-bpm-display" id="tz-bpm-val">128</div>
+    <div class="tz-bpm-label">bpm</div>
+  </div>
+  <button class="tz-bpm-btn" onclick="tzChangeBPM(+1)">+</button>
+  <button class="tz-bpm-btn" onclick="tzChangeBPM(+10)">+10</button>
+  <input class="tz-tempo-slider" type="range" min="60" max="220" value="128" id="tz-bpm-slider" oninput="tzSetBPM(+this.value)">
+</div>
+
+<!-- Scrollable content -->
+<div class="tz-stage">
+  <div class="tz-row tz-row-a" id="tz-row-a"></div>
+  <div class="tz-rows-sep"></div>
+  <div class="tz-row tz-row-b" id="tz-row-b"></div>
+  <div class="tz-rows-sep"></div>
+  <div class="tz-row tz-row-c" id="tz-row-c"></div>
+  <div class="tz-rows-sep"></div>
+  <div class="tz-row tz-row-d" id="tz-row-d"></div>
+  <div class="tz-rows-sep"></div>
+  <div class="tz-row tz-row-e" id="tz-row-e"></div>
+
+  <div class="tz-visualizer" id="tz-viz"></div>
+  <div class="tz-track-info" id="tz-info">— —</div>
+  <button class="tz-stop" id="tz-stop" onclick="stopTechno()">■ &nbsp; stop all</button>
+
+  <!-- Recorder -->
+  <div class="tz-recorder">
+    <div class="tz-rec-title">Recording</div>
+    <div class="tz-rec-waveform" id="tz-rec-waveform"></div>
+    <div class="tz-rec-controls">
+      <button class="tz-rec-btn primary" id="tz-rec-btn" onclick="tzRecToggle()">● Record</button>
+      <div class="tz-rec-time" id="tz-rec-time">0:00</div>
+      <button class="tz-rec-btn secondary" id="tz-stop-rec-btn" onclick="tzRecStop()" disabled>■ Stop</button>
+    </div>
+    <div class="tz-rec-status" id="tz-rec-status">ready to record</div>
+    <div class="tz-rec-downloads" id="tz-rec-downloads"></div>
+  </div>
+</div>
+</div><!-- end page-techno -->
+
+<script>
+(function(){
+'use strict';
+
+const ROW_A=[
+  {letter:'Z',key:'a-kick', label:'Kick',   interval:()=>bpmMs(1)   },
+  {letter:'U',key:'a-snare',label:'Snare',  interval:()=>bpmMs(2)   },
+  {letter:'Z',key:'a-hat',  label:'Hi-hat', interval:()=>bpmMs(0.5) },
+  {letter:'A',key:'a-clap', label:'Clap',   interval:()=>bpmMs(2)   },
+  {letter:'N',key:'a-tom',  label:'Tom',    interval:()=>bpmMs(1.5) },
+  {letter:'K',key:'a-rim',  label:'Rim',    interval:()=>bpmMs(0.75)},
+  {letter:'A',key:'a-open', label:'Open HH',interval:()=>bpmMs(4)   },
+];
+const ROW_B=[
+  {letter:'Z',key:'b-sub',  label:'Sub',   interval:null            },
+  {letter:'U',key:'b-bass', label:'Bass',  interval:null            },
+  {letter:'Z',key:'b-arp',  label:'Arp',   interval:()=>bpmMs(0.5) },
+  {letter:'A',key:'b-acid', label:'Acid',  interval:()=>bpmMs(0.75)},
+  {letter:'N',key:'b-pad',  label:'Pad',   interval:null            },
+  {letter:'K',key:'b-lead', label:'Lead',  interval:()=>bpmMs(1)   },
+  {letter:'A',key:'b-chord',label:'Chord', interval:()=>bpmMs(2)   },
+];
+const ROW_C=[
+  {letter:'Z',key:'c-noise', label:'Noise',  interval:()=>bpmMs(0.25) },
+  {letter:'U',key:'c-drone', label:'Drone',  interval:null             },
+  {letter:'Z',key:'c-perc',  label:'Perc',   interval:()=>bpmMs(0.33) },
+  {letter:'A',key:'c-stab',  label:'Stab',   interval:()=>bpmMs(1)    },
+  {letter:'N',key:'c-sweep', label:'Sweep',  interval:null             },
+  {letter:'K',key:'c-blip',  label:'Blip',   interval:()=>bpmMs(0.5)  },
+  {letter:'A',key:'c-glitch',label:'Glitch', interval:()=>bpmMs(0.125)},
+];
+const ROW_D=[
+  {letter:'Z',key:'d-sub2',  label:'Sub 2',  interval:null            },
+  {letter:'U',key:'d-808',   label:'808',    interval:()=>bpmMs(1)   },
+  {letter:'Z',key:'d-noise2',label:'Rumble', interval:()=>bpmMs(0.375)},
+  {letter:'A',key:'d-acid2', label:'Acid 2', interval:()=>bpmMs(0.5) },
+  {letter:'N',key:'d-drone2',label:'Drone 2',interval:null            },
+  {letter:'K',key:'d-reese', label:'Reese',  interval:null            },
+  {letter:'A',key:'d-acid3', label:'Acid 3', interval:()=>bpmMs(1.5) },
+];
+const ROW_E=[
+  {letter:'Z',key:'e-infra', label:'Infra',  interval:null             },
+  {letter:'U',key:'e-spray', label:'Spray',  interval:()=>bpmMs(0.125)},
+  {letter:'Z',key:'e-drone3',label:'Drone 3',interval:null             },
+  {letter:'A',key:'e-acid4', label:'Acid 4', interval:()=>bpmMs(0.25) },
+  {letter:'N',key:'e-rubbr', label:'Rubber', interval:null             },
+  {letter:'K',key:'e-whoosh',label:'Whoosh', interval:null             },
+  {letter:'A',key:'e-acid5', label:'Acid 5', interval:()=>bpmMs(2)    },
+];
+const ALL=[...ROW_A,...ROW_B,...ROW_C,...ROW_D,...ROW_E];
+
+const ARP  =[440,554,659,880,659,554,440,370];
+const ACID =[55,55,73,55,55,73,82,73];
+const ACID2=[41,41,55,41,55,62,55,41];
+const ACID3=[73,82,110,73,82,73,55,73];
+const ACID4=[28,28,37,28,37,44,37,28];
+const ACID5=[110,138,165,220,165,138,110,92];
+const LEAD =[330,392,440,523,440,392,330,294];
+const CHORD=[[261,330,392],[294,370,440],[330,415,494],[261,330,392]];
+const STAB =[220,277,330,415];
+const BLIP =[880,1108,1318,1760,1318,1108];
+
+let audioCtx=null,playing={},bpm=128,vizTimer=null,beatFlashTimer=null;
+let mediaRecorder=null,recChunks=[],recTimer=null,recSeconds=0,recIsRecording=false;
+let recDestination=null,recGain=null;
+
+const N_WBARS=40;
+const waveformEl=document.getElementById('tz-rec-waveform');
+for(let i=0;i<N_WBARS;i++){const b=document.createElement('div');b.className='tz-rec-wbar';waveformEl.appendChild(b);}
+const wbars=waveformEl.querySelectorAll('.tz-rec-wbar');
+let waveTimer=null;
+
+function bpmMs(b){return(60000/bpm)*b;}
+function ac(){
+  if(!audioCtx){
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    recDestination=audioCtx.createMediaStreamDestination();
+    recGain=audioCtx.createGain(); recGain.gain.value=1; recGain.connect(recDestination);
+  }
+  return audioCtx;
+}
+
+// build rows
+function buildRow(defs,id){
+  const row=document.getElementById(id);
+  defs.forEach(d=>{
+    const el=document.createElement('div');el.className='tz-letter';el.id='tzl-'+d.key;
+    el.innerHTML=d.letter+'<span class="tz-letter-name">'+d.label+'</span>';
+    el.addEventListener('click',ev=>letterClick(d,el,ev));
+    row.appendChild(el);
+  });
+}
+buildRow(ROW_A,'tz-row-a');buildRow(ROW_B,'tz-row-b');buildRow(ROW_C,'tz-row-c');
+buildRow(ROW_D,'tz-row-d');buildRow(ROW_E,'tz-row-e');
+
+const vizEl=document.getElementById('tz-viz'),N=36;
+for(let i=0;i<N;i++){const b=document.createElement('div');b.className='tz-bar';vizEl.appendChild(b);}
+
+// TEMPO
+window.tzSetBPM=function(v){
+  bpm=Math.max(60,Math.min(220,v));
+  document.getElementById('tz-bpm-val').textContent=bpm;
+  document.getElementById('tz-bpm-slider').value=bpm;
+  Object.keys(playing).forEach(k=>{
+    const p=playing[k];
+    if(p.intervalId&&p.def?.interval){clearInterval(p.intervalId);p.intervalId=setInterval(p.fn,p.def.interval());}
+  });
+  if(beatFlashTimer){clearInterval(beatFlashTimer);beatFlashTimer=null;startBeatFlash();}
+};
+window.tzChangeBPM=function(d){tzSetBPM(bpm+d);};
+function startBeatFlash(){if(beatFlashTimer)return;beatFlashTimer=setInterval(()=>{const e=document.getElementById('tz-bpm-val');e.classList.add('beat');setTimeout(()=>e.classList.remove('beat'),60);},bpmMs(1));}
+function stopBeatFlash(){clearInterval(beatFlashTimer);beatFlashTimer=null;document.getElementById('tz-bpm-val').classList.remove('beat');}
+
+// RECORDER
+window.tzRecToggle=function(){
+  if(recIsRecording){tzRecStop();return;}
+  const ctx=ac();if(ctx.state==='suspended')ctx.resume();
+  recChunks=[];
+  const mimes=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/mp4'];
+  const mime=mimes.find(m=>MediaRecorder.isTypeSupported(m))||'';
+  try{mediaRecorder=new MediaRecorder(recDestination.stream,mime?{mimeType:mime}:{});}
+  catch(e){setRecStatus('not supported in this browser');return;}
+  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};
+  mediaRecorder.onstop=onRecStop;
+  mediaRecorder.start(100);
+  recIsRecording=true; recSeconds=0;
+  document.getElementById('tz-rec-btn').textContent='● Recording…';
+  document.getElementById('tz-rec-btn').classList.add('recording');
+  document.getElementById('tz-stop-rec-btn').disabled=false;
+  document.getElementById('tz-rec-time').classList.add('active');
+  setRecStatus('recording live audio…');
+  recTimer=setInterval(()=>{recSeconds++;const m=Math.floor(recSeconds/60),s=recSeconds%60;document.getElementById('tz-rec-time').textContent=m+':'+(s<10?'0':'')+s;},1000);
+  startWaveAnim();
+};
+window.tzRecStop=function(){
+  if(!recIsRecording||!mediaRecorder)return;
+  mediaRecorder.stop(); recIsRecording=false; clearInterval(recTimer);
+  document.getElementById('tz-rec-btn').textContent='● Record';
+  document.getElementById('tz-rec-btn').classList.remove('recording');
+  document.getElementById('tz-stop-rec-btn').disabled=true;
+  document.getElementById('tz-rec-time').classList.remove('active');
+  stopWaveAnim(); setRecStatus('processing…');
+};
+function onRecStop(){
+  if(recChunks.length===0){setRecStatus('nothing recorded');return;}
+  const mime=recChunks[0].type||'audio/webm';
+  const blob=new Blob(recChunks,{type:mime});
+  const ext=mime.includes('ogg')?'ogg':mime.includes('mp4')?'m4a':'webm';
+  const url=URL.createObjectURL(blob);
+  const ts=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const fname='zuzanka-'+ts+'.'+ext;
+  const dlContainer=document.getElementById('tz-rec-downloads');
+  const link=document.createElement('a');
+  link.className='tz-rec-link';link.href=url;link.download=fname;
+  link.innerHTML=fname+'<span class="tz-rec-link-arrow">↓</span>';
+  dlContainer.prepend(link);
+  setRecStatus('saved — click to download');
+}
+function setRecStatus(msg){document.getElementById('tz-rec-status').textContent=msg;}
+function startWaveAnim(){
+  if(waveTimer)return;
+  waveTimer=setInterval(()=>{
+    const active=recIsRecording&&Object.keys(playing).length>0;
+    wbars.forEach((b,i)=>{
+      if(!active){b.style.height='3px';b.style.background='rgba(255,255,255,0.1)';return;}
+      const h=Math.round(3+Math.random()*22*(0.4+0.6*Math.sin(i/N_WBARS*Math.PI)));
+      b.style.height=h+'px';
+      b.style.background=h>10?`rgba(200,${Math.round(20+h)},${Math.round(h*0.4)},0.72)`:'rgba(255,255,255,0.2)';
+    });
+  },55);
+}
+function stopWaveAnim(){
+  clearInterval(waveTimer);waveTimer=null;
+  wbars.forEach(b=>{b.style.height='3px';b.style.background='rgba(255,255,255,0.1)';});
+}
+
+// CLICK
+function letterClick(d,el,ev){
+  const r=document.createElement('div');r.className='tz-ripple';
+  r.style.left=ev.clientX+'px';r.style.top=ev.clientY+'px';
+  document.body.appendChild(r);setTimeout(()=>r.remove(),950);
+  const f=document.getElementById('tz-flash');f.classList.remove('tz-pop');void f.offsetWidth;f.classList.add('tz-pop');
+  if(playing[d.key])stopTrack(d.key,el);else startTrack(d,el);
+  updateUI();
+}
+
+// START TRACK
+function startTrack(d,el){
+  const ctx=ac();if(ctx.state==='suspended')ctx.resume();
+  const mg=ctx.createGain();mg.connect(ctx.destination);if(recGain)mg.connect(recGain);
+  mg.gain.value=0.001;
+  let node=null,tid=null,fn=null;
+  const k=d.key;
+
+  function loop(f,intFn){f();fn=f;tid=setInterval(f,intFn());return tid;}
+  function dest(g){g.connect(ctx.destination);if(recGain)g.connect(recGain);}
+
+  if(k==='a-kick'){
+    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(160,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.28);g.gain.setValueAtTime(1.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.28);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.3);},d.interval);
+  }else if(k==='a-snare'){
+    loop(()=>{const len=ctx.sampleRate*0.18,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=1800;filt.Q.value=0.8;const g=ctx.createGain();g.gain.setValueAtTime(0.6,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.18);src.connect(filt);filt.connect(g);dest(g);src.start();src.stop(ctx.currentTime+0.2);const o=ctx.createOscillator(),g2=ctx.createGain();o.type='triangle';o.frequency.value=200;g2.gain.setValueAtTime(0.35,ctx.currentTime);g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);o.connect(g2);dest(g2);o.start();o.stop(ctx.currentTime+0.1);},d.interval);
+  }else if(k==='a-hat'){
+    loop(()=>{const len=ctx.sampleRate*0.05,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='highpass';filt.frequency.value=9000;const g=ctx.createGain();g.gain.setValueAtTime(0.35,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.05);src.connect(filt);filt.connect(g);dest(g);src.start();src.stop(ctx.currentTime+0.06);},d.interval);
+  }else if(k==='a-clap'){
+    loop(()=>{for(let c=0;c<3;c++)setTimeout(()=>{const len=ctx.sampleRate*0.045,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=1200;filt.Q.value=1.2;const g=ctx.createGain();g.gain.setValueAtTime(0.55*(1-c*0.15),ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.05);src.connect(filt);filt.connect(g);dest(g);src.start();},c*14);},d.interval);
+  }else if(k==='a-tom'){
+    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(120,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(50,ctx.currentTime+0.22);g.gain.setValueAtTime(0.9,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.28);},d.interval);
+  }else if(k==='a-rim'){
+    loop(()=>{const len=ctx.sampleRate*0.025,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=4000;filt.Q.value=3;const g=ctx.createGain();g.gain.setValueAtTime(0.7,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.025);src.connect(filt);filt.connect(g);dest(g);src.start();},d.interval);
+  }else if(k==='a-open'){
+    loop(()=>{const len=ctx.sampleRate*0.35,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='highpass';filt.frequency.value=7000;const g=ctx.createGain();g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);src.connect(filt);filt.connect(g);dest(g);src.start();src.stop(ctx.currentTime+0.38);},d.interval);
+  }else if(k==='b-sub'){
+    const o=ctx.createOscillator();o.type='sine';o.frequency.value=40;o.connect(mg);mg.gain.linearRampToValueAtTime(0.5,ctx.currentTime+0.12);o.start();node=o;
+  }else if(k==='b-bass'){
+    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=55;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=220;o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.42,ctx.currentTime+0.12);o.start();node=o;
+  }else if(k==='b-arp'){
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=ARP[ni%ARP.length];g.gain.setValueAtTime(0.13,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.14);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.17);ni++;},d.interval);
+  }else if(k==='b-acid'){
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID[ni%ACID.length];filt.type='lowpass';filt.Q.value=14;filt.frequency.setValueAtTime(180,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(2200,ctx.currentTime+0.09);filt.frequency.exponentialRampToValueAtTime(350,ctx.currentTime+0.34);g.gain.setValueAtTime(0.42,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.36);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.38);ni++;},d.interval);
+  }else if(k==='b-pad'){
+    const oscs=[110,110.5,220,220.8].map(f=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=f;o.connect(mg);o.start();return o;});mg.gain.linearRampToValueAtTime(0.18,ctx.currentTime+0.8);node={stop:()=>oscs.forEach(o=>{try{o.stop();}catch(e){}})};
+  }else if(k==='b-lead'){
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=LEAD[ni%LEAD.length];g.gain.setValueAtTime(0.17,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.21);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.24);ni++;},d.interval);
+  }else if(k==='b-chord'){
+    let ci=0;loop(()=>{CHORD[ci%CHORD.length].forEach(f=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.6);});ci++;},d.interval);
+  }else if(k==='c-noise'){
+    loop(()=>{const len=ctx.sampleRate*0.04,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=3000+Math.random()*3000;filt.Q.value=2;const g=ctx.createGain();g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.04);src.connect(filt);filt.connect(g);dest(g);src.start();},d.interval);
+  }else if(k==='c-drone'){
+    const o1=ctx.createOscillator(),o2=ctx.createOscillator();o1.type='sawtooth';o1.frequency.value=82.5;o2.type='sawtooth';o2.frequency.value=82.8;o1.connect(mg);o2.connect(mg);mg.gain.linearRampToValueAtTime(0.15,ctx.currentTime+1.2);o1.start();o2.start();node={stop:()=>{try{o1.stop();o2.stop();}catch(e){}}};
+  }else if(k==='c-perc'){
+    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=1200+Math.random()*800;g.gain.setValueAtTime(0.18,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.018);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.02);},d.interval);
+  }else if(k==='c-stab'){
+    let si=0;loop(()=>{const f=STAB[si%STAB.length];[f,f*1.5,f*2].forEach(ff=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ff;g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.1);});si++;},d.interval);
+  }else if(k==='c-sweep'){
+    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=165;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.Q.value=8;filt.frequency.value=800;const lfo=ctx.createOscillator(),lfoG=ctx.createGain();lfo.type='sine';lfo.frequency.value=0.3;lfoG.gain.value=1200;lfo.connect(lfoG);lfoG.connect(filt.frequency);o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.22,ctx.currentTime+0.5);o.start();lfo.start();node={stop:()=>{try{o.stop();lfo.stop();}catch(e){}}};
+  }else if(k==='c-blip'){
+    let bi=0;loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=BLIP[bi%BLIP.length];g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.06);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.07);bi++;},d.interval);
+  }else if(k==='c-glitch'){
+    loop(()=>{if(Math.random()<0.4)return;const o=ctx.createOscillator(),g=ctx.createGain();o.type=['square','sawtooth','triangle'][Math.floor(Math.random()*3)];o.frequency.value=200+Math.random()*3000;g.gain.setValueAtTime(0.15*Math.random(),ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.015);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.02);},d.interval);
+  }else if(k==='d-sub2'){
+    const o=ctx.createOscillator(),lfo=ctx.createOscillator(),lfoG=ctx.createGain();o.type='sine';o.frequency.value=28;lfo.frequency.value=1.8;lfoG.gain.value=3;lfo.connect(lfoG);lfoG.connect(o.frequency);o.connect(mg);mg.gain.linearRampToValueAtTime(0.55,ctx.currentTime+0.2);o.start();lfo.start();node={stop:()=>{try{o.stop();lfo.stop();}catch(e){}}};
+  }else if(k==='d-808'){
+    loop(()=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(220,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(40,ctx.currentTime+0.15);o.frequency.exponentialRampToValueAtTime(28,ctx.currentTime+0.6);g.gain.setValueAtTime(1.2,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.65);o.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.7);},d.interval);
+  }else if(k==='d-noise2'){
+    loop(()=>{const len=ctx.sampleRate*0.09,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=600+Math.random()*400;filt.Q.value=4;const g=ctx.createGain();g.gain.setValueAtTime(0.45,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.09);src.connect(filt);filt.connect(g);dest(g);src.start();},d.interval);
+  }else if(k==='d-acid2'){
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID2[ni%ACID2.length];filt.type='lowpass';filt.Q.value=18;filt.frequency.setValueAtTime(80,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(1400,ctx.currentTime+0.12);filt.frequency.exponentialRampToValueAtTime(120,ctx.currentTime+0.5);g.gain.setValueAtTime(0.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.52);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.55);ni++;},d.interval);
+  }else if(k==='d-drone2'){
+    const o1=ctx.createOscillator(),o2=ctx.createOscillator(),o3=ctx.createOscillator();o1.type='square';o1.frequency.value=55;o2.type='square';o2.frequency.value=55.4;o3.type='sine';o3.frequency.value=27.5;o1.connect(mg);o2.connect(mg);o3.connect(mg);mg.gain.linearRampToValueAtTime(0.13,ctx.currentTime+1.5);o1.start();o2.start();o3.start();node={stop:()=>{try{o1.stop();o2.stop();o3.stop();}catch(e){}}};
+  }else if(k==='d-reese'){
+    const o1=ctx.createOscillator(),o2=ctx.createOscillator();o1.type='sawtooth';o1.frequency.value=41;o2.type='sawtooth';o2.frequency.value=41.6;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=180;filt.Q.value=3;const lfo=ctx.createOscillator(),lfoG=ctx.createGain();lfo.frequency.value=0.8;lfoG.gain.value=80;lfo.connect(lfoG);lfoG.connect(filt.frequency);o1.connect(filt);o2.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.38,ctx.currentTime+0.3);o1.start();o2.start();lfo.start();node={stop:()=>{try{o1.stop();o2.stop();lfo.stop();}catch(e){}}};
+  }else if(k==='d-acid3'){
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID3[ni%ACID3.length];filt.type='lowpass';filt.Q.value=12;filt.frequency.setValueAtTime(300,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(3500,ctx.currentTime+0.07);filt.frequency.exponentialRampToValueAtTime(500,ctx.currentTime+0.28);g.gain.setValueAtTime(0.38,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.32);ni++;},d.interval);
+  }else if(k==='e-infra'){
+    const o=ctx.createOscillator();o.type='sine';o.frequency.value=20;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=60;o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.6,ctx.currentTime+0.5);o.start();node=o;
+  }else if(k==='e-spray'){
+    loop(()=>{const len=ctx.sampleRate*0.02,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const g=ctx.createGain();g.gain.setValueAtTime(0.22,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.018);src.connect(g);dest(g);src.start();},d.interval);
+  }else if(k==='e-drone3'){
+    const o=ctx.createOscillator(),lfo=ctx.createOscillator(),lfoG=ctx.createGain();o.type='sawtooth';o.frequency.value=110;lfo.type='sine';lfo.frequency.value=0.08;lfoG.gain.value=40;lfo.connect(lfoG);lfoG.connect(o.frequency);const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.Q.value=5;filt.frequency.value=400;o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.25,ctx.currentTime+2);o.start();lfo.start();node={stop:()=>{try{o.stop();lfo.stop();}catch(e){}}};
+  }else if(k==='e-acid4'){
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID4[ni%ACID4.length];filt.type='lowpass';filt.Q.value=20;filt.frequency.setValueAtTime(60,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(900,ctx.currentTime+0.15);filt.frequency.exponentialRampToValueAtTime(80,ctx.currentTime+0.7);g.gain.setValueAtTime(0.55,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.72);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.75);ni++;},d.interval);
+  }else if(k==='e-rubbr'){
+    const o=ctx.createOscillator(),lfo=ctx.createOscillator(),lfoG=ctx.createGain();o.type='sawtooth';o.frequency.value=55;lfo.type='sine';lfo.frequency.value=3;lfoG.gain.value=15;lfo.connect(lfoG);lfoG.connect(o.frequency);const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=300;filt.Q.value=6;o.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.4,ctx.currentTime+0.1);o.start();lfo.start();node={stop:()=>{try{o.stop();lfo.stop();}catch(e){}}};
+  }else if(k==='e-whoosh'){
+    const len=ctx.sampleRate*4,buf=ctx.createBuffer(1,len,ctx.sampleRate),dd=buf.getChannelData(0);for(let i=0;i<len;i++)dd[i]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;src.loop=true;const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.Q.value=6;filt.frequency.value=800;const lfo=ctx.createOscillator(),lfoG=ctx.createGain();lfo.type='sine';lfo.frequency.value=0.4;lfoG.gain.value=700;lfo.connect(lfoG);lfoG.connect(filt.frequency);src.connect(filt);filt.connect(mg);mg.gain.linearRampToValueAtTime(0.3,ctx.currentTime+0.5);src.start();lfo.start();node={stop:()=>{try{src.stop();lfo.stop();}catch(e){}}};
+  }else if(k==='e-acid5'){
+    let ni=0;loop(()=>{const o=ctx.createOscillator(),filt=ctx.createBiquadFilter(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=ACID5[ni%ACID5.length];filt.type='lowpass';filt.Q.value=10;filt.frequency.setValueAtTime(500,ctx.currentTime);filt.frequency.exponentialRampToValueAtTime(6000,ctx.currentTime+0.06);filt.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.22);g.gain.setValueAtTime(0.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.24);o.connect(filt);filt.connect(g);dest(g);o.start();o.stop(ctx.currentTime+0.26);ni++;},d.interval);
+  }
+
+  playing[k]={node,intervalId:tid,masterGain:mg,def:d,fn};
+  el.classList.remove('tz-fade','tz-burst','tz-on');void el.offsetWidth;el.classList.add('tz-burst');
+  setTimeout(()=>{el.classList.remove('tz-burst');el.classList.add('tz-on');},520);
+  if(Object.keys(playing).length===1){startViz();startBeatFlash();}
+}
+
+function stopTrack(k,el){
+  const p=playing[k];if(!p)return;clearInterval(p.intervalId);
+  if(p.node){try{if(p.node.stop)p.node.stop();}catch(e){}}
+  if(p.masterGain){try{p.masterGain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.06);}catch(e){}}
+  delete playing[k];
+  el.classList.remove('tz-on','tz-burst');el.classList.add('tz-fade');
+  setTimeout(()=>el.classList.remove('tz-fade'),700);
+}
+
+function updateUI(){
+  const keys=Object.keys(playing);
+  const infoEl=document.getElementById('tz-info'),stopEl=document.getElementById('tz-stop');
+  if(keys.length===0){
+    infoEl.textContent='— —';infoEl.classList.remove('tz-live');
+    stopEl.classList.remove('visible');stopViz();stopBeatFlash();
+  }else{
+    const labels=keys.map(k=>ALL.find(d=>d.key===k)?.label).filter(Boolean);
+    infoEl.textContent='▶ '+labels.join('  ·  ');
+    infoEl.classList.add('tz-live');stopEl.classList.add('visible');
+  }
+}
+
+function startViz(){
+  if(vizTimer)return;
+  const bars=vizEl.querySelectorAll('.tz-bar');
+  vizTimer=setInterval(()=>{
+    const count=Object.keys(playing).length;
+    bars.forEach((b,i)=>{
+      if(count===0){b.style.height='3px';b.style.background='rgba(255,255,255,0.1)';b.style.boxShadow='none';return;}
+      const base=0.08+0.3*Math.sin(i/N*Math.PI);
+      const h=Math.round((base+Math.random()*0.65)*count/ALL.length*32)+3;
+      const intensity=h/35,zone=i/N;
+      let bg,shadow;
+      if(zone<0.28){bg=`rgba(255,255,255,${0.3+intensity*0.6})`;shadow=intensity>0.35?'0 0 4px rgba(255,255,255,0.2)':'none';}
+      else if(zone<0.55){bg=`rgba(${Math.round(200+intensity*55)},${Math.round(20+intensity*20)},${Math.round(intensity*14)},${0.45+intensity*0.5})`;shadow=intensity>0.3?'0 0 4px rgba(200,20,20,0.38)':'none';}
+      else{bg=`rgba(255,255,255,${0.15+intensity*0.35})`;shadow='none';}
+      b.style.height=h+'px';b.style.background=bg;b.style.boxShadow=shadow;
+    });
+  },65);
+}
+function stopViz(){
+  clearInterval(vizTimer);vizTimer=null;
+  vizEl.querySelectorAll('.tz-bar').forEach(b=>{b.style.height='3px';b.style.background='rgba(255,255,255,0.1)';b.style.boxShadow='none';});
+}
+
+window.stopTechno=function(){
+  ALL.forEach(d=>{const el=document.getElementById('tzl-'+d.key);if(el&&playing[d.key])stopTrack(d.key,el);});
+  updateUI();
+};
+
+})();
+</script>
+</body>
+</html>
