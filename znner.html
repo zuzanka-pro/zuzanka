@@ -1419,12 +1419,12 @@
     <span class="room-page-number">Pokój IV — Pytanie</span>
   </header>
   <div class="room-content">
-    <p class="room-desc">Obiekt 004 / Wiedza filmowa</p>
-    <h2 class="room-headline">Jak ma imię postać grana przez Jacka Braciaka w serialu <em>Glina</em>?</h2>
+    <p class="room-desc">Obiekt 004 / Bash</p>
+    <h2 class="room-headline">W jakim katalogu byłaś przed wejściem do <em>ZNNER</em>?</h2>
     <div class="divider-thin"></div>
     <div class="field-group" style="margin-top:2rem">
-      <label class="field-label">Imię postaci</label>
-      <input type="text" id="r4-answer" placeholder="Wpisz imię…" onkeydown="if(event.key==='Enter')checkRoom4()">
+      <label class="field-label">Nazwa katalogu</label>
+      <input type="text" id="r4-answer" placeholder="Wpisz nazwę…" onkeydown="if(event.key==='Enter')checkRoom4()">
     </div>
     <button class="btn" onclick="checkRoom4()">Zatwierdź →</button>
     <div class="msg" id="r4-msg"></div>
@@ -2834,9 +2834,9 @@ function editRoom3() {
 function checkRoom4() {
   const val = document.getElementById('r4-answer').value.trim().toLowerCase();
   const msg = document.getElementById('r4-msg');
-  if (val === 'bonifacy') {
+  if (val === '/home/zuzanka') {
     msg.className = 'msg success visible';
-    msg.textContent = 'Imię poprawne!';
+    msg.textContent = 'No raczej...';
     setTimeout(() => markComplete(4), 800);
   } else {
     msg.className = 'msg error visible';
