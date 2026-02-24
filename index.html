@@ -485,6 +485,14 @@ async function run(cmd) {
     return;
   }
 
+  if (cmd === '2') {
+    out('launching techno zuzanka ...', 'dim');
+    await sleep(300);
+    window.location.href = 'techno_zuzanka.html';
+    return;
+  }
+
+
   if (cmd === 'p' || cmd === 'P') {
     await penTestErr();
     blank();
@@ -644,6 +652,10 @@ async function boot() {
   await sleep(80);
   outHTML(
     '  <span style="color:var(--p2)">  1</span><span style="color:var(--p3)">  \u2014  </span><span style="color:var(--p)">enter ZNNER</span><span style="color:var(--p4)">  (zuzanka\'s non-escape room)</span>'
+  );
+  await sleep(60);
+  outHTML(
+    '  <span style="color:var(--p2)">  2</span><span style="color:var(--p3)">  \u2014  </span><span style="color:var(--p)"><a href="techno_zuzanka.html" style="color:inherit;text-decoration:none;">techno zuzanka</a></span>'
   );
   await sleep(60);
   outHTML(
