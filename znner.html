@@ -2566,9 +2566,9 @@ function showOszustPopup() {
 <!-- PASSWORD MODAL -->
 <div class="pw-overlay" id="pw-overlay">
   <div class="pw-box">
-    <div class="pw-question">Gdzie najlepiej jechać po Kindla?</div>
+    <div class="pw-question">Jeśli nie JA SKONCEPTUALIZOWANE, to...</div>
     <input class="pw-input" id="pw-input" type="text" autocomplete="off" spellcheck="false" placeholder="odpowiedź…" onkeydown="if(event.key==='Enter')pwConfirm();else pwClearWrong(this)">
-    <div class="pw-hint" id="pw-hint">Do …</div>
+    <div class="pw-hint" id="pw-hint">jako</div>
     <div class="pw-actions">
       <button class="pw-btn confirm" onclick="pwConfirm()">Wejdź →</button>
       <button class="pw-btn cancel"  onclick="pwCancel()">Anuluj</button>
@@ -2655,7 +2655,7 @@ function pwConfirm() {
   const input = document.getElementById('pw-input');
   const hint = document.getElementById('pw-hint');
   const answer = input.value.trim().toLowerCase().replace(/\s+/g, ' ');
-  if (answer === 'do cch') {
+  if (answer === 'ja jako kontekst') {
     document.getElementById('pw-overlay').classList.remove('visible');
     const n = _pwPending; _pwPending = null;
     _enterRoom(n);
