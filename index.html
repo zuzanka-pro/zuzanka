@@ -156,6 +156,57 @@ body::after {
 </style>
 </head>
 <body>
+<div id="gate" style="position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:'Inconsolata','Courier New',monospace;">
+  <div style="color:#fff;font-size:6rem;font-weight:700;letter-spacing:0.05em;margin-bottom:2rem;text-shadow:0 0 40px rgba(255,255,255,0.15);">S</div>
+  <input id="gate-pw" type="password" autocomplete="off" style="background:transparent;border:none;border-bottom:1px solid #333;color:#fff;font-family:inherit;font-size:1rem;padding:0.4rem 0.6rem;outline:none;width:220px;text-align:center;caret-color:#fff;letter-spacing:0.1em;">
+  <div id="gate-err" style="color:#ff4444;font-size:0.75rem;margin-top:0.8rem;opacity:0;transition:opacity 0.3s;">incorrect password</div>
+</div>
+<script>
+(function(){
+
+  function sha256(str) {
+    function rr(v,a){return(v>>>a)|(v<<(32-a));}
+    var P=Math.pow,M=P(2,32),res='',W=[],bits=str.length*8,H=[],K=[],pc=0,ic={};
+    for(var c=2;pc<64;c++){if(!ic[c]){for(var x=c*c;x<313;x+=c)ic[x]=true;H[pc]=(P(c,.5)*M)|0;K[pc++]=(P(c,1/3)*M)|0;}}
+    str+='\x80';
+    while(str.length%64-56)str+='\x00';
+    for(var i=0;i<str.length;i++){var j=str.charCodeAt(i);if(j>>8)return'';W[i>>2]|=j<<((3-i)%4)*8;}
+    W[W.length]=((bits/M)|0);W[W.length]=(bits|0);
+    for(var j=0;j<W.length;){
+      var w=W.slice(j,j+=16),oH=H.slice(0);
+      for(var i=0;i<64;i++){
+        var w15=w[i-15],w2=w[i-2],a=H[0],e=H[4];
+        var t1=H[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&H[5])^(~e&H[6]))+K[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+        var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&H[1])^(a&H[2])^(H[1]&H[2]));
+        H=[(t1+t2)|0].concat(H);H[4]=(H[4]+t1)|0;H.length=8;
+      }
+      for(var i=0;i<8;i++)H[i]=(H[i]+oH[i])|0;
+    }
+    for(var i=0;i<8;i++)for(var j=3;j+1;j--){var b=(H[i]>>(j*8))&255;res+=((b<16)?'0':'')+b.toString(16);}
+    return res;
+  }
+  var HASH="79fc03775641614473940a9e63312787ef93d65af0ff216732a7b1b52faf1514";
+  var pw=document.getElementById("gate-pw");
+  var gate=document.getElementById("gate");
+  var err=document.getElementById("gate-err");
+  pw.focus();
+  document.addEventListener("click",function(){pw.focus();});
+  pw.addEventListener("keydown",function(e){
+    if(e.key!=="Enter")return;
+    var hex=sha256(pw.value);
+    if(hex===HASH){
+      gate.style.transition="opacity 0.5s";
+      gate.style.opacity="0";
+      setTimeout(function(){gate.remove();},500);
+    }else{
+      err.style.opacity="1";
+      pw.value="";
+      setTimeout(function(){err.style.opacity="0";},1800);
+    }
+  });
+})();
+</script>
+
 <div id="grain"></div>
 <div id="term"></div>
 
@@ -514,7 +565,7 @@ async function run(cmd) {
   }
 
   if (cmd === '5') {
-    out('hell yeah, launching zuzanka merger...', 'dim');
+    out('launching zuzanka merger [beta] ...', 'dim');
     await sleep(300);
     window.location.href = 'zuzanka_merger.html';
     return;
@@ -622,7 +673,7 @@ async function cmdHelp() {
   row('2', 'techno zuzanka');
   row('3', 'random łysy');
   row('4', 'witch house zuzanka');
-  row('5', 'zuzanka merger');
+  row('5', 'zuzanka merger  [BETA]');
   row('P', 'pentest suite  [ADMIN ONLY]');
   blank();
   out('  filesystem', 'warn');
@@ -705,7 +756,7 @@ async function boot() {
   );
   await sleep(60);
   outHTML(
-    '  <span style="color:var(--p2)">  5</span><span style="color:var(--p3)">  \u2014  </span><span style="color:var(--p)"><a href="zuzanka_merger.html" style="color:inherit;text-decoration:none;">zuzanka merger</a></span>'
+    '  <span style="color:var(--p2)">  5</span><span style="color:var(--p3)">  \u2014  </span><span style="color:var(--p)"><a href="zuzanka_merger.html" style="color:inherit;text-decoration:none;">zuzanka merger</a></span><span style="color:var(--p4)">  [BETA]</span>'
   );
   await sleep(60);
   outHTML(
